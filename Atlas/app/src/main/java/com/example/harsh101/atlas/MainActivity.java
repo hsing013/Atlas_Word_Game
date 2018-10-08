@@ -1,6 +1,10 @@
 package com.example.harsh101.atlas;
 
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
@@ -11,6 +15,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -25,6 +32,133 @@ public class MainActivity extends AppCompatActivity {
     public EditText password = null;
     public TextView usernameHint = null;
     public BottomNavigationView navigation = null;
+    public Client c = null;
+    public boolean hostConnected = false;
+    public CustomTask loginTemp = null;  //stores temporary login info
+    public CustomTask signupTemp = null; //stores temporary sign up info
+
+    private static class MyHandler extends Handler{  //this allows the serverThread talk with the mainThread(UI thread)
+        private MainActivity myActivity;
+        public MyHandler(MainActivity instance){
+            myActivity = instance;
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            String s = msg.getData().getString("Message");
+            State currentState = myActivity.state;
+            switch (currentState) {
+                case initial_Login:
+                {
+
+                    break;
+                }
+                case initial_Signup:
+                {
+                    break;
+                }
+                case loginAttempt:
+                {
+                    if (s == "HOST DISCONNECTED"){
+                        Toast.makeText(myActivity.getApplicationContext(), "Lost Connection with the server", Toast.LENGTH_LONG).show();
+                        myActivity.state = State.initial_Login;
+                    }
+                    break;
+                }
+                case signupAttempt:
+                {
+                    break;
+                }
+                case loggedIn:
+                {
+
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    };
+
+    public MyHandler handler = new MyHandler(this);
+
+
+    Thread serverThread = new Thread(new Runnable() { //background thread that handles reading and writing of socket
+
+        public void sendMessage(String s){  //send message to main thread (UI thread)
+            Message myMsg = new Message();
+            Bundle bundle = new Bundle();
+            bundle.putString("Message", s);
+            myMsg.setData(bundle);
+            handler.sendMessage(myMsg);
+        }
+        @Override
+        public void run() {
+            hostConnected = c.isConnectedToHost();
+            while (!hostConnected){
+                loginTemp = null;
+                signupTemp = null;
+                sendMessage("HOST DISCONNECTED");
+                hostConnected = c.connectToHost();
+                if (hostConnected){
+                    sendMessage("HOST CONNECTED");
+                }
+                else{
+                    try{
+                        Thread.sleep(500);
+                    }
+                    catch (InterruptedException e){
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            switch (state){
+                case initial_Login:
+                {
+                    break;
+                }
+                case initial_Signup:
+                {
+                    break;
+                }
+                case loginAttempt:
+                {
+                    if (loginTemp != null){
+                        boolean ok = c.sendMessage(loginTemp.prepareLogin());
+                        if (!ok){
+                            sendMessage("Login Failed(4)");
+                            loginTemp = null;
+                        }
+                    }
+                    break;
+                }
+                case signupAttempt:
+                {
+                    if (signupTemp != null){
+                        boolean ok = c.sendMessage(signupTemp.prepareSignup());
+                        if (!ok){
+                            sendMessage("Signup Failed(1)");
+                            signupTemp = null;
+                        }
+                    }
+                    break;
+                }
+                case loggedIn:
+                {
+
+                    break;
+                }
+                default:
+                    break;
+            }
+
+
+        }
+
+
+
+    });
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -66,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
 
         usernameHint.setVisibility(View.INVISIBLE); //initially the username hint is invisible because it belongs to the signup screen
 
-        usernameHint.setText("Username must start with a letter and must be atleast 8 letters long.\n Symbols and whitespace not allowed.");
+        usernameHint.setText("Username must start with a letter and must be at least 8 letters long.\n Symbols and whitespace are not allowed.");
 
     }
 
