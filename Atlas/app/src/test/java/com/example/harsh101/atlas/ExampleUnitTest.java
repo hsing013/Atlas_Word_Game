@@ -1,4 +1,4 @@
-package com.example.harsh101.myapplication;
+package com.example.harsh101.atlas;
 
 import org.junit.Test;
 

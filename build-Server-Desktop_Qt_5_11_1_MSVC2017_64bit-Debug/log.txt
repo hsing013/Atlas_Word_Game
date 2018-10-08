@@ -1,0 +1,23 @@
+
+
+Sun Oct 7 18:52:13 2018
+query was not valid
+
+Creating: admin pass
+
+
+Sun Oct 7 18:59:25 2018
+user table does not exist
+query was not valid
+
+Creating: admin pass
+
+
+Sun Oct 7 18:59:37 2018
+
+Creating: admin pass
+
+
+Sun Oct 7 19:00:50 2018
+
+Creating: admin pass

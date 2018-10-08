@@ -1,4 +1,4 @@
-package com.example.harsh101.myapplication;
+package com.example.harsh101.atlas;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.example.harsh101.myapplication", appContext.getPackageName());
+        assertEquals("com.example.harsh101.atlas", appContext.getPackageName());
     }
 }
