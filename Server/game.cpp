@@ -78,6 +78,8 @@ void Game::timerTrigger(){
         return;
     }
 
+    player1->g = NULL;
+    player2->g = NULL;
     gameDone = true;
 
     currentPlayer->newMessage("<$GAME$>$lost$");

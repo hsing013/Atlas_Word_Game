@@ -10,9 +10,10 @@ ActiveUser::ActiveUser()
     inGame = false;
     waitingRoom = false;
     inQueue = false;
+    g = NULL;
 }
 
-ActiveUser::ActiveUser(QHash<QString, User *> table) {
+ActiveUser::ActiveUser(QHash<QString, User *> *table) {
     socket = NULL;
     thread = NULL;
     disconnectFlag = false;
@@ -22,6 +23,7 @@ ActiveUser::ActiveUser(QHash<QString, User *> table) {
     inGame = false;
     waitingRoom = false;
     inQueue = false;
+    g = NULL;
 }
 
 ActiveUser::~ActiveUser() {
@@ -50,14 +52,18 @@ void ActiveUser::disconnect() {
 void ActiveUser::messageRecieved() {
 
     //cout << "message recieved\n";
+
     myLock.lock();
+    cout << "Table size: " << userTable->size() << endl;
     if (socket != NULL && !disconnectFlag) {
         char data[1024];
         qint64 read = socket->read(data, sizeof(data));
+
         if (read != -1) {
             QString newMessage = QString(data).toUtf8();
+            cout << "$" << newMessage.toStdString() << "$" << endl;
             message = message + newMessage;
-            emit messageToServer(message);
+
             int index = message.indexOf("\n");
             while (index != -1) {
                 QString split = message.mid(0, index);
@@ -69,6 +75,17 @@ void ActiveUser::messageRecieved() {
                     else if (addF == "<$ADD$>") {
                         addFriend(split.mid(7));
                     }
+                    else if (addF == "<$ADF$>"){
+                        userLock.lock();
+                        QString name = split.mid(7);
+                        User *potentialUser = userTable->value(name);
+                        if (potentialUser == NULL){
+                            sendMessage("<$ADF$>-1");
+                        }
+                        else{
+                            sendMessage("<$ADF$>1");
+                        }
+                    }
                     else if (addF == "<$GAM$>"){
                         QString code = split.mid(7);
                         if (code == "enqueue"){
@@ -79,7 +96,6 @@ void ActiveUser::messageRecieved() {
                         else if (code == "dequeue"){
                             if (waitingRoom){
                                 waitingRoom = false;
-
                             }
                         }
                         else if (code == "quit"){
@@ -89,40 +105,29 @@ void ActiveUser::messageRecieved() {
                         }
                     }
                     else {
-                        int index2 = split.indexOf("$>");
-                        QString to = split.mid(2, index2 - 2);
-                        QString actualMessage = split.mid(index2 + 2, split.size() - 1);
-                        userLock.lock();
-                        User *sendTo = userTable.value(to);
-                        if (sendTo != NULL) {
-                            QString finalMessage = "<" + user->userName + ">" + actualMessage;
-                            sendTo->userSetLock.lock();
-                            if (sendTo->userA != NULL) {
-                                sendTo->userA->newMessage(finalMessage);
-                            }
-                            else {
-                                sendTo->saveMessage(finalMessage);
-                            }
-                            sendTo->userSetLock.unlock();
-                        }
-                        userLock.unlock();
-                        sendSavedMessages();
+
                     }
 
                 }
                 else {
+                    cout << "Yup" << endl;
                     QString code = split.mid(0, 3);
+                    cout << "Code: " << code.toStdString() << endl;
                     int index2 = split.indexOf(" ");
                     QString userName = split.mid(3, index2 - 3);
                     QString pass = split.mid(index2 + 1);
 
                     if (code == "661") {
                         userLock.lock();
-                        User *potentialUser = userTable.value(userName);
+                        cout << "Hello" << endl;
+                        User *potentialUser = userTable->value(userName);
+                        cout << "Bye" << endl;
                         if (potentialUser == NULL) {
+                            cout << "I am here" << endl;
                             sendMessage(QString("<$LOGIN$>-1"));
                         }
                         else {
+                            cout << "I entered the else" << endl;
                             if (potentialUser->pass.compare(pass) != 0) {
                                 sendMessage(QString("<$LOGIN$>-2"));
                             }
@@ -138,12 +143,12 @@ void ActiveUser::messageRecieved() {
                     }
                     else if (code == "662") {
                         userLock.lock();
-                        User *u = userTable.value(userName);
+                        User *u = userTable->value(userName);
                         if (u == NULL) {
                             u = new User();
                             u->userName = userName;
                             u->pass = pass;
-                            userTable.insert(userName, u);
+                            userTable->insert(userName, u);
                             emit saveUser(userName, pass);
                             sendMessage(QString("<$SIGNUP$>1"));
                             this->user = u;
@@ -153,6 +158,10 @@ void ActiveUser::messageRecieved() {
                             sendMessage(QString("<$SIGNUP$>-1"));
                         }
                         userLock.unlock();
+                    }
+                    else{
+                        cout << "FAILURE" << endl;
+                        emit disconnect();
                     }
 
                 }
@@ -166,12 +175,12 @@ void ActiveUser::messageRecieved() {
 
 
 void ActiveUser::sendSavedMessages() {
-    user->messageLock.lock();
-    for (unsigned i = 0; i < user->savedMessages.size(); ++i) {
-        sendMessage(user->savedMessages.at(i));
-    }
-    user->savedMessages.resize(0);
-    user->messageLock.unlock();
+//    user->messageLock.lock();
+//    for (unsigned i = 0; i < user->savedMessages.size(); ++i) {
+//        sendMessage(user->savedMessages.at(i));
+//    }
+//    user->savedMessages.resize(0);
+//    user->messageLock.unlock();
 }
 
 void ActiveUser::sendMessage(QString message) {
@@ -179,6 +188,7 @@ void ActiveUser::sendMessage(QString message) {
         if (message.at(message.size() - 1) != '\n') {
             message = message + "\n";
         }
+        cout << "Sending: " << message.toStdString() << endl;
         string s = message.toStdString();
         if (s.at(s.size() - 1) != '\n') {
             s = s + "\n";
@@ -220,7 +230,7 @@ void ActiveUser::sendFL() {
 
 void ActiveUser::addFriend(QString userName) {
     userLock.lock();
-    User *toAdd = userTable.value(userName);
+    User *toAdd = userTable->value(userName);
 
     if (toAdd == NULL || user->friendExists(userName)) {
         QString result = "<$ADDRESULT$>" + userName + " 0";

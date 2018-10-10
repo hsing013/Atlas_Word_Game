@@ -4,10 +4,11 @@ Server::Server()
 {
     server = new QTcpServer(0);
     db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName("main");
+    db.setDatabaseName("testDB");
 
     bool open = db.open();
 
+    userTable = new QHash<QString, User*>();
 
 
     ofstream out;
@@ -55,7 +56,7 @@ Server::Server()
 
         log ("Creating: " + u->userName + " " + u->pass);
 
-        userTable.insert(u->userName, u);
+        userTable->insert(u->userName, u);
 
         QString tableName = u->userName + "_FL";
 
@@ -81,7 +82,7 @@ Server::Server()
 void Server::listen() {
     server->setMaxPendingConnections(10000);
     connect(server, SIGNAL(newConnection()), this, SLOT(newConnection()));
-    QHostAddress address("10.25.2.50");
+    QHostAddress address("192.168.1.8");
     server->listen(address, 12345);
 }
 
@@ -127,6 +128,10 @@ void Server::newConnection() {
     connect(user, SIGNAL(messageToServer(QString)), this, SLOT(displayMessage(QString)));
     connect(this, SIGNAL(disconnectAll()), user, SLOT(disconnect()));
 
+    QString message = "Hello\nHoopla\nSMAJBSBFHDJBFSBFSDBn";
+
+    user->newMessage(message);
+
 }
 
 void Server::saveUserToDB(QString user, QString pass){
@@ -170,7 +175,6 @@ void Server::disconnectUser(ActiveUser *au) {
 
 void Server::displayMessage(QString message) {
     cout << message.toStdString() << endl;
-    QThread::msleep(1000);
 }
 
 void Server::findPlayerToPlay(ActiveUser *user){

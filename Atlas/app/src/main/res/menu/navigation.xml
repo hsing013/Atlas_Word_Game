@@ -9,11 +9,19 @@
     <item
         android:id="@+id/navigation_dashboard"
         android:icon="@drawable/ic_dashboard_black_24dp"
-        android:title="@string/title_dashboard" />
+        android:title="Leaderboard" />
 
+    <item
+        android:id="@+id/friendList"
+        android:icon="@android:drawable/ic_menu_myplaces"
+        android:title="FriendList" />
     <item
         android:id="@+id/navigation_notifications"
         android:icon="@drawable/ic_notifications_black_24dp"
         android:title="@string/title_notifications" />
+    <item
+        android:id="@+id/settings"
+        android:icon="@android:drawable/ic_menu_manage"
+        android:title="Settings" />
 
 </menu>

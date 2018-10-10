@@ -12,10 +12,10 @@ MAKEFILE      = Makefile
 
 CC            = /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang
 CXX           = /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++
-DEFINES       = -DQT_DEPRECATED_WARNINGS -DQT_QML_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB
+DEFINES       = -DQT_DEPRECATED_WARNINGS -DQT_QML_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_SQL_LIB -DQT_CORE_LIB
 CFLAGS        = -pipe -g $(EXPORT_ARCH_ARGS) -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk -mmacosx-version-min=10.11 -Wall -W -fPIC $(DEFINES)
 CXXFLAGS      = -pipe -stdlib=libc++ -g -std=gnu++11 $(EXPORT_ARCH_ARGS) -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk -mmacosx-version-min=10.11 -Wall -W -fPIC $(DEFINES)
-INCPATH       = -I../Server -I. -I../../../../Applications/5.11.2/clang_64/lib/QtWidgets.framework/Headers -I../../../../Applications/5.11.2/clang_64/lib/QtGui.framework/Headers -I../../../../Applications/5.11.2/clang_64/lib/QtNetwork.framework/Headers -I../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/System/Library/Frameworks/OpenGL.framework/Headers -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/System/Library/Frameworks/AGL.framework/Headers -I. -I../../../../Applications/5.11.2/clang_64/mkspecs/macx-clang -F/Users/harsh101/Applications/5.11.2/clang_64/lib
+INCPATH       = -I../Server -I. -I../../../../Applications/5.11.2/clang_64/lib/QtWidgets.framework/Headers -I../../../../Applications/5.11.2/clang_64/lib/QtGui.framework/Headers -I../../../../Applications/5.11.2/clang_64/lib/QtNetwork.framework/Headers -I../../../../Applications/5.11.2/clang_64/lib/QtSql.framework/Headers -I../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/System/Library/Frameworks/OpenGL.framework/Headers -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/System/Library/Frameworks/AGL.framework/Headers -I. -I../../../../Applications/5.11.2/clang_64/mkspecs/macx-clang -F/Users/harsh101/Applications/5.11.2/clang_64/lib
 QMAKE         = /Users/harsh101/Applications/5.11.2/clang_64/bin/qmake
 DEL_FILE      = rm -f
 CHK_DIR_EXISTS= test -d
@@ -38,7 +38,7 @@ DISTNAME      = Server1.0.0
 DISTDIR = /Users/harsh101/OneDrive/CS_Workspace/Atlas_Word_Game/build-Server-Desktop_Qt_5_11_2_clang_64bit-Debug/.tmp/Server1.0.0
 LINK          = /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++
 LFLAGS        = -stdlib=libc++ -headerpad_max_install_names $(EXPORT_ARCH_ARGS) -Wl,-syslibroot,/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk -mmacosx-version-min=10.11 -Wl,-rpath,@executable_path/Frameworks -Wl,-rpath,/Users/harsh101/Applications/5.11.2/clang_64/lib
-LIBS          = $(SUBLIBS) -F/Users/harsh101/Applications/5.11.2/clang_64/lib -framework QtWidgets -framework QtGui -framework QtCore -framework DiskArbitration -framework IOKit -framework QtNetwork -framework OpenGL -framework AGL 
+LIBS          = $(SUBLIBS) -F/Users/harsh101/Applications/5.11.2/clang_64/lib -framework QtWidgets -framework QtGui -framework QtCore -framework DiskArbitration -framework IOKit -framework QtNetwork -framework QtSql -framework OpenGL -framework AGL 
 AR            = /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ar cq
 RANLIB        = /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ranlib -s
 SED           = sed
@@ -53,18 +53,22 @@ OBJECTS_DIR   = ./
 SOURCES       = ../Server/main.cpp \
 		../Server/mainwindow.cpp \
 		../Server/server.cpp \
-		../Server/activeuser.cpp moc_mainwindow.cpp \
+		../Server/activeuser.cpp \
+		../Server/game.cpp moc_mainwindow.cpp \
 		moc_server.cpp \
 		moc_activeuser.cpp \
-		moc_user.cpp
+		moc_user.cpp \
+		moc_game.cpp
 OBJECTS       = main.o \
 		mainwindow.o \
 		server.o \
 		activeuser.o \
+		game.o \
 		moc_mainwindow.o \
 		moc_server.o \
 		moc_activeuser.o \
-		moc_user.o
+		moc_user.o \
+		moc_game.o
 DIST          = ../../../../Applications/5.11.2/clang_64/mkspecs/features/spec_pre.prf \
 		../../../../Applications/5.11.2/clang_64/mkspecs/qdevice.pri \
 		../../../../Applications/5.11.2/clang_64/mkspecs/features/device_config.prf \
@@ -258,10 +262,12 @@ DIST          = ../../../../Applications/5.11.2/clang_64/mkspecs/features/spec_p
 		../Server/server.h \
 		../Server/include.h \
 		../Server/activeuser.h \
-		../Server/user.h ../Server/main.cpp \
+		../Server/user.h \
+		../Server/game.h ../Server/main.cpp \
 		../Server/mainwindow.cpp \
 		../Server/server.cpp \
-		../Server/activeuser.cpp
+		../Server/activeuser.cpp \
+		../Server/game.cpp
 QMAKE_TARGET  = Server
 DESTDIR       = 
 TARGET        = Server.app/Contents/MacOS/Server
@@ -475,6 +481,7 @@ Makefile: ../Server/Server.pro ../../../../Applications/5.11.2/clang_64/mkspecs/
 		../../../../Applications/5.11.2/clang_64/lib/QtWidgets.framework/QtWidgets.prl \
 		../../../../Applications/5.11.2/clang_64/lib/QtGui.framework/QtGui.prl \
 		../../../../Applications/5.11.2/clang_64/lib/QtNetwork.framework/QtNetwork.prl \
+		../../../../Applications/5.11.2/clang_64/lib/QtSql.framework/QtSql.prl \
 		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/QtCore.prl
 	$(QMAKE) -o Makefile ../Server/Server.pro -spec macx-clang CONFIG+=debug CONFIG+=x86_64 CONFIG+=qml_debug
 ../../../../Applications/5.11.2/clang_64/mkspecs/features/spec_pre.prf:
@@ -670,6 +677,7 @@ Makefile: ../Server/Server.pro ../../../../Applications/5.11.2/clang_64/mkspecs/
 ../../../../Applications/5.11.2/clang_64/lib/QtWidgets.framework/QtWidgets.prl:
 ../../../../Applications/5.11.2/clang_64/lib/QtGui.framework/QtGui.prl:
 ../../../../Applications/5.11.2/clang_64/lib/QtNetwork.framework/QtNetwork.prl:
+../../../../Applications/5.11.2/clang_64/lib/QtSql.framework/QtSql.prl:
 ../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/QtCore.prl:
 qmake: FORCE
 	@$(QMAKE) -o Makefile ../Server/Server.pro -spec macx-clang CONFIG+=debug CONFIG+=x86_64 CONFIG+=qml_debug
@@ -701,8 +709,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents ../../../../Applications/5.11.2/clang_64/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents ../Server/mainwindow.h ../Server/server.h ../Server/include.h ../Server/activeuser.h ../Server/user.h $(DISTDIR)/
-	$(COPY_FILE) --parents ../Server/main.cpp ../Server/mainwindow.cpp ../Server/server.cpp ../Server/activeuser.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents ../Server/mainwindow.h ../Server/server.h ../Server/include.h ../Server/activeuser.h ../Server/user.h ../Server/game.h $(DISTDIR)/
+	$(COPY_FILE) --parents ../Server/main.cpp ../Server/mainwindow.cpp ../Server/server.cpp ../Server/activeuser.cpp ../Server/game.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents ../Server/mainwindow.ui $(DISTDIR)/
 
 
@@ -735,15 +743,17 @@ compiler_moc_predefs_clean:
 moc_predefs.h: ../../../../Applications/5.11.2/clang_64/mkspecs/features/data/dummy.cpp
 	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++ -pipe -stdlib=libc++ -g -std=gnu++11 $(EXPORT_ARCH_ARGS) -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk -mmacosx-version-min=10.11 -Wall -W -dM -E -o moc_predefs.h ../../../../Applications/5.11.2/clang_64/mkspecs/features/data/dummy.cpp
 
-compiler_moc_header_make_all: moc_mainwindow.cpp moc_server.cpp moc_activeuser.cpp moc_user.cpp
+compiler_moc_header_make_all: moc_mainwindow.cpp moc_server.cpp moc_activeuser.cpp moc_user.cpp moc_game.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) moc_mainwindow.cpp moc_server.cpp moc_activeuser.cpp moc_user.cpp
+	-$(DEL_FILE) moc_mainwindow.cpp moc_server.cpp moc_activeuser.cpp moc_user.cpp moc_game.cpp
 moc_mainwindow.cpp: ../../../../Applications/5.11.2/clang_64/lib/QtWidgets.framework/Headers/QMainWindow \
 		../../../../Applications/5.11.2/clang_64/lib/QtWidgets.framework/Headers/qmainwindow.h \
+		../../../../Applications/5.11.2/clang_64/lib/QtWidgets.framework/Headers/QApplication \
+		../../../../Applications/5.11.2/clang_64/lib/QtWidgets.framework/Headers/qapplication.h \
 		../Server/mainwindow.h \
 		moc_predefs.h \
 		../../../../Applications/5.11.2/clang_64/bin/moc
-	/Users/harsh101/Applications/5.11.2/clang_64/bin/moc $(DEFINES) --include /Users/harsh101/OneDrive/CS_Workspace/Atlas_Word_Game/build-Server-Desktop_Qt_5_11_2_clang_64bit-Debug/moc_predefs.h -I/Users/harsh101/Applications/5.11.2/clang_64/mkspecs/macx-clang -I/Users/harsh101/OneDrive/CS_Workspace/Atlas_Word_Game/Server -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtWidgets.framework/Headers -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtGui.framework/Headers -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtNetwork.framework/Headers -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtCore.framework/Headers -I. -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/10.0.0/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/usr/include -F/Users/harsh101/Applications/5.11.2/clang_64/lib ../Server/mainwindow.h -o moc_mainwindow.cpp
+	/Users/harsh101/Applications/5.11.2/clang_64/bin/moc $(DEFINES) --include /Users/harsh101/OneDrive/CS_Workspace/Atlas_Word_Game/build-Server-Desktop_Qt_5_11_2_clang_64bit-Debug/moc_predefs.h -I/Users/harsh101/Applications/5.11.2/clang_64/mkspecs/macx-clang -I/Users/harsh101/OneDrive/CS_Workspace/Atlas_Word_Game/Server -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtWidgets.framework/Headers -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtGui.framework/Headers -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtNetwork.framework/Headers -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtSql.framework/Headers -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtCore.framework/Headers -I. -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/10.0.0/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/usr/include -F/Users/harsh101/Applications/5.11.2/clang_64/lib ../Server/mainwindow.h -o moc_mainwindow.cpp
 
 moc_server.cpp: ../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/QHash \
 		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/qhash.h \
@@ -762,10 +772,21 @@ moc_server.cpp: ../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/He
 		../Server/user.h \
 		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/QObject \
 		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/qobject.h \
+		../Server/game.h \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/QTimer \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/qtimer.h \
+		../../../../Applications/5.11.2/clang_64/lib/QtSql.framework/Headers/QSqlDatabase \
+		../../../../Applications/5.11.2/clang_64/lib/QtSql.framework/Headers/qsqldatabase.h \
+		../../../../Applications/5.11.2/clang_64/lib/QtSql.framework/Headers/QSqlQuery \
+		../../../../Applications/5.11.2/clang_64/lib/QtSql.framework/Headers/qsqlquery.h \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/QDateTime \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/qdatetime.h \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/QQueue \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/qqueue.h \
 		../Server/server.h \
 		moc_predefs.h \
 		../../../../Applications/5.11.2/clang_64/bin/moc
-	/Users/harsh101/Applications/5.11.2/clang_64/bin/moc $(DEFINES) --include /Users/harsh101/OneDrive/CS_Workspace/Atlas_Word_Game/build-Server-Desktop_Qt_5_11_2_clang_64bit-Debug/moc_predefs.h -I/Users/harsh101/Applications/5.11.2/clang_64/mkspecs/macx-clang -I/Users/harsh101/OneDrive/CS_Workspace/Atlas_Word_Game/Server -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtWidgets.framework/Headers -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtGui.framework/Headers -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtNetwork.framework/Headers -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtCore.framework/Headers -I. -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/10.0.0/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/usr/include -F/Users/harsh101/Applications/5.11.2/clang_64/lib ../Server/server.h -o moc_server.cpp
+	/Users/harsh101/Applications/5.11.2/clang_64/bin/moc $(DEFINES) --include /Users/harsh101/OneDrive/CS_Workspace/Atlas_Word_Game/build-Server-Desktop_Qt_5_11_2_clang_64bit-Debug/moc_predefs.h -I/Users/harsh101/Applications/5.11.2/clang_64/mkspecs/macx-clang -I/Users/harsh101/OneDrive/CS_Workspace/Atlas_Word_Game/Server -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtWidgets.framework/Headers -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtGui.framework/Headers -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtNetwork.framework/Headers -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtSql.framework/Headers -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtCore.framework/Headers -I. -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/10.0.0/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/usr/include -F/Users/harsh101/Applications/5.11.2/clang_64/lib ../Server/server.h -o moc_server.cpp
 
 moc_activeuser.cpp: ../../../../Applications/5.11.2/clang_64/lib/QtNetwork.framework/Headers/QTcpSocket \
 		../../../../Applications/5.11.2/clang_64/lib/QtNetwork.framework/Headers/qtcpsocket.h \
@@ -779,10 +800,13 @@ moc_activeuser.cpp: ../../../../Applications/5.11.2/clang_64/lib/QtNetwork.frame
 		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/QObject \
 		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/qobject.h \
 		../Server/include.h \
+		../Server/game.h \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/QTimer \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/qtimer.h \
 		../Server/activeuser.h \
 		moc_predefs.h \
 		../../../../Applications/5.11.2/clang_64/bin/moc
-	/Users/harsh101/Applications/5.11.2/clang_64/bin/moc $(DEFINES) --include /Users/harsh101/OneDrive/CS_Workspace/Atlas_Word_Game/build-Server-Desktop_Qt_5_11_2_clang_64bit-Debug/moc_predefs.h -I/Users/harsh101/Applications/5.11.2/clang_64/mkspecs/macx-clang -I/Users/harsh101/OneDrive/CS_Workspace/Atlas_Word_Game/Server -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtWidgets.framework/Headers -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtGui.framework/Headers -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtNetwork.framework/Headers -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtCore.framework/Headers -I. -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/10.0.0/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/usr/include -F/Users/harsh101/Applications/5.11.2/clang_64/lib ../Server/activeuser.h -o moc_activeuser.cpp
+	/Users/harsh101/Applications/5.11.2/clang_64/bin/moc $(DEFINES) --include /Users/harsh101/OneDrive/CS_Workspace/Atlas_Word_Game/build-Server-Desktop_Qt_5_11_2_clang_64bit-Debug/moc_predefs.h -I/Users/harsh101/Applications/5.11.2/clang_64/mkspecs/macx-clang -I/Users/harsh101/OneDrive/CS_Workspace/Atlas_Word_Game/Server -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtWidgets.framework/Headers -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtGui.framework/Headers -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtNetwork.framework/Headers -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtSql.framework/Headers -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtCore.framework/Headers -I. -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/10.0.0/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/usr/include -F/Users/harsh101/Applications/5.11.2/clang_64/lib ../Server/activeuser.h -o moc_activeuser.cpp
 
 moc_user.cpp: ../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/QObject \
 		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/qobject.h \
@@ -792,7 +816,18 @@ moc_user.cpp: ../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Head
 		../Server/user.h \
 		moc_predefs.h \
 		../../../../Applications/5.11.2/clang_64/bin/moc
-	/Users/harsh101/Applications/5.11.2/clang_64/bin/moc $(DEFINES) --include /Users/harsh101/OneDrive/CS_Workspace/Atlas_Word_Game/build-Server-Desktop_Qt_5_11_2_clang_64bit-Debug/moc_predefs.h -I/Users/harsh101/Applications/5.11.2/clang_64/mkspecs/macx-clang -I/Users/harsh101/OneDrive/CS_Workspace/Atlas_Word_Game/Server -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtWidgets.framework/Headers -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtGui.framework/Headers -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtNetwork.framework/Headers -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtCore.framework/Headers -I. -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/10.0.0/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/usr/include -F/Users/harsh101/Applications/5.11.2/clang_64/lib ../Server/user.h -o moc_user.cpp
+	/Users/harsh101/Applications/5.11.2/clang_64/bin/moc $(DEFINES) --include /Users/harsh101/OneDrive/CS_Workspace/Atlas_Word_Game/build-Server-Desktop_Qt_5_11_2_clang_64bit-Debug/moc_predefs.h -I/Users/harsh101/Applications/5.11.2/clang_64/mkspecs/macx-clang -I/Users/harsh101/OneDrive/CS_Workspace/Atlas_Word_Game/Server -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtWidgets.framework/Headers -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtGui.framework/Headers -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtNetwork.framework/Headers -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtSql.framework/Headers -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtCore.framework/Headers -I. -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/10.0.0/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/usr/include -F/Users/harsh101/Applications/5.11.2/clang_64/lib ../Server/user.h -o moc_user.cpp
+
+moc_game.cpp: ../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/QObject \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/qobject.h \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/QTimer \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/qtimer.h \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/QMutex \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/qmutex.h \
+		../Server/game.h \
+		moc_predefs.h \
+		../../../../Applications/5.11.2/clang_64/bin/moc
+	/Users/harsh101/Applications/5.11.2/clang_64/bin/moc $(DEFINES) --include /Users/harsh101/OneDrive/CS_Workspace/Atlas_Word_Game/build-Server-Desktop_Qt_5_11_2_clang_64bit-Debug/moc_predefs.h -I/Users/harsh101/Applications/5.11.2/clang_64/mkspecs/macx-clang -I/Users/harsh101/OneDrive/CS_Workspace/Atlas_Word_Game/Server -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtWidgets.framework/Headers -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtGui.framework/Headers -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtNetwork.framework/Headers -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtSql.framework/Headers -I/Users/harsh101/Applications/5.11.2/clang_64/lib/QtCore.framework/Headers -I. -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/10.0.0/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/usr/include -F/Users/harsh101/Applications/5.11.2/clang_64/lib ../Server/game.h -o moc_game.cpp
 
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
@@ -822,12 +857,44 @@ main.o: ../Server/main.cpp ../../../../Applications/5.11.2/clang_64/lib/QtCore.f
 		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/QString \
 		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/qstring.h \
 		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/QHash \
-		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/qhash.h
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/qhash.h \
+		../Server/include.h \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/QMutex \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/qmutex.h \
+		../Server/mainwindow.h \
+		../../../../Applications/5.11.2/clang_64/lib/QtWidgets.framework/Headers/QMainWindow \
+		../../../../Applications/5.11.2/clang_64/lib/QtWidgets.framework/Headers/qmainwindow.h \
+		../../../../Applications/5.11.2/clang_64/lib/QtWidgets.framework/Headers/QApplication \
+		../../../../Applications/5.11.2/clang_64/lib/QtWidgets.framework/Headers/qapplication.h \
+		../Server/server.h \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/QThread \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/qthread.h \
+		../../../../Applications/5.11.2/clang_64/lib/QtNetwork.framework/Headers/QTcpServer \
+		../../../../Applications/5.11.2/clang_64/lib/QtNetwork.framework/Headers/qtcpserver.h \
+		../../../../Applications/5.11.2/clang_64/lib/QtNetwork.framework/Headers/QTcpSocket \
+		../../../../Applications/5.11.2/clang_64/lib/QtNetwork.framework/Headers/qtcpsocket.h \
+		../Server/activeuser.h \
+		../Server/user.h \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/QObject \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/qobject.h \
+		../Server/game.h \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/QTimer \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/qtimer.h \
+		../../../../Applications/5.11.2/clang_64/lib/QtSql.framework/Headers/QSqlDatabase \
+		../../../../Applications/5.11.2/clang_64/lib/QtSql.framework/Headers/qsqldatabase.h \
+		../../../../Applications/5.11.2/clang_64/lib/QtSql.framework/Headers/QSqlQuery \
+		../../../../Applications/5.11.2/clang_64/lib/QtSql.framework/Headers/qsqlquery.h \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/QDateTime \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/qdatetime.h \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/QQueue \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/qqueue.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o ../Server/main.cpp
 
 mainwindow.o: ../Server/mainwindow.cpp ../Server/mainwindow.h \
 		../../../../Applications/5.11.2/clang_64/lib/QtWidgets.framework/Headers/QMainWindow \
 		../../../../Applications/5.11.2/clang_64/lib/QtWidgets.framework/Headers/qmainwindow.h \
+		../../../../Applications/5.11.2/clang_64/lib/QtWidgets.framework/Headers/QApplication \
+		../../../../Applications/5.11.2/clang_64/lib/QtWidgets.framework/Headers/qapplication.h \
 		ui_mainwindow.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o mainwindow.o ../Server/mainwindow.cpp
 
@@ -848,10 +915,21 @@ server.o: ../Server/server.cpp ../Server/Server.h \
 		../Server/activeuser.h \
 		../Server/user.h \
 		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/QObject \
-		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/qobject.h
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/qobject.h \
+		../Server/game.h \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/QTimer \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/qtimer.h \
+		../../../../Applications/5.11.2/clang_64/lib/QtSql.framework/Headers/QSqlDatabase \
+		../../../../Applications/5.11.2/clang_64/lib/QtSql.framework/Headers/qsqldatabase.h \
+		../../../../Applications/5.11.2/clang_64/lib/QtSql.framework/Headers/QSqlQuery \
+		../../../../Applications/5.11.2/clang_64/lib/QtSql.framework/Headers/qsqlquery.h \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/QDateTime \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/qdatetime.h \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/QQueue \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/qqueue.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o server.o ../Server/server.cpp
 
-activeuser.o: ../Server/activeuser.cpp ../Server/ActiveUser.h \
+activeuser.o: ../Server/activeuser.cpp ../Server/activeuser.h \
 		../../../../Applications/5.11.2/clang_64/lib/QtNetwork.framework/Headers/QTcpSocket \
 		../../../../Applications/5.11.2/clang_64/lib/QtNetwork.framework/Headers/qtcpsocket.h \
 		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/QMutex \
@@ -863,8 +941,29 @@ activeuser.o: ../Server/activeuser.cpp ../Server/ActiveUser.h \
 		../Server/user.h \
 		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/QObject \
 		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/qobject.h \
-		../Server/include.h
+		../Server/include.h \
+		../Server/game.h \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/QTimer \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/qtimer.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o activeuser.o ../Server/activeuser.cpp
+
+game.o: ../Server/game.cpp ../Server/game.h \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/QObject \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/qobject.h \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/QTimer \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/qtimer.h \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/QMutex \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/qmutex.h \
+		../Server/activeuser.h \
+		../../../../Applications/5.11.2/clang_64/lib/QtNetwork.framework/Headers/QTcpSocket \
+		../../../../Applications/5.11.2/clang_64/lib/QtNetwork.framework/Headers/qtcpsocket.h \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/QThread \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/qthread.h \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/QHash \
+		../../../../Applications/5.11.2/clang_64/lib/QtCore.framework/Headers/qhash.h \
+		../Server/user.h \
+		../Server/include.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o game.o ../Server/game.cpp
 
 moc_mainwindow.o: moc_mainwindow.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_mainwindow.o moc_mainwindow.cpp
@@ -877,6 +976,9 @@ moc_activeuser.o: moc_activeuser.cpp
 
 moc_user.o: moc_user.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_user.o moc_user.cpp
+
+moc_game.o: moc_game.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_game.o moc_game.cpp
 
 ####### Install
 

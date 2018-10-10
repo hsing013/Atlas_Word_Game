@@ -1,14 +1,19 @@
 package com.example.harsh101.atlas;
 
+import java.util.ArrayList;
+
 public class CustomTask {
     private String TAG;
     private String userName;
     private String pass;
+    public boolean done;
+    public ArrayList<String> commands = null;
 
     public CustomTask(){
         TAG = null;
         userName = null;
         pass = null;
+        done = false;
     }
 
     public void setTAG(String tag){
@@ -27,6 +32,14 @@ public class CustomTask {
         return TAG;
     }
 
+    public String getUserName() {
+        return userName;
+    }
+
+    public String getPass() {
+        return pass;
+    }
+
     public String prepareLogin(){
         if (userName == null || pass == null){
             return null;
@@ -40,5 +53,9 @@ public class CustomTask {
         }
 
         return "662" + userName + " " + pass; //when the server sees 662, it knows to signup
+    }
+
+    public ArrayList<String> getCommands() {
+        return commands;
     }
 }

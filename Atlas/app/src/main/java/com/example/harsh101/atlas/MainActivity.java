@@ -21,21 +21,20 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    enum State {initial_Login, initial_Signup, loginAttempt, signupAttempt, loggedIn}
+    enum State {initial_Login, initial_Signup, loginAttempt, signupAttempt, loggedIn, setup}
 
     public State state = State.initial_Login;
-
-    public Button login = null;
-    public TextView banner = null;
-    public TextView banner2 = null;
-    public EditText userName = null;
-    public EditText password = null;
-    public TextView usernameHint = null;
+    CustomTask loginTemp = null;
+    CustomTask signupTemp = null;
+    CustomTask setupTask = null; //upcoming
+    boolean hostConnected = false;
     public BottomNavigationView navigation = null;
+    public LoginFrag loginFrag = null;
+    public LoadingScreen screen = null;
     public Client c = null;
-    public boolean hostConnected = false;
-    public CustomTask loginTemp = null;  //stores temporary login info
-    public CustomTask signupTemp = null; //stores temporary sign up info
+    public HomeFrag home = null;
+
+
 
     private static class MyHandler extends Handler{  //this allows the serverThread talk with the mainThread(UI thread)
         private MainActivity myActivity;
@@ -45,12 +44,12 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void handleMessage(Message msg) {
+            MainActivity m = myActivity;
             String s = msg.getData().getString("Message");
             State currentState = myActivity.state;
             switch (currentState) {
                 case initial_Login:
                 {
-
                     break;
                 }
                 case initial_Signup:
@@ -59,14 +58,70 @@ public class MainActivity extends AppCompatActivity {
                 }
                 case loginAttempt:
                 {
-                    if (s == "HOST DISCONNECTED"){
-                        Toast.makeText(myActivity.getApplicationContext(), "Lost Connection with the server", Toast.LENGTH_LONG).show();
-                        myActivity.state = State.initial_Login;
+                    if (s.compareTo("HOST DISCONNECTED") == 0){
+                        Toast.makeText(m.getApplicationContext(), "Lost Connection with the server", Toast.LENGTH_LONG).show();
+                        m.state = State.initial_Login;
+                        m.loginTemp = null;
+                        m.setFragment(m.loginFrag);
+                        m.loginFrag.disableButton(false);
                     }
+                    else if (s.compareTo("<$LOGIN$>-1") == 0){
+                        Toast.makeText(m.getApplicationContext(), "User doesn't exist.", Toast.LENGTH_LONG).show();
+                        m.state = State.initial_Login;
+                        m.loginTemp = null;
+                        m.setFragment(m.loginFrag);
+                        m.loginFrag.disableButton(false);
+                    }
+                    else if (s.compareTo("<$LOGIN$>-2") == 0){
+                        Toast.makeText(m.getApplicationContext(), "Password is incorrect.", Toast.LENGTH_LONG).show();
+                        m.state = State.initial_Login;
+                        m.loginTemp = null;
+                        m.setFragment(m.loginFrag);
+                        m.loginFrag.disableButton(false);
+                    }
+                    else if (s.compareTo("<$LOGIN$>-4") == 0){
+                        Toast.makeText(m.getApplicationContext(), "Some unknown error occured.", Toast.LENGTH_LONG).show();
+                        m.state = State.initial_Login;
+                        m.loginTemp = null;
+                        m.setFragment(m.loginFrag);
+                        m.loginFrag.disableButton(false);
+                    }
+                    else if (s.compareTo("<$LOGIN$>-3") == 0){
+                        Toast.makeText(m.getApplicationContext(), "User is already signed in.", Toast.LENGTH_LONG).show();
+                        m.state = State.initial_Login;
+                        m.loginTemp = null;
+                        m.setFragment(m.loginFrag);
+                        m.loginFrag.disableButton(false);
+                    }
+                    else if (s.compareTo("<$LOGIN$>1") == 0){
+                        Toast.makeText(m.getApplicationContext(), "Sign in success!", Toast.LENGTH_LONG).show();
+                        m.enterApp();
+                        m.state = State.loggedIn;
+                        m.loginTemp = null;
+                    }
+                    
                     break;
                 }
                 case signupAttempt:
                 {
+                    if (s.compareTo("<$SIGNUP$>1") == 0){
+                        Toast.makeText(m.getApplicationContext(), "Sign up Success!", Toast.LENGTH_LONG).show();
+                        m.enterApp();
+                        m.state = State.loggedIn;
+                        m.signupTemp = null;
+                    }
+                    else if (s.compareTo("<$SIGNUP$>-1") == 0){
+                        Toast.makeText(m.getApplicationContext(), "User exists.", Toast.LENGTH_LONG).show();
+                        m.state = State.initial_Signup;
+                        m.signupTemp = null;
+                        m.loginFrag.disableButton(false);
+                    }
+                    else if (s.compareTo("<$SIGNUP$>-2") == 0){
+                        Toast.makeText(m.getApplicationContext(), "Unknown error occured.", Toast.LENGTH_LONG).show();
+                        m.state = State.initial_Signup;
+                        m.signupTemp = null;
+                        m.loginFrag.disableButton(false);
+                    }
                     break;
                 }
                 case loggedIn:
@@ -77,10 +132,20 @@ public class MainActivity extends AppCompatActivity {
                 default:
                     break;
             }
+
+
+
         }
     };
 
+    public void enterApp(){
+        loginFrag.disableButton(false);
+        navigation.setVisibility(View.VISIBLE);
+        setFragment(home);
+    }
+
     public MyHandler handler = new MyHandler(this);
+
 
 
     Thread serverThread = new Thread(new Runnable() { //background thread that handles reading and writing of socket
@@ -94,66 +159,112 @@ public class MainActivity extends AppCompatActivity {
         }
         @Override
         public void run() {
-            hostConnected = c.isConnectedToHost();
-            while (!hostConnected){
-                loginTemp = null;
-                signupTemp = null;
-                sendMessage("HOST DISCONNECTED");
-                hostConnected = c.connectToHost();
-                if (hostConnected){
-                    sendMessage("HOST CONNECTED");
-                }
-                else{
-                    try{
-                        Thread.sleep(500);
+            System.out.println("I am running");
+            while (true) {
+                hostConnected = c.isConnectedToHost();
+                while (!hostConnected) {
+                    System.out.println("Connecting");
+                    loginTemp = null;
+                    signupTemp = null;
+                    sendMessage("HOST DISCONNECTED");
+                    hostConnected = c.connectToHost();
+                    if (hostConnected) {
+                        sendMessage("HOST CONNECTED");
+                    } else {
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
-                    catch (InterruptedException e){
-                        e.printStackTrace();
+                }
+
+                switch (state) {
+                    case initial_Login: {
+                        break;
+                    }
+                    case initial_Signup: {
+                        break;
+                    }
+                    case loginAttempt: {
+                        if (loginTemp != null && !loginTemp.done) {
+                            boolean ok = c.sendMessage(loginTemp.prepareLogin());
+                            if (!ok) {
+                                sendMessage("<$LOGIN$>-4");
+                                loginTemp = null;
+                            }
+                            loginTemp.done = true;
+                        }
+                        break;
+                    }
+                    case signupAttempt: {
+                        if (signupTemp != null && !signupTemp.done) {
+                            boolean ok = c.sendMessage(signupTemp.prepareSignup());
+                            if (!ok) {
+                                sendMessage("<$SIGNUP$>-2");
+                                signupTemp = null;
+                            }
+                            signupTemp.done = true;
+                        }
+                        break;
+                    }
+                    case loggedIn: {
+
+                        break;
+                    }
+                    default:
+                        break;
+                }
+                System.out.println("Coming out");
+                ArrayList<String> messages = c.readSocket();
+
+                if (messages == null) {
+                    continue;
+                }
+
+                System.out.println("Size of: " + messages.size());
+
+                for (int i = 0; i < messages.size(); ++i) {
+                    String message = messages.get(i);
+                    System.out.println(message);
+                    switch (state) {
+                        case initial_Login: {
+                            break;
+                        }
+                        case initial_Signup: {
+                            break;
+                        }
+                        case loginAttempt: {
+                            if (loginTemp == null){
+                                continue;
+                            }
+                            if (message.compareTo("<$LOGIN$>1") == 0){
+                                c.setUserName(loginTemp.getUserName());
+                                c.setPass(loginTemp.getPass());
+                            }
+                            sendMessage(message);
+                            break;
+                        }
+                        case signupAttempt: {
+                            if (signupTemp == null){
+                                continue;
+                            }
+                            if (message.compareTo("<$SIGNUP$>1") == 0){
+                                c.setUserName(signupTemp.getUserName());
+                                c.setPass(signupTemp.getPass());
+                            }
+                            sendMessage(message);
+                            break;
+                        }
+                        case loggedIn: {
+
+                            break;
+                        }
+                        default:
+                            break;
                     }
                 }
             }
-
-            switch (state){
-                case initial_Login:
-                {
-                    break;
-                }
-                case initial_Signup:
-                {
-                    break;
-                }
-                case loginAttempt:
-                {
-                    if (loginTemp != null){
-                        boolean ok = c.sendMessage(loginTemp.prepareLogin());
-                        if (!ok){
-                            sendMessage("Login Failed(4)");
-                            loginTemp = null;
-                        }
-                    }
-                    break;
-                }
-                case signupAttempt:
-                {
-                    if (signupTemp != null){
-                        boolean ok = c.sendMessage(signupTemp.prepareSignup());
-                        if (!ok){
-                            sendMessage("Signup Failed(1)");
-                            signupTemp = null;
-                        }
-                    }
-                    break;
-                }
-                case loggedIn:
-                {
-
-                    break;
-                }
-                default:
-                    break;
-            }
-
-
         }
 
 
@@ -172,6 +283,10 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 case R.id.navigation_notifications:
                     return true;
+                case R.id.settings:
+                    return true;
+                case R.id.friendList:
+                    return true;
             }
             return false;
         }
@@ -186,53 +301,81 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        System.out.println("I am here");
         setContentView(R.layout.activity_main);
+        System.out.print("I am here2");
         navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         navigation.setVisibility(View.INVISIBLE); //initially the bottom tab bar is invisible
 
-        login = findViewById(R.id.loginButton);
-        banner = findViewById(R.id.banner);
-        banner2 = findViewById(R.id.signUptext);
-        userName = findViewById(R.id.userNameInput);
-        password = findViewById(R.id.passwordInput);
-        usernameHint = findViewById(R.id.userNameHint);
 
-        usernameHint.setVisibility(View.INVISIBLE); //initially the username hint is invisible because it belongs to the signup screen
+        System.out.println("I am here3");
 
-        usernameHint.setText("Username must start with a letter and must be at least 8 letters long.\n Symbols and whitespace are not allowed.");
+        c = new Client();
+
+        serverThread.start();
+
+        loginFrag = new LoginFrag();
+
+        screen = new LoadingScreen();
+
+        home = new HomeFrag();
+
+        setFragment(loginFrag);
+
+        System.out.println("I am leaving");
 
     }
+
+
+
+
+    public void loginButtonClick(View v){
+        System.out.println("Button clicked");
+        if (!hostConnected){
+            Toast.makeText(getApplicationContext(), "Not connected to server", Toast.LENGTH_LONG).show();
+            return;
+        }
+        loginFrag.disableButton(true);
+        ArrayList<String> info = loginFrag.readInput();
+        if (info != null){
+            if (state == State.initial_Login){
+                loginTemp = new CustomTask();
+                loginTemp.setTAG("LOGIN");
+                loginTemp.setUserName(info.get(0));
+                loginTemp.setPass(info.get(1));
+                state = State.loginAttempt;
+            }
+            else if (state == State.initial_Signup){
+                signupTemp = new CustomTask();
+                signupTemp.setTAG("LOGIN");
+                signupTemp.setUserName(info.get(0));
+                signupTemp.setPass(info.get(1));
+                state = State.signupAttempt;
+            }
+        }
+        else{
+            loginFrag.disableButton(false);
+        }
+    }
+
+
 
     /*If the user hits the looking for signup
         text then it switches them to signup screen
         but if the click it again, it will take them back to the
         login screen
      */
-
-    public void signUpClick(View v){
+    public void onSignUpClick(View v){
+        System.out.print("I work!");
         if (state == State.initial_Login){
-            login.setText("Signup");
-            banner.setText("Signup here!");
-            banner2.setText("Back to the Login?");
-            userName.setText("");
-            password.setText("");
             state = State.initial_Signup;
-            usernameHint.setVisibility(View.VISIBLE);
+            loginFrag.flipToSignUp(true);
         }
         else{
-            login.setText("Login");
-            banner.setText("Login here!");
-            banner2.setText("Looking to signup?");
-            userName.setText("");
-            password.setText("");
             state = State.initial_Login;
-            usernameHint.setVisibility(View.INVISIBLE);
+            loginFrag.flipToSignUp(false);
         }
-    }
-
-    public void loginButtonClick(View v){
-
     }
 
 }

@@ -27,7 +27,7 @@ public:
     Game *g;
     QThread *mainThread;
     ActiveUser();
-    ActiveUser(QHash<QString, User*> table);
+    ActiveUser(QHash<QString, User*> *table);
     ~ActiveUser();
 
 signals:
@@ -44,7 +44,7 @@ public slots:
     void addFriend(QString);
     void sendSavedMessages();
 private:
-    QHash<QString, User*> userTable;
+    QHash<QString, User*> *userTable;
 
 
 };

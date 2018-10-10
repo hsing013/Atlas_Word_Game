@@ -24,7 +24,7 @@ public class Client {
     private boolean connectedToHost;
     private PrintWriter pw;
     private BufferedReader br;
-    private String messageBuffer;
+    private String messageBuffer = null;
 
     public Client(){
         socket = null;
@@ -67,11 +67,13 @@ public class Client {
     }
 
     public boolean connectToHost(){ //this is where the client is going to attempt to connect to the server
+        //System.out.println("I enter cth");
         if (socket != null){
             try{
                 socket.close();
             }
             catch (IOException e){
+                e.printStackTrace();
                 connectedToHost = false;
                 return false;
             }
@@ -79,17 +81,18 @@ public class Client {
         }
 
         socket = new Socket();
-        InetSocketAddress isa = new InetSocketAddress("192.168.1.3", 12345); // this is the address of the server
+        InetSocketAddress isa = new InetSocketAddress("192.168.1.8", 12345); // this is the address of the server
         pw = null;
         br = null;
 
         try{
             socket.connect(isa, 1000); //tries to connect to the server, waits until 1 second
             socket.setSoTimeout(1000); //if connected, this sets the timeout for the reading of the socket
-            pw = new PrintWriter(socket.getOutputStream(), true); //allows us to write to the socket
+            pw = new PrintWriter(socket.getOutputStream(), false); //allows us to write to the socket
             br = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8")); //allows us to read the socket
         }
         catch (IOException e){
+            e.printStackTrace();
             connectedToHost = false;
             return false;
         }
@@ -110,10 +113,12 @@ public class Client {
         }
 
         if (message.charAt(message.length() - 1) != '\n'){
-            message = message + "\n";
+            message = message + '\n';
         }
-
+        System.out.println("Sending: " + message + " " + "size: " + message.length());
         pw.write(message);
+
+        pw.flush();
 
         return true;
 
@@ -124,8 +129,13 @@ public class Client {
      */
 
     public ArrayList<String> readSocket(){
+        //System.out.println("I enter");
         if (socket == null || !connectedToHost){
             return null;
+        }
+
+        if (messageBuffer == null){
+            messageBuffer = "";
         }
 
         ArrayList<String> messages = null;
@@ -133,10 +143,12 @@ public class Client {
         int read = 0;
 
         while (read != -1){  //this reads character by character
+
             try{
                 read = br.read();
                 if (read != -1){
                     char character = (char) read;
+
                     messageBuffer = messageBuffer + character;
                 }
                 else{  //this means the socket has been disconnected
@@ -174,7 +186,7 @@ public class Client {
             messageBuffer = messageBuffer.substring(index + 1, messageBuffer.length());
             index = messageBuffer.indexOf('\n');
         }
-
+        //System.out.println("I leave");
         return messages;
 
     }

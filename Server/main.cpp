@@ -29,10 +29,9 @@ int main(int argc, char *argv[])
 
     w.show();
 
-    Server s;
+    Server *s = new Server();
 
-    s.listen();
-
+    s->listen();
 
 
     return a.exec();

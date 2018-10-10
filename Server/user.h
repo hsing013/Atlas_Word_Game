@@ -18,7 +18,7 @@ public:
     vector <QString> friendList;
     QString color;
     int favNumber;
-    vector <QString> savedMessages;
+
     QString message;
     ActiveUser *userA;
     QMutex userSetLock;
@@ -71,7 +71,7 @@ public slots:
     }
     void saveMessage(QString s){
         messageLock.lock();
-        savedMessages.push_back(s);
+
         messageLock.unlock();
     }
 signals:

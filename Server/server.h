@@ -15,6 +15,7 @@
 #include "QSqlQuery"
 #include <QDateTime>
 #include <QQueue>
+
 using namespace std;
 
 
@@ -42,7 +43,7 @@ signals:
     void disconnectAll();
 private:
    QTcpServer *server;
-   QHash<QString, User*> userTable;
+   QHash<QString, User*> *userTable;
    QSqlDatabase db;
    QQueue<ActiveUser*> queue;
 
