@@ -15,6 +15,7 @@ struct ActiveUser : public QObject
 {
     Q_OBJECT
 public:
+    QTimer *waitTimer;
     QTcpSocket *socket;
     QThread *thread;
     QMutex myLock;
@@ -37,6 +38,7 @@ signals:
     void messageToServer(QString);
     void playGame(ActiveUser*);
     void removeFromQueue(ActiveUser*);
+    void stopTimer();
 public slots:
     void messageRecieved();
     void disconnect();
@@ -44,6 +46,7 @@ public slots:
     void sendMessage(QString);
     void addFriend(QString);
     void sendSavedMessages();
+    void timerTrigger();
 private:
     QHash<QString, User*> *userTable;
 

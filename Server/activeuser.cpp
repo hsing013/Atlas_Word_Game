@@ -11,6 +11,9 @@ ActiveUser::ActiveUser()
     waitingRoom = false;
     inQueue = false;
     g = NULL;
+    waitTimer = new QTimer(NULL);
+    connect(waitTimer, SIGNAL(timeout()), this, SLOT(timerTrigger()));
+    connect(this, SIGNAL(stopTimer()), waitTimer, SLOT(stop()));
 }
 
 ActiveUser::ActiveUser(QHash<QString, User *> *table) {
@@ -24,6 +27,8 @@ ActiveUser::ActiveUser(QHash<QString, User *> *table) {
     waitingRoom = false;
     inQueue = false;
     g = NULL;
+    waitTimer = new QTimer();
+    connect(waitTimer, SIGNAL(timeout()), this, SLOT(timerTrigger()));
 }
 
 ActiveUser::~ActiveUser() {
@@ -43,6 +48,10 @@ void ActiveUser::disconnect() {
         g->userDisconnected(this);
         myLock.lock();
     }
+    if (waitTimer->isActive()){
+        waitTimer->stop();
+    }
+    waitTimer->deleteLater();
     this->moveToThread(mainThread);
     socket->moveToThread(mainThread);
     emit disconnectUser(this);
@@ -52,22 +61,41 @@ void ActiveUser::disconnect() {
 void ActiveUser::messageRecieved() {
 
     //cout << "message recieved\n";
-
+     cout << "New message" << QThread::currentThreadId() <<  endl;
     myLock.lock();
     cout << "Table size: " << userTable->size() << endl;
     if (socket != NULL && !disconnectFlag) {
         char data[1024];
         qint64 read = socket->read(data, sizeof(data));
 
+        cout << read << endl;
+
+        cout << data << endl;
+
         if (read != -1) {
             QString newMessage = QString(data).toUtf8();
+            qint64 size = newMessage.size();
+            if (read != newMessage.size()){
+                cout << "I was triggered" << endl;
+                int diff = abs(read - size);
+                cout << diff << endl;
+                newMessage = newMessage.mid(0, newMessage.size() - diff);
+            }
             cout << "$" << newMessage.toStdString() << "$" << endl;
+            cout << "New message size: " << newMessage.size() << endl;
+            cout << "Last one: " << newMessage.at(newMessage.size() - 1).toLatin1() << endl;
+
+
+
             message = message + newMessage;
 
             int index = message.indexOf("\n");
             while (index != -1) {
                 QString split = message.mid(0, index);
+                cout << split.toStdString() << endl;
                 QString addF = message.mid(0, 7);
+                QString game = message.mid(0, 8);
+                QString gameWord = message.mid(0, 9);
                 if (user != NULL) {  //if the user is logged in
                     if (split == "<$GETFL$>") {
                         sendFL();
@@ -86,26 +114,33 @@ void ActiveUser::messageRecieved() {
                             sendMessage("<$ADF$>1");
                         }
                     }
-                    else if (addF == "<$GAM$>"){
-                        QString code = split.mid(7);
+                    else if (game == "<$GAME$>"){
+                        QString code = split.mid(8);
                         if (code == "enqueue"){
                             if (inGame || waitingRoom){
                                continue;
                             }
-                        }
-                        else if (code == "dequeue"){
-                            if (waitingRoom){
-                                waitingRoom = false;
+                            else{
+                                waitTimer->start(10000);
+                                emit playGame(this);
+                                waitingRoom = true;
+                                inQueue = true;
                             }
                         }
                         else if (code == "quit"){
-                            if (inGame){
-
+                            if (inGame && g != NULL){
+                                myLock.unlock();
+                                g->userQuit(this);
+                                myLock.lock();
                             }
                         }
                     }
-                    else {
-
+                    else if (gameWord == "<$GAMEW$>"){
+                        if (inGame && g != NULL){
+                            myLock.unlock();
+                            g->updateGame(this, split.mid(9));
+                            myLock.lock();
+                        }
                     }
 
                 }
@@ -174,6 +209,22 @@ void ActiveUser::messageRecieved() {
 }
 
 
+void ActiveUser::timerTrigger(){
+    cout << "timer" << QThread::currentThreadId() <<  endl;
+    myLock.lock();
+
+    if (!inGame && waitTimer != NULL && inQueue){
+        waitingRoom = false;
+        waitTimer->stop();
+        sendMessage("<$GAME$>$NOTFOUND$");
+        emit removeFromQueue(this);
+    }
+    else{
+        waitTimer->stop();
+    }
+    myLock.unlock();
+}
+
 void ActiveUser::sendSavedMessages() {
 //    user->messageLock.lock();
 //    for (unsigned i = 0; i < user->savedMessages.size(); ++i) {
@@ -184,6 +235,9 @@ void ActiveUser::sendSavedMessages() {
 }
 
 void ActiveUser::sendMessage(QString message) {
+    if (user != NULL){
+    cout << user->userName.toStdString() << endl;
+    }
     if (socket != NULL && !disconnectFlag) {
         if (message.at(message.size() - 1) != '\n') {
             message = message + "\n";

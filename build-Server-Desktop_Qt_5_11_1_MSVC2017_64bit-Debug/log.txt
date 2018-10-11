@@ -21,3 +21,293 @@ Creating: admin pass
 Sun Oct 7 19:00:50 2018
 
 Creating: admin pass
+
+
+Thu Oct 11 01:43:08 2018
+query was not valid
+
+Creating: admin pass
+
+
+Thu Oct 11 01:46:18 2018
+
+Creating: admin pass
+
+
+Thu Oct 11 01:54:23 2018
+
+Creating: admin pass
+
+
+Thu Oct 11 01:57:11 2018
+
+Creating: admin pass
+
+
+Thu Oct 11 02:02:57 2018
+
+Creating: admin pass
+
+
+Thu Oct 11 02:04:18 2018
+
+Creating: admin pass
+
+
+Thu Oct 11 02:05:23 2018
+
+Creating: admin pass
+
+
+Thu Oct 11 02:07:29 2018
+
+Creating: admin pass
+
+
+Thu Oct 11 02:12:06 2018
+
+Creating: admin pass
+
+
+Thu Oct 11 02:17:44 2018
+
+Creating: admin pass
+
+
+Thu Oct 11 02:18:58 2018
+
+Creating: admin pass
+
+
+Thu Oct 11 02:20:14 2018
+
+Creating: admin pass
+
+
+Thu Oct 11 02:22:40 2018
+
+Creating: admin pass
+
+
+Thu Oct 11 02:29:51 2018
+
+Creating: admin pass
+
+
+Thu Oct 11 02:31:17 2018
+
+Creating: admin pass
+
+
+Thu Oct 11 02:38:20 2018
+
+Creating: admin pass
+
+
+Thu Oct 11 02:40:20 2018
+
+Creating: admin pass
+
+
+Thu Oct 11 02:42:08 2018
+
+Creating: admin pass
+
+
+Thu Oct 11 02:43:37 2018
+
+Creating: admin pass
+
+
+Thu Oct 11 02:45:44 2018
+
+Creating: admin pass
+
+
+Thu Oct 11 02:46:49 2018
+
+Creating: admin pass
+
+
+Thu Oct 11 02:47:43 2018
+
+Creating: admin pass
+
+
+Thu Oct 11 02:49:27 2018
+
+Creating: admin pass
+
+
+Thu Oct 11 02:50:23 2018
+
+Creating: admin pass
+Error when adding user to DB
+
+
+Thu Oct 11 02:54:38 2018
+
+Creating: admin pass
+Creating: harsh singh
+
+
+Thu Oct 11 02:55:58 2018
+
+Creating: admin pass
+Creating: harsh singh
+
+
+Thu Oct 11 02:56:24 2018
+
+Creating: admin pass
+Creating: harsh singh
+
+
+Thu Oct 11 02:59:56 2018
+
+Creating: admin pass
+Creating: harsh singh
+
+
+Thu Oct 11 03:08:08 2018
+
+Creating: admin pass
+Creating: harsh singh
+
+
+Thu Oct 11 03:13:47 2018
+
+Creating: admin pass
+Creating: harsh singh
+
+
+Thu Oct 11 03:23:09 2018
+
+Creating: admin pass
+Creating: harsh singh
+
+
+Thu Oct 11 03:28:22 2018
+
+Creating: admin pass
+Creating: harsh singh
+
+
+Thu Oct 11 03:28:42 2018
+
+Creating: admin pass
+Creating: harsh singh
+
+
+Thu Oct 11 03:28:58 2018
+
+Creating: admin pass
+Creating: harsh singh
+
+
+Thu Oct 11 03:29:42 2018
+
+Creating: admin pass
+Creating: harsh singh
+
+
+Thu Oct 11 03:29:50 2018
+
+Creating: admin pass
+Creating: harsh singh
+
+
+Thu Oct 11 03:30:24 2018
+
+Creating: admin pass
+Creating: harsh singh
+
+
+Thu Oct 11 03:30:52 2018
+
+Creating: admin pass
+Creating: harsh singh
+
+
+Thu Oct 11 03:35:17 2018
+
+Creating: admin pass
+Creating: harsh singh
+
+
+Thu Oct 11 03:36:17 2018
+
+Creating: admin pass
+Creating: harsh singh
+
+
+Thu Oct 11 03:37:59 2018
+
+Creating: admin pass
+Creating: harsh singh
+
+
+Thu Oct 11 03:38:33 2018
+
+Creating: admin pass
+Creating: harsh singh
+
+
+Thu Oct 11 03:39:03 2018
+
+Creating: admin pass
+Creating: harsh singh
+
+
+Thu Oct 11 03:41:48 2018
+
+Creating: admin pass
+Creating: harsh singh
+
+
+Thu Oct 11 03:45:50 2018
+
+Creating: admin pass
+Creating: harsh singh
+
+
+Thu Oct 11 03:48:27 2018
+
+Creating: admin pass
+Creating: harsh singh
+
+
+Thu Oct 11 03:49:52 2018
+
+Creating: admin pass
+Creating: harsh singh
+
+
+Thu Oct 11 03:55:01 2018
+
+Creating: admin pass
+Creating: harsh singh
+
+
+Thu Oct 11 03:56:42 2018
+
+Creating: admin pass
+Creating: harsh singh
+
+
+Thu Oct 11 03:58:51 2018
+
+Creating: admin pass
+Creating: harsh singh
+
+
+Thu Oct 11 04:00:27 2018
+
+Creating: admin pass
+Creating: harsh singh
+
+
+Thu Oct 11 04:15:38 2018
+
+Creating: admin pass
+Creating: harsh singh

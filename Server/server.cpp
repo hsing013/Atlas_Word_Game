@@ -82,7 +82,7 @@ Server::Server()
 void Server::listen() {
     server->setMaxPendingConnections(10000);
     connect(server, SIGNAL(newConnection()), this, SLOT(newConnection()));
-    QHostAddress address("10.25.0.254");
+    QHostAddress address("192.168.1.11");
     server->listen(address, 12345);
 }
 
@@ -103,7 +103,7 @@ void Server::log(QString s){
 }
 
 void Server::newConnection() {
-    cout << "New connection" << endl;
+    cout << "New connection" << QThread::currentThreadId() <<  endl;
     QTcpSocket *socket = server->nextPendingConnection();
     socket->setParent(NULL);
     ActiveUser *user = new ActiveUser(userTable);
@@ -113,6 +113,10 @@ void Server::newConnection() {
     user->mainThread = QThread::currentThread();
 
     user->thread = new QThread();
+    cout << "Here" << endl;
+    user->waitTimer->moveToThread(user->thread);
+    cout << "Here2" << endl;
+    //user->waitTimer->setParent(user);
 
     user->moveToThread(user->thread);
 
@@ -127,8 +131,12 @@ void Server::newConnection() {
     connect(user, SIGNAL(newMessage(QString)), user, SLOT(sendMessage(QString)));
     connect(user, SIGNAL(messageToServer(QString)), this, SLOT(displayMessage(QString)));
     connect(this, SIGNAL(disconnectAll()), user, SLOT(disconnect()));
-
+    connect(user, SIGNAL(removeFromQueue(ActiveUser*)), this, SLOT(removeFromQueue(ActiveUser*)));
+    connect(user, SIGNAL(playGame(ActiveUser*)), this, SLOT(findPlayerToPlay(ActiveUser*)));
     QString message = "Hello\nHoopla\nSMAJBSBFHDJBFSBFSDBn";
+     cout << "Here2" << endl;
+
+
 
     user->newMessage(message);
 
@@ -145,9 +153,10 @@ void Server::saveUserToDB(QString user, QString pass){
 
 void Server::disconnectUser(ActiveUser *au) {
     cout << "Disconnecting" << endl;
-    removeFromQueue(au);
+
     au->myLock.lock();
     userLock.lock();
+    removeFromQueue(au);
     disconnect(au, 0, 0, 0);
     User *u = au->user;
     if (u == NULL) {
@@ -181,6 +190,14 @@ void Server::displayMessage(QString message) {
 void Server::findPlayerToPlay(ActiveUser *user){
     queueLock.lock();
     user->myLock.lock();
+
+    if (!user->waitingRoom || user->disconnectFlag){
+        user->inQueue = false;
+        user->myLock.unlock();
+        queueLock.unlock();
+        return;
+    }
+
     if (queue.size() == 0){
         queue.append(user);
         user->myLock.unlock();
@@ -197,12 +214,17 @@ void Server::findPlayerToPlay(ActiveUser *user){
             }
             else{
                 Game *g = new Game();
+                emit user->stopTimer();
+                emit other->stopTimer();
                 connect(g, SIGNAL(destroyMe(Game*)), this, SLOT(disconnectGame(Game*)));
+                connect(g, SIGNAL(changeOwnership()), g, SLOT(handControlToMain()));
                 QThread *t = new QThread();
                 connect(t, SIGNAL(started()), g, SLOT(startGame()));
                 g->player1 = user;
                 g->player2 = other;
                 g->myThread = t;
+                g->timer->moveToThread(t);
+                g->mainThread = QThread::currentThread();
                 other->inGame = true;
                 user->inGame = true;
                 other->waitingRoom = false;
@@ -229,10 +251,10 @@ void Server::findPlayerToPlay(ActiveUser *user){
 }
 
 void Server::removeFromQueue(ActiveUser *user){
-    user->myLock.lock();
+    //user->myLock.lock();
     user->inQueue = false;
     queue.removeAll(user);
-    user->myLock.unlock();
+    //user->myLock.unlock();
 }
 
 void Server::disconnectGame(Game *g){

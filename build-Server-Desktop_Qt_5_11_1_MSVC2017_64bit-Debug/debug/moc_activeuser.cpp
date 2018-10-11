@@ -21,8 +21,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_ActiveUser_t {
-    QByteArrayData data[14];
-    char stringdata0[158];
+    QByteArrayData data[17];
+    char stringdata0[197];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -39,19 +39,23 @@ QT_MOC_LITERAL(4, 39, 10), // "newMessage"
 QT_MOC_LITERAL(5, 50, 8), // "saveUser"
 QT_MOC_LITERAL(6, 59, 15), // "messageToServer"
 QT_MOC_LITERAL(7, 75, 8), // "playGame"
-QT_MOC_LITERAL(8, 84, 15), // "messageRecieved"
-QT_MOC_LITERAL(9, 100, 10), // "disconnect"
-QT_MOC_LITERAL(10, 111, 6), // "sendFL"
-QT_MOC_LITERAL(11, 118, 11), // "sendMessage"
-QT_MOC_LITERAL(12, 130, 9), // "addFriend"
-QT_MOC_LITERAL(13, 140, 17) // "sendSavedMessages"
+QT_MOC_LITERAL(8, 84, 15), // "removeFromQueue"
+QT_MOC_LITERAL(9, 100, 9), // "stopTimer"
+QT_MOC_LITERAL(10, 110, 15), // "messageRecieved"
+QT_MOC_LITERAL(11, 126, 10), // "disconnect"
+QT_MOC_LITERAL(12, 137, 6), // "sendFL"
+QT_MOC_LITERAL(13, 144, 11), // "sendMessage"
+QT_MOC_LITERAL(14, 156, 9), // "addFriend"
+QT_MOC_LITERAL(15, 166, 17), // "sendSavedMessages"
+QT_MOC_LITERAL(16, 184, 12) // "timerTrigger"
 
     },
     "ActiveUser\0disconnectUser\0\0ActiveUser*\0"
     "newMessage\0saveUser\0messageToServer\0"
-    "playGame\0messageRecieved\0disconnect\0"
-    "sendFL\0sendMessage\0addFriend\0"
-    "sendSavedMessages"
+    "playGame\0removeFromQueue\0stopTimer\0"
+    "messageRecieved\0disconnect\0sendFL\0"
+    "sendMessage\0addFriend\0sendSavedMessages\0"
+    "timerTrigger"
 };
 #undef QT_MOC_LITERAL
 
@@ -61,27 +65,30 @@ static const uint qt_meta_data_ActiveUser[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-      11,   14, // methods
+      14,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
-       5,       // signalCount
+       7,       // signalCount
 
  // signals: name, argc, parameters, tag, flags
-       1,    1,   69,    2, 0x06 /* Public */,
-       4,    1,   72,    2, 0x06 /* Public */,
-       5,    2,   75,    2, 0x06 /* Public */,
-       6,    1,   80,    2, 0x06 /* Public */,
-       7,    1,   83,    2, 0x06 /* Public */,
+       1,    1,   84,    2, 0x06 /* Public */,
+       4,    1,   87,    2, 0x06 /* Public */,
+       5,    2,   90,    2, 0x06 /* Public */,
+       6,    1,   95,    2, 0x06 /* Public */,
+       7,    1,   98,    2, 0x06 /* Public */,
+       8,    1,  101,    2, 0x06 /* Public */,
+       9,    0,  104,    2, 0x06 /* Public */,
 
  // slots: name, argc, parameters, tag, flags
-       8,    0,   86,    2, 0x0a /* Public */,
-       9,    0,   87,    2, 0x0a /* Public */,
-      10,    0,   88,    2, 0x0a /* Public */,
-      11,    1,   89,    2, 0x0a /* Public */,
-      12,    1,   92,    2, 0x0a /* Public */,
-      13,    0,   95,    2, 0x0a /* Public */,
+      10,    0,  105,    2, 0x0a /* Public */,
+      11,    0,  106,    2, 0x0a /* Public */,
+      12,    0,  107,    2, 0x0a /* Public */,
+      13,    1,  108,    2, 0x0a /* Public */,
+      14,    1,  111,    2, 0x0a /* Public */,
+      15,    0,  114,    2, 0x0a /* Public */,
+      16,    0,  115,    2, 0x0a /* Public */,
 
  // signals: parameters
     QMetaType::Void, 0x80000000 | 3,    2,
@@ -89,6 +96,8 @@ static const uint qt_meta_data_ActiveUser[] = {
     QMetaType::Void, QMetaType::QString, QMetaType::QString,    2,    2,
     QMetaType::Void, QMetaType::QString,    2,
     QMetaType::Void, 0x80000000 | 3,    2,
+    QMetaType::Void, 0x80000000 | 3,    2,
+    QMetaType::Void,
 
  // slots: parameters
     QMetaType::Void,
@@ -96,6 +105,7 @@ static const uint qt_meta_data_ActiveUser[] = {
     QMetaType::Void,
     QMetaType::Void, QMetaType::QString,    2,
     QMetaType::Void, QMetaType::QString,    2,
+    QMetaType::Void,
     QMetaType::Void,
 
        0        // eod
@@ -112,12 +122,15 @@ void ActiveUser::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 2: _t->saveUser((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2]))); break;
         case 3: _t->messageToServer((*reinterpret_cast< QString(*)>(_a[1]))); break;
         case 4: _t->playGame((*reinterpret_cast< ActiveUser*(*)>(_a[1]))); break;
-        case 5: _t->messageRecieved(); break;
-        case 6: _t->disconnect(); break;
-        case 7: _t->sendFL(); break;
-        case 8: _t->sendMessage((*reinterpret_cast< QString(*)>(_a[1]))); break;
-        case 9: _t->addFriend((*reinterpret_cast< QString(*)>(_a[1]))); break;
-        case 10: _t->sendSavedMessages(); break;
+        case 5: _t->removeFromQueue((*reinterpret_cast< ActiveUser*(*)>(_a[1]))); break;
+        case 6: _t->stopTimer(); break;
+        case 7: _t->messageRecieved(); break;
+        case 8: _t->disconnect(); break;
+        case 9: _t->sendFL(); break;
+        case 10: _t->sendMessage((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 11: _t->addFriend((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 12: _t->sendSavedMessages(); break;
+        case 13: _t->timerTrigger(); break;
         default: ;
         }
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
@@ -131,6 +144,13 @@ void ActiveUser::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
             }
             break;
         case 4:
+            switch (*reinterpret_cast<int*>(_a[1])) {
+            default: *reinterpret_cast<int*>(_a[0]) = -1; break;
+            case 0:
+                *reinterpret_cast<int*>(_a[0]) = qRegisterMetaType< ActiveUser* >(); break;
+            }
+            break;
+        case 5:
             switch (*reinterpret_cast<int*>(_a[1])) {
             default: *reinterpret_cast<int*>(_a[0]) = -1; break;
             case 0:
@@ -175,6 +195,20 @@ void ActiveUser::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
                 return;
             }
         }
+        {
+            using _t = void (ActiveUser::*)(ActiveUser * );
+            if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&ActiveUser::removeFromQueue)) {
+                *result = 5;
+                return;
+            }
+        }
+        {
+            using _t = void (ActiveUser::*)();
+            if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&ActiveUser::stopTimer)) {
+                *result = 6;
+                return;
+            }
+        }
     }
 }
 
@@ -203,13 +237,13 @@ int ActiveUser::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 11)
+        if (_id < 14)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 11;
+        _id -= 14;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 11)
+        if (_id < 14)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 11;
+        _id -= 14;
     }
     return _id;
 }
@@ -247,6 +281,19 @@ void ActiveUser::playGame(ActiveUser * _t1)
 {
     void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
     QMetaObject::activate(this, &staticMetaObject, 4, _a);
+}
+
+// SIGNAL 5
+void ActiveUser::removeFromQueue(ActiveUser * _t1)
+{
+    void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
+    QMetaObject::activate(this, &staticMetaObject, 5, _a);
+}
+
+// SIGNAL 6
+void ActiveUser::stopTimer()
+{
+    QMetaObject::activate(this, &staticMetaObject, 6, nullptr);
 }
 QT_WARNING_POP
 QT_END_MOC_NAMESPACE

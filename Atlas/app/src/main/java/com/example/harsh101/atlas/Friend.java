@@ -1,7 +1,7 @@
 package com.example.harsh101.atlas;
 
 public class Friend extends Person {
-    protected numTimesPlayedWith;
+    protected int numTimesPlayedWith;
 
     public Friend()
     {
@@ -9,5 +9,5 @@ public class Friend extends Person {
     }
 
 
-    public int getNumPlayedWith() { return numTimesPlayedWith}
+    public int getNumPlayedWith() { return numTimesPlayedWith;}
 }

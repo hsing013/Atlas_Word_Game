@@ -15,6 +15,7 @@ class Game : public QObject{
 public:
     Game();
     QThread *myThread;
+    QThread *mainThread;
     ActiveUser *player1;
     ActiveUser *player2;
     ActiveUser *currentPlayer;
@@ -28,8 +29,12 @@ public slots:
     void timerTrigger();
     void userDisconnected(ActiveUser*);
     void userQuit(ActiveUser*);
+    void handControlToMain();
 signals:
     void destroyMe(Game*);
+    void changeOwnership();
+    void haltTimer();
+    void startTimer(int);
 private:
 
 };

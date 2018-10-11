@@ -81,14 +81,14 @@ public class Client {
         }
 
         socket = new Socket();
-        InetSocketAddress isa = new InetSocketAddress("10.25.0.254", 12345); // this is the address of the server
+        InetSocketAddress isa = new InetSocketAddress("192.168.1.11", 12345); // this is the address of the server
         pw = null;
         br = null;
 
         try{
             socket.connect(isa, 1000); //tries to connect to the server, waits until 1 second
             socket.setSoTimeout(1000); //if connected, this sets the timeout for the reading of the socket
-            pw = new PrintWriter(socket.getOutputStream(), false); //allows us to write to the socket
+            pw = new PrintWriter(socket.getOutputStream(), true); //allows us to write to the socket
             br = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8")); //allows us to read the socket
         }
         catch (IOException e){
@@ -108,6 +108,7 @@ public class Client {
 
 
     public boolean sendMessage(String message){
+        System.out.println("Size of message before: " + message.length());
         if (socket == null || !connectedToHost){
             return false;
         }

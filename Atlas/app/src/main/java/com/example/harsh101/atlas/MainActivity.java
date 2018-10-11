@@ -18,6 +18,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -35,8 +37,12 @@ public class MainActivity extends AppCompatActivity {
     public LoadingScreen screen = null;
     public Client c = null;
     public HomeFrag home = null;
+    public GameFrag gameFrag = null;
     public ArrayList<CustomTask> list = null;
-
+    public Game onLineGame = null;
+    public Game offlineGame = null;
+    public Lock listLock = new ReentrantLock();
+    public String wordOfTheDay = "hoopla"; //will change later
 
 
     private static class MyHandler extends Handler{  //this allows the serverThread talk with the mainThread(UI thread)
@@ -50,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
             MainActivity m = myActivity;
             String s = msg.getData().getString("Message");
             State currentState = myActivity.state;
+            System.out.println(s);
             switch (currentState) {
                 case initial_Login:
                 {
@@ -129,7 +136,100 @@ public class MainActivity extends AppCompatActivity {
                 }
                 case loggedIn:
                 {
+                    if (s.compareTo("<$GAME$>$DISCONNECTED$") == 0){
+                        if (m.onLineGame != null){
+                            m.onLineGame = null;
+                            m.setFragment(m.home);
+                        }
+                    }
+                    else if (s.compareTo("HOST DISCONNECTED") == 0){
+                        if (m.onLineGame != null){
+                            m.onLineGame.stopTimer();
+                            m.onLineGame = null;
+                            m.gameFrag.endGame();
+                            m.gameFrag.setOther("Lost connection with server.");
+                        }
+                        m.hostConnected = false;
+                    }
+                    else if (s.compareTo("<$GAME$>$NOTFOUND$") == 0){
+                        if (m.onLineGame != null){
+                            m.onLineGame = null;
+                            m.setFragment(m.home);
+                        }
+                    }
+                    else if (s.compareTo("<$GAME$>$first$") == 0){
+                        if (m.onLineGame != null){
+                            System.out.println("I was triggered.");
+                            m.onLineGame.myTurn = true;
+                            m.onLineGame.setMyWord(m.wordOfTheDay);
+                            m.setFragment(m.gameFrag);
+                            System.out.println("i came out");
+                            m.gameFrag.myTurn();
+                            m.gameFrag.setOther("Your word: " + m.wordOfTheDay);
+                            m.gameFrag.setTimer("15");
+                            m.onLineGame.startTimer();
 
+                        }
+                    }
+                    else if (s.compareTo("<$GAME$>$second$") == 0){
+                        if (m.onLineGame != null){
+                            System.out.println("I was triggered2.");
+                            m.onLineGame.myTurn = false;
+                            m.setFragment(m.gameFrag);
+                            System.out.println("i came out2");
+                            m.gameFrag.otherPlayerTurn();
+                            m.gameFrag.setOther("Other players' turn.");
+                            m.gameFrag.setTimer("15");
+                            m.onLineGame.startTimer();
+
+                        }
+                    }
+                    else if (s.compareTo("<$GAME$>$lost$") == 0){
+                        if (m.onLineGame != null) {
+                            m.onLineGame.stopTimer();
+                            m.gameFrag.setOther("You lost!");
+                            m.gameFrag.endGame();
+                        }
+                        m.onLineGame = null;
+                    }
+                    else if (s.compareTo("<$GAME$>$won$") == 0){
+                        if (m.onLineGame != null) {
+                            m.onLineGame.stopTimer();
+                            m.gameFrag.setOther("You won!");
+                            m.gameFrag.endGame();
+                        }
+                        m.onLineGame = null;
+                    }
+                    else if (s.compareTo("<$GAME$>$won2$") == 0){
+                        if (m.onLineGame != null) {
+                            m.onLineGame.stopTimer();
+                            m.gameFrag.setOther("Other user disconnected. Maybe you are too good!");
+                            m.gameFrag.endGame();
+                        }
+                        m.onLineGame = null;
+                    }
+                    else if (s.compareTo("<$GAME$>$won3$") == 0){
+                        if (m.onLineGame != null) {
+                            m.onLineGame.stopTimer();
+                            m.gameFrag.setOther("Other user quit. You are really good!");
+                            m.gameFrag.endGame();
+                        }
+                        m.onLineGame = null;
+                    }
+                    else if (s.contains("<$GAMEW$>")){
+                        if (m.onLineGame != null){
+                            m.onLineGame.myTurn = true;
+                            m.onLineGame.stopTimer();
+                            int index = s.indexOf(">");
+                            String word = s.substring(index + 1);
+                            m.onLineGame.recievedWord(word);
+                            m.onLineGame.setMyWord(word);
+                            m.gameFrag.setOther("Your word: " + word);
+                            m.gameFrag.myTurn();
+                            m.onLineGame.startTimer();
+                            m.gameFrag.setTimer("15");
+                        }
+                    }
                     break;
                 }
                 default:
@@ -163,6 +263,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void run() {
             System.out.println("I am running");
+
             while (true) {
                 hostConnected = c.isConnectedToHost();
                 while (!hostConnected) {
@@ -212,13 +313,22 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     }
                     case loggedIn: {
-                        
+                        listLock.lock();
+                        for (int i = 0; i < list.size(); ++i){
+                            boolean flag = c.sendMessage(list.get(i).getMessage());
+                            if (!flag){
+                                sendMessage("HOST DISCONNECTED");
+                                break;
+                            }
+                        }
+                        list.clear();
+                        listLock.unlock();
                         break;
                     }
                     default:
                         break;
                 }
-                System.out.println("Coming out");
+                //System.out.println("Coming out");
                 ArrayList<String> messages = c.readSocket();
 
                 if (messages == null) {
@@ -238,10 +348,10 @@ public class MainActivity extends AppCompatActivity {
                             break;
                         }
                         case loginAttempt: {
-                            if (loginTemp == null){
+                            if (loginTemp == null) {
                                 continue;
                             }
-                            if (message.compareTo("<$LOGIN$>1") == 0){
+                            if (message.compareTo("<$LOGIN$>1") == 0) {
                                 c.setUserName(loginTemp.getUserName());
                                 c.setPass(loginTemp.getPass());
                             }
@@ -249,10 +359,10 @@ public class MainActivity extends AppCompatActivity {
                             break;
                         }
                         case signupAttempt: {
-                            if (signupTemp == null){
+                            if (signupTemp == null) {
                                 continue;
                             }
-                            if (message.compareTo("<$SIGNUP$>1") == 0){
+                            if (message.compareTo("<$SIGNUP$>1") == 0) {
                                 c.setUserName(signupTemp.getUserName());
                                 c.setPass(signupTemp.getPass());
                             }
@@ -260,13 +370,14 @@ public class MainActivity extends AppCompatActivity {
                             break;
                         }
                         case loggedIn: {
-
+                            sendMessage(message);
                             break;
                         }
                         default:
                             break;
                     }
                 }
+
             }
         }
 
@@ -330,6 +441,8 @@ public class MainActivity extends AppCompatActivity {
 
         System.out.println("I am leaving");
 
+        gameFrag = new GameFrag();
+
     }
 
 
@@ -380,6 +493,53 @@ public class MainActivity extends AppCompatActivity {
         else{
             state = State.initial_Login;
             loginFrag.flipToSignUp(false);
+        }
+    }
+
+    public void onPlayOnline(View v){
+        if (!hostConnected){
+            Toast.makeText(getApplicationContext(), "Not connected to server.", Toast.LENGTH_LONG).show();
+            return;
+        }
+        else if (onLineGame != null){
+            //TODO
+        }
+        setFragment(screen);
+        onLineGame = new Game();
+        onLineGame.gameFrag = gameFrag;
+        gameFrag.currentGame = onLineGame;
+        listLock.lock();
+        CustomTask task = new CustomTask();
+        task.setTAG("<$GAME$>");
+        task.message = "enqueue";
+        list.add(task);
+        listLock.unlock();
+        gameFrag.reset();
+
+    }
+
+    public void onGameSend(View v){
+        if (onLineGame != null){
+            String word = gameFrag.getInput();
+            boolean check = onLineGame.checkWord(word);
+            if (check){
+                onLineGame.stopTimer();
+                CustomTask task = new CustomTask();
+                task.setTAG("<$GAMEW$>");
+                task.message = word;
+                listLock.lock();
+                list.add(task);
+                listLock.unlock();
+                gameFrag.otherPlayerTurn();
+                gameFrag.setOther("Other players' turn");
+                gameFrag.setTimer("15");
+                onLineGame.startTimer();
+            }
+            else{
+                Toast.makeText(getApplicationContext(), "Choose a different word", Toast.LENGTH_LONG).show();
+                gameFrag.setButton(true);
+                gameFrag.setInputUser(true);
+            }
         }
     }
 
