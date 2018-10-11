@@ -55,7 +55,50 @@ public class LoginFrag extends Fragment {
     }
 
     public boolean checkInput(String name, String pass){
+        if (name == "")
+        {
+            return false;
+        }
 
+        else if (!isLetter(name.charAt(0)))
+        {
+            return false;
+        }
+
+        else if (!StringUtils.isAlphanumeric(name))
+        {
+            for (int i = 0; i < name.length(); ++i)
+            {
+                if (name.charAt(i) == '_') {
+                    continue;
+                }
+
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+        else if (name.contains(" "))
+        {
+            return false;
+        }
+
+        else if (name.length() < 6)
+        {
+            return false;
+        }
+
+        if (pass == "")
+        {
+            return false;
+        }
+
+        else if (pass.contains(" "))
+        {
+            return false;
+        }
 
         return true;
     }
