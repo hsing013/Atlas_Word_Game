@@ -167,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
                             m.gameFrag.myTurn();
                             m.gameFrag.setOther("Your word: " + m.wordOfTheDay);
                             m.gameFrag.setTimer("15");
-                            m.onLineGame.startTimer();
+                            //m.onLineGame.startTimer();
 
                         }
                     }
@@ -180,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
                             m.gameFrag.otherPlayerTurn();
                             m.gameFrag.setOther("Other players' turn.");
                             m.gameFrag.setTimer("15");
-                            m.onLineGame.startTimer();
+                            //m.onLineGame.startTimer();
 
                         }
                     }
@@ -226,8 +226,13 @@ public class MainActivity extends AppCompatActivity {
                             m.onLineGame.setMyWord(word);
                             m.gameFrag.setOther("Your word: " + word);
                             m.gameFrag.myTurn();
-                            m.onLineGame.startTimer();
+                            //m.onLineGame.startTimer();
                             m.gameFrag.setTimer("15");
+                        }
+                    }
+                    else if (s.compareTo("<$GAME$>startTimer") == 0){
+                        if (m.onLineGame != null){
+                            m.onLineGame.startTimer();
                         }
                     }
                     break;

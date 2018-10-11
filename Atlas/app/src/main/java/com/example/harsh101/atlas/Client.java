@@ -81,7 +81,7 @@ public class Client {
         }
 
         socket = new Socket();
-        InetSocketAddress isa = new InetSocketAddress("192.168.1.11", 12345); // this is the address of the server
+        InetSocketAddress isa = new InetSocketAddress("138.68.48.204", 12345); // this is the address of the server
         pw = null;
         br = null;
 

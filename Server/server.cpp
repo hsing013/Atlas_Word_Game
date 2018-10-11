@@ -1,4 +1,4 @@
-#include "Server.h"
+#include "server.h"
 
 Server::Server()
 {
@@ -82,7 +82,7 @@ Server::Server()
 void Server::listen() {
     server->setMaxPendingConnections(10000);
     connect(server, SIGNAL(newConnection()), this, SLOT(newConnection()));
-    QHostAddress address("192.168.1.11");
+    QHostAddress address("138.68.48.204");
     server->listen(address, 12345);
 }
 

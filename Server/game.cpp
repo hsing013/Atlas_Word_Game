@@ -69,6 +69,8 @@ void Game::startGame(){
         player2->newMessage("<$GAME$>$first$");
         player1->newMessage("<$GAME$>$second$");
     }
+    player1->newMessage("<$GAME$>startTimer");
+    player2->newMessage("<$GAME$>startTimer");
     player1->myLock.unlock();
     player2->myLock.unlock();
     gameMutex.unlock();
@@ -134,7 +136,6 @@ void Game::updateGame(ActiveUser *u, QString word){
     emit haltTimer();
     player1->myLock.lock();
     player2->myLock.lock();
-
     if (player1 == u){
         currentPlayer = player2;
         player2->newMessage("<$GAMEW$>" + word);
@@ -143,7 +144,8 @@ void Game::updateGame(ActiveUser *u, QString word){
         currentPlayer = player1;
         player1->newMessage("<$GAMEW$>" + word);
     }
-
+    player1->newMessage("<$GAME$>startTimer");
+    player2->newMessage("<$GAME$>startTimer");
     player1->myLock.unlock();
     player2->myLock.unlock();
     gameMutex.unlock();
