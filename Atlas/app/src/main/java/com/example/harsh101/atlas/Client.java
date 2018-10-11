@@ -105,6 +105,18 @@ public class Client {
 
     }
 
+    public void closeSocket(){
+        if (socket == null){
+            return;
+        }
+        try{
+            socket.close();
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
 
 
     public boolean sendMessage(String message){

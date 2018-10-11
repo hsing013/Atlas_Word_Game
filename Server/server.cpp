@@ -113,9 +113,9 @@ void Server::newConnection() {
     user->mainThread = QThread::currentThread();
 
     user->thread = new QThread();
-    cout << "Here" << endl;
+
     user->waitTimer->moveToThread(user->thread);
-    cout << "Here2" << endl;
+
     //user->waitTimer->setParent(user);
 
     user->moveToThread(user->thread);
@@ -133,12 +133,11 @@ void Server::newConnection() {
     connect(this, SIGNAL(disconnectAll()), user, SLOT(disconnect()));
     connect(user, SIGNAL(removeFromQueue(ActiveUser*)), this, SLOT(removeFromQueue(ActiveUser*)));
     connect(user, SIGNAL(playGame(ActiveUser*)), this, SLOT(findPlayerToPlay(ActiveUser*)));
-    QString message = "Hello\nHoopla\nSMAJBSBFHDJBFSBFSDBn";
-     cout << "Here2" << endl;
 
 
 
-    user->newMessage(message);
+
+
 
 }
 
@@ -188,6 +187,7 @@ void Server::displayMessage(QString message) {
 }
 
 void Server::findPlayerToPlay(ActiveUser *user){
+    cout << "I am enqueuing " << user->user->userName.toStdString() << endl;
     queueLock.lock();
     user->myLock.lock();
 
@@ -211,11 +211,13 @@ void Server::findPlayerToPlay(ActiveUser *user){
                 other->inQueue = false;
                 queue.removeAll(other);
                 other->myLock.unlock();
+                queue.pop_front();
             }
             else{
                 Game *g = new Game();
                 emit user->stopTimer();
                 emit other->stopTimer();
+                removeFromQueue(other);
                 connect(g, SIGNAL(destroyMe(Game*)), this, SLOT(disconnectGame(Game*)));
                 connect(g, SIGNAL(changeOwnership()), g, SLOT(handControlToMain()));
                 QThread *t = new QThread();

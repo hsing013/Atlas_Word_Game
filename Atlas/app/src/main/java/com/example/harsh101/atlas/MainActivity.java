@@ -154,7 +154,8 @@ public class MainActivity extends AppCompatActivity {
                     else if (s.compareTo("<$GAME$>$NOTFOUND$") == 0){
                         if (m.onLineGame != null){
                             m.onLineGame = null;
-                            m.setFragment(m.home);
+                            m.screen.exposeMenu();
+                            m.screen.myBanner.setText("Couldn't find a game!");
                         }
                     }
                     else if (s.compareTo("<$GAME$>$first$") == 0){
@@ -451,7 +452,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
+    public void onDestroy(){
+        super.onDestroy();
+        c.closeSocket();
+    }
 
     public void loginButtonClick(View v){
         System.out.println("Button clicked");
@@ -509,7 +513,9 @@ public class MainActivity extends AppCompatActivity {
         else if (onLineGame != null){
             //TODO
         }
+
         setFragment(screen);
+        navigation.setVisibility(View.INVISIBLE);
         onLineGame = new Game();
         onLineGame.gameFrag = gameFrag;
         gameFrag.currentGame = onLineGame;
@@ -520,6 +526,7 @@ public class MainActivity extends AppCompatActivity {
         list.add(task);
         listLock.unlock();
         gameFrag.reset();
+
 
     }
 
@@ -546,6 +553,11 @@ public class MainActivity extends AppCompatActivity {
                 gameFrag.setInputUser(true);
             }
         }
+    }
+
+    public void returnHome(View v){
+        setFragment(home);
+        navigation.setVisibility(View.VISIBLE);
     }
 
 }
