@@ -82,7 +82,7 @@ Server::Server()
 void Server::listen() {
     server->setMaxPendingConnections(10000);
     connect(server, SIGNAL(newConnection()), this, SLOT(newConnection()));
-    QHostAddress address("192.168.1.8");
+    QHostAddress address("10.25.0.254");
     server->listen(address, 12345);
 }
 
@@ -145,6 +145,7 @@ void Server::saveUserToDB(QString user, QString pass){
 
 void Server::disconnectUser(ActiveUser *au) {
     cout << "Disconnecting" << endl;
+    removeFromQueue(au);
     au->myLock.lock();
     userLock.lock();
     disconnect(au, 0, 0, 0);

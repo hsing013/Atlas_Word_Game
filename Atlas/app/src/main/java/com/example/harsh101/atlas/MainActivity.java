@@ -27,12 +27,15 @@ public class MainActivity extends AppCompatActivity {
     CustomTask loginTemp = null;
     CustomTask signupTemp = null;
     CustomTask setupTask = null; //upcoming
+    CustomTask gamePlay = null;
+    boolean inGame = false;
     boolean hostConnected = false;
     public BottomNavigationView navigation = null;
     public LoginFrag loginFrag = null;
     public LoadingScreen screen = null;
     public Client c = null;
     public HomeFrag home = null;
+    public ArrayList<CustomTask> list = null;
 
 
 
@@ -209,7 +212,7 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     }
                     case loggedIn: {
-
+                        
                         break;
                     }
                     default:
@@ -312,6 +315,8 @@ public class MainActivity extends AppCompatActivity {
         System.out.println("I am here3");
 
         c = new Client();
+
+        list = new ArrayList<>();
 
         serverThread.start();
 

@@ -36,6 +36,7 @@ signals:
     void saveUser(QString, QString);
     void messageToServer(QString);
     void playGame(ActiveUser*);
+    void removeFromQueue(ActiveUser*);
 public slots:
     void messageRecieved();
     void disconnect();

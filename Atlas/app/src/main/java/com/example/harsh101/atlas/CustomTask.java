@@ -7,13 +7,14 @@ public class CustomTask {
     private String userName;
     private String pass;
     public boolean done;
-    public ArrayList<String> commands = null;
+    public String message;
 
     public CustomTask(){
         TAG = null;
         userName = null;
         pass = null;
         done = false;
+        message = "";
     }
 
     public void setTAG(String tag){
@@ -55,7 +56,7 @@ public class CustomTask {
         return "662" + userName + " " + pass; //when the server sees 662, it knows to signup
     }
 
-    public ArrayList<String> getCommands() {
-        return commands;
+    public String getMessage(){
+        return TAG + message;
     }
 }
