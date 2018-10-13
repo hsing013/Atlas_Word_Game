@@ -3,19 +3,17 @@ package com.example.harsh101.atlas;
 public class Person {
     protected String name;
     protected int numPoints;
-    protected int numAchievements;
 
     public Person() {
         name = null;
         numPoints = 0;
-        numAchievements = 0;
+
 
     }
 
     public Person(String newName, int newPoints, int newAchievements){
         name = newName;
         numPoints = newPoints;
-        numAchievements = newAchievements;
     }
 
     public String getName() {
@@ -34,13 +32,6 @@ public class Person {
         this.numPoints = numPoints;
     }
 
-    public int getNumAchievements() {
-        return numAchievements;
-    }
-
-    public void setNumAchievements(int numAchievements) {
-        this.numAchievements = numAchievements;
-    }
 
 
 }
