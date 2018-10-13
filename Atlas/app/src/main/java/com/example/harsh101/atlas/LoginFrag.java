@@ -77,7 +77,7 @@ public class LoginFrag extends Fragment {
 //            return false;
 //        }
 //
-//        else if (!StringUtils.isAlphanumeric(name))
+//        else if ()
 //        {
 //            for (int i = 0; i < name.length(); ++i)
 //            {
