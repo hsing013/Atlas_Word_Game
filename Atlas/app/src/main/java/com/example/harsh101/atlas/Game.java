@@ -37,8 +37,7 @@ public class Game {
     }
 
     public boolean checkWord(String word){
-
-
+        // c = getApplicationContext();
         return true;
     }
     public void startTimer(){

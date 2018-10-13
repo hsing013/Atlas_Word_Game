@@ -41,12 +41,14 @@ public class MainActivity extends AppCompatActivity {
     public ArrayList<CustomTask> list = null;
     public Game onLineGame = null;
     public Game offlineGame = null;
-    public Lock listLock = new ReentrantLock();
+    public Lock lock = new ReentrantLock();
     public String wordOfTheDay = "hoopla"; //will change later
     public LeaderboardFrag leaderboardFrag = null;
+    public Thread serverThread = null;
+    public boolean loggedIn = false;
 
 
-    private static class MyHandler extends Handler{  //this allows the serverThread talk with the mainThread(UI thread)
+    public static class MyHandler extends Handler{  //this allows the serverThread talk with the mainThread(UI thread)
         private MainActivity myActivity;
         public MyHandler(MainActivity instance){
             myActivity = instance;
@@ -58,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
             String s = msg.getData().getString("Message");
             State currentState = myActivity.state;
             System.out.println(s);
+            m.lock.lock();
             switch (currentState) {
                 case initial_Login:
                 {
@@ -75,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
                         m.loginTemp = null;
                         m.setFragment(m.loginFrag);
                         m.loginFrag.disableButton(false);
+                        m.loggedIn = false;
                     }
                     else if (s.compareTo("<$LOGIN$>-1") == 0){
                         Toast.makeText(m.getApplicationContext(), "User doesn't exist.", Toast.LENGTH_LONG).show();
@@ -150,7 +154,16 @@ public class MainActivity extends AppCompatActivity {
                             m.gameFrag.endGame();
                             m.gameFrag.setOther("Lost connection with server.");
                         }
+                        m.loggedIn = false;
                         m.hostConnected = false;
+                        m.c.setMessageBuffer("");
+                    }
+                    else if (s.compareTo("<$LOGIN$>1") == 0){
+                        m.loginTemp = null;
+                        m.loggedIn = true;
+                    }
+                    else if (s.compareTo("<$LOGIN$>-1") == 0 || s.compareTo("<$LOGIN$>-2") == 0 || s.compareTo("<$LOGIN$>-3") == 0 || s.compareTo("<$LOGIN$>-4") == 0){
+                        m.loginTemp = null;
                     }
                     else if (s.compareTo("<$GAME$>$NOTFOUND$") == 0){
                         if (m.onLineGame != null){
@@ -242,7 +255,7 @@ public class MainActivity extends AppCompatActivity {
                 default:
                     break;
             }
-
+            m.lock.unlock();
 
 
         }
@@ -256,9 +269,11 @@ public class MainActivity extends AppCompatActivity {
 
     public MyHandler handler = new MyHandler(this);
 
-
-
-    Thread serverThread = new Thread(new Runnable() { //background thread that handles reading and writing of socket
+    public class MyRunnable implements Runnable{
+        public boolean kill = false;
+        public MyRunnable(){
+            kill = false;
+        }
 
         public void sendMessage(String s){  //send message to main thread (UI thread)
             Message myMsg = new Message();
@@ -267,11 +282,12 @@ public class MainActivity extends AppCompatActivity {
             myMsg.setData(bundle);
             handler.sendMessage(myMsg);
         }
+
         @Override
         public void run() {
             System.out.println("I am running");
 
-            while (true) {
+            while (!kill) {
                 hostConnected = c.isConnectedToHost();
                 while (!hostConnected) {
                     System.out.println("Connecting");
@@ -281,6 +297,7 @@ public class MainActivity extends AppCompatActivity {
                     hostConnected = c.connectToHost();
                     if (hostConnected) {
                         sendMessage("HOST CONNECTED");
+
                     } else {
                         try {
                             Thread.sleep(500);
@@ -289,7 +306,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 }
-
+                lock.lock();
                 switch (state) {
                     case initial_Login: {
                         break;
@@ -320,21 +337,28 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     }
                     case loggedIn: {
-                        listLock.lock();
-                        for (int i = 0; i < list.size(); ++i){
+                        if (!loggedIn && loginTemp == null){
+                            loginTemp = new CustomTask();
+                            loginTemp.setUserName(c.getUserName());
+                            loginTemp.setPass(c.getPass());
+                            c.sendMessage(loginTemp.prepareLogin());
+                            break;
+                        }
+                        for (int i = 0; i < list.size(); ++i) {
                             boolean flag = c.sendMessage(list.get(i).getMessage());
-                            if (!flag){
+                            if (!flag) {
                                 sendMessage("HOST DISCONNECTED");
                                 break;
                             }
                         }
                         list.clear();
-                        listLock.unlock();
+
                         break;
                     }
                     default:
                         break;
                 }
+                lock.unlock();
                 //System.out.println("Coming out");
                 ArrayList<String> messages = c.readSocket();
 
@@ -384,13 +408,16 @@ public class MainActivity extends AppCompatActivity {
                             break;
                     }
                 }
+            }
 
             }
+
+        public void setKill(boolean kill) {
+            this.kill = kill;
         }
+    }
 
 
-
-    });
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -424,19 +451,21 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        System.out.println("I am here");
+        //System.out.println("I am here");
         setContentView(R.layout.activity_main);
-        System.out.print("I am here2");
+        //System.out.print("I am here2");
         navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         navigation.setVisibility(View.INVISIBLE); //initially the bottom tab bar is invisible
 
 
-        System.out.println("I am here3");
+        //System.out.println("I am here3");
 
         c = new Client();
 
         list = new ArrayList<>();
+
+        serverThread = new Thread(new MyRunnable());
 
         serverThread.start();
 
@@ -460,7 +489,34 @@ public class MainActivity extends AppCompatActivity {
     public void onDestroy(){
         super.onDestroy();
         c.closeSocket();
+        System.out.println("On destroy was triggered.");
     }
+
+    public void onPause(){
+        super.onPause();
+        c.closeSocket();
+        c.setMessageBuffer("");
+        System.out.println("On pause was triggered.");
+    }
+
+    public void onStart(){
+        super.onStart();
+        System.out.println("OnStart was triggered.");
+        if (serverThread != null && !serverThread.isAlive()){
+            serverThread = new Thread(new MyRunnable());
+            serverThread.start();
+        }
+    }
+
+    public void onResume(){
+        super.onResume();
+        System.out.println("On resume was triggered.");
+        if (serverThread != null && !serverThread.isAlive()){
+            serverThread = new Thread(new MyRunnable());
+            serverThread.start();
+        }
+    }
+
 
     public void loginButtonClick(View v){
         System.out.println("Button clicked");
@@ -513,6 +569,10 @@ public class MainActivity extends AppCompatActivity {
     public void onPlayOnline(View v){
         if (!hostConnected){
             Toast.makeText(getApplicationContext(), "Not connected to server.", Toast.LENGTH_LONG).show();
+            return;
+        }
+        else if (!loggedIn){
+            Toast.makeText(getApplicationContext(), "User not logged in", Toast.LENGTH_LONG).show();
             return;
         }
         else if (onLineGame != null){

@@ -41,6 +41,11 @@ ActiveUser::~ActiveUser() {
 }
 
 void ActiveUser::disconnect() {
+    string out = "";
+    if (this->user != NULL){
+        out = this->user->userName;
+    }
+    cout << out << " is diconnecting" << endl;
     myLock.lock();
     disconnectFlag = true;
     if (g != NULL){
@@ -61,9 +66,12 @@ void ActiveUser::disconnect() {
 void ActiveUser::messageRecieved() {
 
     //cout << "message recieved\n";
-     cout << "New message" << QThread::currentThreadId() <<  endl;
+    string out = "";
+    if (this->user != NULL){
+        out = this->user->userName.toStdString();
+    }
+    cout << "New message" << QThread::currentThreadId() << out << endl;
     myLock.lock();
-    cout << "Table size: " << userTable->size() << endl;
     if (socket != NULL && !disconnectFlag) {
         char data[1024];
         qint64 read = socket->read(data, sizeof(data));
@@ -145,7 +153,6 @@ void ActiveUser::messageRecieved() {
 
                 }
                 else {
-                    cout << "Yup" << endl;
                     QString code = split.mid(0, 3);
                     cout << "Code: " << code.toStdString() << endl;
                     int index2 = split.indexOf(" ");
@@ -154,9 +161,9 @@ void ActiveUser::messageRecieved() {
 
                     if (code == "661") {
                         userLock.lock();
-                        cout << "Hello" << endl;
+
                         User *potentialUser = userTable->value(userName);
-                        cout << "Bye" << endl;
+
                         if (potentialUser == NULL) {
                             cout << "I am here" << endl;
                             sendMessage(QString("<$LOGIN$>-1"));
