@@ -54,6 +54,7 @@ public class LeaderboardFrag extends Fragment {
     public void addToList(String s) {
         if(s != null) {
             list.add(s);
+            adapter.notifyDataSetChanged();
         }
     }
 
