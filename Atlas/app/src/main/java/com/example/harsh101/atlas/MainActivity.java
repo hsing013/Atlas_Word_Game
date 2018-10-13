@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     public Game offlineGame = null;
     public Lock listLock = new ReentrantLock();
     public String wordOfTheDay = "hoopla"; //will change later
+    public LeaderboardFrag leaderboardFrag = null;
 
 
     private static class MyHandler extends Handler{  //this allows the serverThread talk with the mainThread(UI thread)
@@ -398,8 +399,10 @@ public class MainActivity extends AppCompatActivity {
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.navigation_home:
+                    setFragment(home);
                     return true;
                 case R.id.navigation_dashboard:
+                    setFragment(leaderboardFrag);
                     return true;
                 case R.id.navigation_notifications:
                     return true;
@@ -448,6 +451,8 @@ public class MainActivity extends AppCompatActivity {
         System.out.println("I am leaving");
 
         gameFrag = new GameFrag();
+
+        leaderboardFrag = new LeaderboardFrag();
 
     }
 
