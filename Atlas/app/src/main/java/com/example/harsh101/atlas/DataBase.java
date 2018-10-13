@@ -12,7 +12,7 @@ public class DataBase{
     public DataBase(Context context){
         db = context.openOrCreateDatabase("USERDATA", Context.MODE_PRIVATE, null);
 
-        db.execSQL("CREATE TABLE IF NOT EXISTS CONFIG (USERNAME TEXT, PASSWORD TEXT);"); //will expand to include other data
+        db.execSQL("CREATE TABLE IF NOT EXISTS CONFIG (USERNAME TEXT, PASSWORD TEXT, POINTS INTEGER);"); //will expand to include other data
 
         db.execSQL("CREATE TABLE IF NOT EXISTS FREINDLIST (FRIEND TEXT);");
 
@@ -27,6 +27,7 @@ public class DataBase{
             config = new ArrayList<>(); //ArrayList are like vectors in C++
             config.add(c.getString(0));       //gets the USERNAME
             config.add(c.getString(1));       // gets the PASSWORD
+            config.add(Integer.toString(c.getInt(2)));
         }
         c.close();
         return config;
@@ -34,16 +35,16 @@ public class DataBase{
 
     }
 
-    public void updateConfig(String userName, String pass){
+    public void updateConfig(String userName, String pass, int points){
         Cursor c = db.rawQuery("SELECT * FROM CONFIG", null); //this selects everything from the CONFIG table
 
         c.moveToFirst();
 
         if (c.getCount() == 0){ //table is empty
-            db.execSQL("INSERT INTO CONFIG (USERNAME, PASSWORD) VALUES ('" + userName + "', '" + pass + "');");
+            db.execSQL("INSERT INTO CONFIG (USERNAME, PASSWORD, POINTS) VALUES ('" + userName + "', '" + pass + "', '" + points  + "');");
         }
         else{ //the table is not empty
-            db.execSQL("UPDATE CONFIG SET USERNAME = '" + userName + "', PASSWORD = '" + pass + "';");
+            db.execSQL("UPDATE CONFIG SET USERNAME = '" + userName + "', PASSWORD = '" + pass + "', POINTS = '" + points  + "';");
         }
 
         c.close();

@@ -104,9 +104,11 @@ void Game::timerTrigger(){
     currentPlayer->newMessage("<$GAME$>$lost$");
     if (currentPlayer == player1){
         player2->newMessage("<$GAME$>$won$");
+        player2->user->addPoints(100);
     }
     else{
         player1->newMessage("<$GAME$>$won$");
+        player1->user->addPoints(100);
     }
 
 
@@ -168,9 +170,11 @@ void Game::userDisconnected(ActiveUser *user){
 
     if (user == player1){
         player2->newMessage("<$GAME$>$won2$");
+        player2->user->addPoints(50);
     }
     else{
         player1->newMessage("<$GAME$>$won2$");
+        player1->user->addPoints(50);
     }
     player1->g = NULL;
     player2->g = NULL;
@@ -202,9 +206,11 @@ void Game::userQuit(ActiveUser *user){
 
     if (user == player1){
         player2->newMessage("<$GAME$>$won3$");
+        player2->user->addPoints(50);
     }
     else{
         player1->newMessage("<$GAME$>$won3$");
+        player2->user->addPoints(50);
     }
     player1->g = NULL;
     player2->g = NULL;

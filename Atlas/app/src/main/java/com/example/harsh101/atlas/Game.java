@@ -36,7 +36,8 @@ public class Game {
     }
 
     public void recievedWord(String word){
-
+        usedWords.add(word);
+        setMyWord(word);
     }
 
     public void setMyWord(String s){
@@ -44,13 +45,15 @@ public class Game {
     }
 
     public boolean checkWord(String word){
-<<<<<<< HEAD
-        // c = getApplicationContext();
-        return true;
-=======
+
+
         if(original.contains(word)) {
             if(usedWords.contains(word)) {
                 Toast.makeText(m.getApplicationContext(), "Word already used!", Toast.LENGTH_LONG).show();
+                return false;
+            }
+            else if (myWord.charAt(myWord.length() - 1) != word.charAt(0)){
+                Toast.makeText(m.getApplicationContext(), "Word must start with " + myWord.charAt(myWord.length() - 1), Toast.LENGTH_LONG).show();
                 return false;
             }
             else {
@@ -62,7 +65,7 @@ public class Game {
             Toast.makeText(m.getApplicationContext(), "Word does not exist", Toast.LENGTH_LONG).show();
             return false;
         }
->>>>>>> f1e4b9dbce3f27f0d7d2276d812e7bde8809518a
+
     }
     public void startTimer(){
         //++timerTurn;

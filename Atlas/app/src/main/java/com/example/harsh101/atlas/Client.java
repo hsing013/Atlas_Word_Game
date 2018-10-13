@@ -25,6 +25,7 @@ public class Client {
     private PrintWriter pw;
     private BufferedReader br;
     private String messageBuffer = null;
+    private int myPoints = 0;
 
     public Client(){
         socket = null;
@@ -64,6 +65,10 @@ public class Client {
 
     public String getMessageBuffer() {
         return messageBuffer;
+    }
+
+    public void addToPoints(int add){
+        myPoints = myPoints + add;
     }
 
     public boolean connectToHost(){ //this is where the client is going to attempt to connect to the server
@@ -204,4 +209,11 @@ public class Client {
 
     }
 
+    public int getMyPoints() {
+        return myPoints;
+    }
+
+    public void setMyPoints(int myPoints) {
+        this.myPoints = myPoints;
+    }
 }

@@ -43,7 +43,7 @@ ActiveUser::~ActiveUser() {
 void ActiveUser::disconnect() {
     string out = "";
     if (this->user != NULL){
-        out = this->user->userName;
+        out = this->user->userName.toStdString();
     }
     cout << out << " is diconnecting" << endl;
     myLock.lock();

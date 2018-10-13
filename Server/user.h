@@ -18,7 +18,7 @@ public:
     vector <QString> friendList;
     QString color;
     int favNumber;
-
+    int points;
     QString message;
     ActiveUser *userA;
     QMutex userSetLock;
@@ -30,6 +30,7 @@ public:
         color = "";
         favNumber = -1;
         userA = NULL;
+        points = 0;
     }
     ~User(){
 
@@ -57,6 +58,14 @@ public slots:
          }
          friendLock.unlock();
          return false;
+    }
+
+    void addPoints(int add){
+        points += add;
+    }
+
+    int getPoints(){
+        return points;
     }
 
     void addFriend(QString myFriend, bool initialStartup){

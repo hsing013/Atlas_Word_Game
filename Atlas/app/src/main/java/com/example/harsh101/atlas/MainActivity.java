@@ -17,7 +17,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -46,6 +50,8 @@ public class MainActivity extends AppCompatActivity {
     public LeaderboardFrag leaderboardFrag = null;
     public Thread serverThread = null;
     public boolean loggedIn = false;
+    public HashSet<String> wordTable = null;
+    public DataBase db = null;
 
 
     public static class MyHandler extends Handler{  //this allows the serverThread talk with the mainThread(UI thread)
@@ -113,6 +119,7 @@ public class MainActivity extends AppCompatActivity {
                         m.enterApp();
                         m.state = State.loggedIn;
                         m.loginTemp = null;
+                        m.loggedIn = true;
                     }
                     
                     break;
@@ -144,7 +151,9 @@ public class MainActivity extends AppCompatActivity {
                     if (s.compareTo("<$GAME$>$DISCONNECTED$") == 0){
                         if (m.onLineGame != null){
                             m.onLineGame = null;
-                            m.setFragment(m.home);
+                            m.screen.exposeMenu();
+                            m.screen.myBanner.setText("Game disconnected!");
+                            m.setFragment(m.screen);
                         }
                     }
                     else if (s.compareTo("HOST DISCONNECTED") == 0){
@@ -212,6 +221,7 @@ public class MainActivity extends AppCompatActivity {
                             m.onLineGame.stopTimer();
                             m.gameFrag.setOther("You won!");
                             m.gameFrag.endGame();
+                            m.c.addToPoints(100);
                         }
                         m.onLineGame = null;
                     }
@@ -220,6 +230,7 @@ public class MainActivity extends AppCompatActivity {
                             m.onLineGame.stopTimer();
                             m.gameFrag.setOther("Other user disconnected. Maybe you are too good!");
                             m.gameFrag.endGame();
+                            m.c.addToPoints(50);
                         }
                         m.onLineGame = null;
                     }
@@ -228,6 +239,7 @@ public class MainActivity extends AppCompatActivity {
                             m.onLineGame.stopTimer();
                             m.gameFrag.setOther("Other user quit. You are really good!");
                             m.gameFrag.endGame();
+                            m.c.addToPoints(50);
                         }
                         m.onLineGame = null;
                     }
@@ -238,7 +250,7 @@ public class MainActivity extends AppCompatActivity {
                             int index = s.indexOf(">");
                             String word = s.substring(index + 1);
                             m.onLineGame.recievedWord(word);
-                            m.onLineGame.setMyWord(word);
+                            //m.onLineGame.setMyWord(word);
                             m.gameFrag.setOther("Your word: " + word);
                             m.gameFrag.myTurn();
                             //m.onLineGame.startTimer();
@@ -385,6 +397,7 @@ public class MainActivity extends AppCompatActivity {
                             if (message.compareTo("<$LOGIN$>1") == 0) {
                                 c.setUserName(loginTemp.getUserName());
                                 c.setPass(loginTemp.getPass());
+                                db.updateConfig(loginTemp.getUserName(), loginTemp.getPass(), 0);
                             }
                             sendMessage(message);
                             break;
@@ -396,6 +409,7 @@ public class MainActivity extends AppCompatActivity {
                             if (message.compareTo("<$SIGNUP$>1") == 0) {
                                 c.setUserName(signupTemp.getUserName());
                                 c.setPass(signupTemp.getPass());
+                                db.updateConfig(signupTemp.getUserName(), signupTemp .getPass(), 0);
                             }
                             sendMessage(message);
                             break;
@@ -417,7 +431,27 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void readWordFile(){
+        BufferedReader reader = null;
+        wordTable = new HashSet<>();
+        try{
+            reader = new BufferedReader(new InputStreamReader(getAssets().open("words.txt")));
 
+            String input = "";
+
+            while((input = reader.readLine()) != null){
+                if (input == "" || input.contains(" ")){
+                    continue;
+                }
+                wordTable.add(input);
+            }
+        }
+        catch (IOException e){
+            e.printStackTrace();
+            System.exit(-1);
+        }
+
+    }
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -461,13 +495,21 @@ public class MainActivity extends AppCompatActivity {
 
         //System.out.println("I am here3");
 
+        db = new DataBase(getApplicationContext());
+
+        gameFrag = new GameFrag();
+
+        leaderboardFrag = new LeaderboardFrag();
+
+        readWordFile();
+
         c = new Client();
 
         list = new ArrayList<>();
 
         serverThread = new Thread(new MyRunnable());
 
-        serverThread.start();
+
 
         loginFrag = new LoginFrag();
 
@@ -475,13 +517,22 @@ public class MainActivity extends AppCompatActivity {
 
         home = new HomeFrag();
 
-        setFragment(loginFrag);
+        ArrayList<String> config = db.getConfig();
+
+        if (config != null){
+            c.setUserName(config.get(0));
+            c.setPass(config.get(1));
+            c.setMyPoints(Integer.valueOf(config.get(2)).intValue());
+            state = State.loggedIn;
+            returnHome(null);
+        }
+        else {
+            setFragment(loginFrag);
+        }
 
         System.out.println("I am leaving");
 
-        gameFrag = new GameFrag();
-
-        leaderboardFrag = new LeaderboardFrag();
+        serverThread.start();
 
     }
 
@@ -489,6 +540,7 @@ public class MainActivity extends AppCompatActivity {
     public void onDestroy(){
         super.onDestroy();
         c.closeSocket();
+        db.updateConfig(c.getUserName(), c.getPass(), c.getMyPoints());
         System.out.println("On destroy was triggered.");
     }
 
@@ -496,6 +548,7 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
         c.closeSocket();
         c.setMessageBuffer("");
+        db.updateConfig(c.getUserName(), c.getPass(), c.getMyPoints());
         System.out.println("On pause was triggered.");
     }
 
@@ -582,14 +635,15 @@ public class MainActivity extends AppCompatActivity {
         setFragment(screen);
         navigation.setVisibility(View.INVISIBLE);
         onLineGame = new Game(this);
+        onLineGame.setHashSet(wordTable);
         onLineGame.gameFrag = gameFrag;
         gameFrag.currentGame = onLineGame;
-        listLock.lock();
+        lock.lock();
         CustomTask task = new CustomTask();
         task.setTAG("<$GAME$>");
         task.message = "enqueue";
         list.add(task);
-        listLock.unlock();
+        lock.unlock();
         gameFrag.reset();
 
 
@@ -604,16 +658,15 @@ public class MainActivity extends AppCompatActivity {
                 CustomTask task = new CustomTask();
                 task.setTAG("<$GAMEW$>");
                 task.message = word;
-                listLock.lock();
+                lock.lock();
                 list.add(task);
-                listLock.unlock();
+                lock.unlock();
                 gameFrag.otherPlayerTurn();
                 gameFrag.setOther("Other players' turn");
                 gameFrag.setTimer("15");
                 onLineGame.startTimer();
             }
             else{
-                Toast.makeText(getApplicationContext(), "Choose a different word", Toast.LENGTH_LONG).show();
                 gameFrag.setButton(true);
                 gameFrag.setInputUser(true);
             }

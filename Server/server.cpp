@@ -23,7 +23,6 @@ Server::Server()
 
         out << "\n\n" << time.toString().toStdString() << endl;
 
-
     }
 
     out.close();
