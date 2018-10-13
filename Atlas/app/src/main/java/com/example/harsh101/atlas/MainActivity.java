@@ -521,7 +521,7 @@ public class MainActivity extends AppCompatActivity {
 
         setFragment(screen);
         navigation.setVisibility(View.INVISIBLE);
-        onLineGame = new Game();
+        onLineGame = new Game(this);
         onLineGame.gameFrag = gameFrag;
         gameFrag.currentGame = onLineGame;
         listLock.lock();

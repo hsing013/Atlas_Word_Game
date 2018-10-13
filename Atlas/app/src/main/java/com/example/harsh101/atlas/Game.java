@@ -2,6 +2,9 @@ package com.example.harsh101.atlas;
 
 
 import android.os.CountDownTimer;
+import android.widget.Toast;
+
+import java.util.HashSet;
 
 public class Game {
     public boolean inGame = false;
@@ -9,10 +12,14 @@ public class Game {
     public boolean myTurn = false;
     public GameFrag gameFrag = null;
     public String myWord = "";
+    public HashSet<String> original = null;
+    public HashSet<String> usedWords = null;
+    public MainActivity m;
 
 
-
-    Game(){
+    Game(MainActivity main){
+        usedWords = new HashSet<>(50);
+        m = main;
         timer = new CountDownTimer(15000, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
@@ -37,9 +44,20 @@ public class Game {
     }
 
     public boolean checkWord(String word){
-
-
-        return true;
+        if(original.contains(word)) {
+            if(usedWords.contains(word)) {
+                Toast.makeText(m.getApplicationContext(), "Word already used!", Toast.LENGTH_LONG).show();
+                return false;
+            }
+            else {
+                usedWords.add(word);
+                return true;
+            }
+        }
+        else {
+            Toast.makeText(m.getApplicationContext(), "Word does not exist", Toast.LENGTH_LONG).show();
+            return false;
+        }
     }
     public void startTimer(){
         //++timerTurn;
@@ -47,6 +65,9 @@ public class Game {
     }
     public void stopTimer(){
         timer.cancel();
+    }
+    public void setHashSet(HashSet<String> h) {
+        original = h;
     }
 }
 
