@@ -6,6 +6,8 @@
 #include <QHash>
 #include "user.h"
 #include "game.h"
+#include <QMap>
+#include <QVector>
 using namespace std;
 
 
@@ -27,6 +29,7 @@ public:
     bool inQueue;
     Game *g;
     QThread *mainThread;
+    QString leaderBoard;
     ActiveUser();
     ActiveUser(QHash<QString, User*> *table);
     ~ActiveUser();
@@ -39,6 +42,7 @@ signals:
     void playGame(ActiveUser*);
     void removeFromQueue(ActiveUser*);
     void stopTimer();
+    void updatePoints(QString, QString, int);
 public slots:
     void messageRecieved();
     void disconnect();
@@ -47,6 +51,8 @@ public slots:
     void addFriend(QString);
     void sendSavedMessages();
     void timerTrigger();
+    void updateLeaderBoard(QString newBoard);
+
 private:
     QHash<QString, User*> *userTable;
 

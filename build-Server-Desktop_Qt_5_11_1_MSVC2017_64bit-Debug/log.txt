@@ -317,3 +317,180 @@ Sat Oct 13 05:26:03 2018
 
 Creating: admin pass
 Creating: harsh singh
+
+
+Sun Oct 14 23:19:24 2018
+
+Creating: admin pass
+Creating: harsh singh
+
+
+Sun Oct 14 23:27:26 2018
+
+Creating: admin pass
+Creating: harsh singh
+
+
+Sun Oct 14 23:37:52 2018
+
+Creating: admin pass
+Creating: harsh singh
+Error when updating points
+
+
+Sun Oct 14 23:42:27 2018
+
+Creating: admin pass
+Creating: harsh singh
+
+
+Sun Oct 14 23:44:16 2018
+
+Creating: admin pass
+Creating: harsh singh
+Error when updating points
+
+
+Sun Oct 14 23:45:48 2018
+
+Creating: admin pass
+Creating: harsh singh
+Error when updating points
+
+
+Sun Oct 14 23:50:39 2018
+
+Creating: admin pass
+Creating: harsh singh
+Error when updating points
+
+
+Sun Oct 14 23:51:50 2018
+
+Creating: admin pass
+Creating: harsh singh
+Error when updating points
+
+
+Sun Oct 14 23:53:31 2018
+
+Creating: admin pass
+Creating: harsh singh
+Error when updating points
+
+
+Sun Oct 14 23:55:28 2018
+
+Creating: admin pass
+Creating: harsh singh
+Error when updating points
+
+
+Sun Oct 14 23:56:10 2018
+
+Creating: admin pass
+Creating: harsh singh
+Error when updating points
+
+
+Sun Oct 14 23:57:51 2018
+
+Creating: admin pass
+Creating: harsh singh
+Error when updating points
+
+
+Sun Oct 14 23:59:50 2018
+
+Creating: admin pass
+Creating: harsh singh
+Error when updating points
+
+
+Mon Oct 15 00:02:29 2018
+
+Creating: admin pass
+Creating: harsh singh
+Error when updating points
+
+
+Mon Oct 15 00:03:38 2018
+query was not valid
+
+Creating: admin pass
+Error when adding user to DB
+
+
+Mon Oct 15 00:08:58 2018
+
+Creating: admin pass
+Creating: harsh singh
+
+
+Mon Oct 15 00:13:44 2018
+
+Creating: admin pass
+Creating: harsh singh
+
+
+Mon Oct 15 00:16:47 2018
+
+Creating: admin pass
+Creating: harsh singh
+
+
+Mon Oct 15 00:32:24 2018
+query was not valid
+
+Creating: harsh singh
+
+
+Mon Oct 15 01:27:50 2018
+
+Creating: harsh singh
+
+
+Mon Oct 15 01:34:18 2018
+
+Creating: harsh singh
+
+
+Mon Oct 15 01:34:40 2018
+
+Creating: harsh singh
+
+
+Mon Oct 15 01:37:08 2018
+
+Creating: harsh singh
+Error when adding user to DB
+
+
+Mon Oct 15 01:49:49 2018
+
+Creating: harsh singh
+Creating: admin pass
+
+
+Mon Oct 15 01:51:14 2018
+
+Creating: harsh singh
+Creating: admin pass
+
+
+Mon Oct 15 01:51:20 2018
+
+Creating: harsh singh
+Creating: admin pass
+
+
+Mon Oct 15 01:53:03 2018
+
+Creating: harsh singh
+Creating: admin pass
+
+
+Mon Oct 15 02:02:04 2018
+
+Creating: harsh singh
+Creating: admin pass

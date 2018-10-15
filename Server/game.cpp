@@ -104,11 +104,17 @@ void Game::timerTrigger(){
     currentPlayer->newMessage("<$GAME$>$lost$");
     if (currentPlayer == player1){
         player2->newMessage("<$GAME$>$won$");
+        userLock.lock();
         player2->user->addPoints(100);
+        userLock.unlock();
+        player2->updatePoints(player2->user->userName, player2->user->pass, player2->user->points);
     }
     else{
         player1->newMessage("<$GAME$>$won$");
+        userLock.lock();
         player1->user->addPoints(100);
+        userLock.unlock();
+        player1->updatePoints(player1->user->userName, player1->user->pass, player1->user->points);
     }
 
 
@@ -170,11 +176,17 @@ void Game::userDisconnected(ActiveUser *user){
 
     if (user == player1){
         player2->newMessage("<$GAME$>$won2$");
+        userLock.lock();
         player2->user->addPoints(50);
+        userLock.unlock();
+        player2->updatePoints(player2->user->userName, player2->user->pass, player2->user->points);
     }
     else{
         player1->newMessage("<$GAME$>$won2$");
+        userLock.lock();
         player1->user->addPoints(50);
+        userLock.unlock();
+        player1->updatePoints(player1->user->userName, player1->user->pass, player1->user->points);
     }
     player1->g = NULL;
     player2->g = NULL;
@@ -206,11 +218,17 @@ void Game::userQuit(ActiveUser *user){
 
     if (user == player1){
         player2->newMessage("<$GAME$>$won3$");
+        userLock.lock();
         player2->user->addPoints(50);
+        userLock.unlock();
+        player2->updatePoints(player2->user->userName, player2->user->pass, player2->user->points);
     }
     else{
         player1->newMessage("<$GAME$>$won3$");
-        player2->user->addPoints(50);
+        userLock.lock();
+        player1->user->addPoints(50);
+        userLock.unlock();
+        player1->updatePoints(player1->user->userName, player1->user->pass, player1->user->points);
     }
     player1->g = NULL;
     player2->g = NULL;

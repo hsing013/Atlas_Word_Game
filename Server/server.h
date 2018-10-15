@@ -15,7 +15,9 @@
 #include "QSqlQuery"
 #include <QDateTime>
 #include <QQueue>
-
+#include <QSqlError>
+#include <QMap>
+#include <QVector>
 using namespace std;
 
 
@@ -39,13 +41,19 @@ public slots:
     void findPlayerToPlay(ActiveUser *user);
     void removeFromQueue(ActiveUser *user);
     void disconnectGame(Game*);
+    void updatePoints(QString, QString, int points);
+    void updateLeaderBoard();
 signals:
     void disconnectAll();
+    void leaderBoardUpdate(QString);
 private:
    QTcpServer *server;
    QHash<QString, User*> *userTable;
    QSqlDatabase db;
    QQueue<ActiveUser*> queue;
+   QVector<QString> leaderBoard;
+   QTimer *leaderTimer;
+   QString leaderBoardString;
 
 };
 

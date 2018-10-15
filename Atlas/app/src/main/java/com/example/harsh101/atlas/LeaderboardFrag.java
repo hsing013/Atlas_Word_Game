@@ -45,7 +45,15 @@ public class LeaderboardFrag extends Fragment {
     }
 
     public void setList(ArrayList<String> newList) {
-        list = newList;
+        if (list == null){
+            list = newList;
+        }
+        else {
+            list.clear();
+            for (int i = 0; i < newList.size(); ++i) {
+                list.add(newList.get(i));
+            }
+        }
         if(adapter != null) {
             adapter.notifyDataSetChanged();
         }

@@ -111,9 +111,9 @@ public class LoginFrag extends Fragment {
         String pass = password.getText().toString();
         //userName.setText("");
         //password.setText("");
-//        if (!checkInput(name, pass)){
-//            return null;
-//        }
+        if (!checkInput(name, pass)){
+            return null;
+        }
         ArrayList<String> info = new ArrayList<>();
         info.add(name);
         info.add(pass);

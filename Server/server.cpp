@@ -4,12 +4,18 @@ Server::Server()
 {
     server = new QTcpServer(0);
     db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName("testDB");
+    db.setDatabaseName("testDB2");
 
     bool open = db.open();
 
     userTable = new QHash<QString, User*>();
 
+
+    leaderTimer = new QTimer();
+
+    connect(leaderTimer, SIGNAL(timeout()), this, SLOT(updateLeaderBoard()));
+
+    leaderTimer->start(15000);
 
     ofstream out;
 
@@ -38,8 +44,9 @@ Server::Server()
 
     if (!query.isValid()){
         log("query was not valid");
-        query = db.exec("CREATE TABLE users (NAME TEXT, PASS TEXT);");
-        query = db.exec("INSERT INTO users (NAME, PASS) VALUES ('admin', 'pass');");
+        cout << "query was not valid" << endl;
+        query = db.exec("CREATE TABLE users (NAME TEXT, PASS TEXT, POINTS INTEGER);");
+        query = db.exec("INSERT INTO users (NAME, PASS, POINTS) VALUES ('harsh', 'singh', 1000000);");
         query = db.exec("SELECT * from users");
 
     }
@@ -52,6 +59,9 @@ Server::Server()
         User *u = new User();
         u->userName = query.value(0).toString();
         u->pass = query.value(1).toString();
+        u->points = query.value(2).toInt();
+
+        cout << u->points << endl;
 
         log ("Creating: " + u->userName + " " + u->pass);
 
@@ -72,6 +82,7 @@ Server::Server()
         success = query.next();
     }
 
+    updateLeaderBoard();
 
 
 
@@ -83,6 +94,69 @@ void Server::listen() {
     connect(server, SIGNAL(newConnection()), this, SLOT(newConnection()));
     QHostAddress address("138.68.48.204");
     server->listen(address, 12345);
+}
+
+void Server::updateLeaderBoard(){
+    userLock.lock();
+    leaderBoard.clear();
+    QMap<int, QString> *leaderMap = new QMap<int, QString>();
+
+    QHash<QString, User*>::iterator it;
+
+    for (it = userTable->begin(); it != userTable->end(); ++it){
+        User *u = it.value();
+        QString value = leaderMap->value(u->points);
+        if (value == ""){
+            leaderMap->insert(u->points, u->userName);
+        }
+        else{
+            leaderMap->insertMulti(u->points, u->userName);
+        }
+    }
+
+    QMap<int, QString>::iterator it2 = leaderMap->begin();
+
+    int count = 1;
+
+    while (it2 != leaderMap->end() && count != 26){
+        QString name = it2.value();
+        QString points;
+
+        int intPoints = it2.key();
+
+        points.setNum(intPoints);
+
+        QString finalResult = name + "-" + points;
+
+        leaderBoard.push_front(finalResult);
+
+        ++it2;
+        ++count;
+    }
+    delete leaderMap;
+    leaderMap = NULL;
+
+    QString fullList = "<$LEADER$>";
+
+    for (int i = 0; i < leaderBoard.size(); ++i){
+        if (i == 0){
+            fullList = fullList + leaderBoard.at(i);
+        }
+        else{
+            fullList = fullList + "$" + leaderBoard.at(i);
+        }
+    }
+
+    leaderBoardString = fullList;
+
+    userLock.unlock();
+
+
+    emit leaderBoardUpdate(leaderBoardString);
+
+    leaderTimer->start(15000);
+
+
 }
 
 void Server::log(QString s){
@@ -115,6 +189,8 @@ void Server::newConnection() {
 
     user->waitTimer->moveToThread(user->thread);
 
+    user->leaderBoard = this->leaderBoardString;
+
     //user->waitTimer->setParent(user);
 
     user->moveToThread(user->thread);
@@ -132,8 +208,11 @@ void Server::newConnection() {
     connect(this, SIGNAL(disconnectAll()), user, SLOT(disconnect()));
     connect(user, SIGNAL(removeFromQueue(ActiveUser*)), this, SLOT(removeFromQueue(ActiveUser*)));
     connect(user, SIGNAL(playGame(ActiveUser*)), this, SLOT(findPlayerToPlay(ActiveUser*)));
-
-
+    connect(user, SIGNAL(updatePoints(QString,QString,int)), this, SLOT(updatePoints(QString,QString,int)));
+    connect(this, SIGNAL(leaderBoardUpdate(QString)), user, SLOT(updateLeaderBoard(QString)));
+    if (!user->socket->isOpen()){
+        user->disconnect();
+    }
 
 
 
@@ -141,12 +220,31 @@ void Server::newConnection() {
 }
 
 void Server::saveUserToDB(QString user, QString pass){
-    QSqlQuery query = db.exec("INSERT INTO users (NAME, PASS) VALUES ('" + user + "', '" + pass + "');");
+    QSqlQuery query = db.exec("INSERT INTO users (NAME, PASS, POINTS) VALUES ('" + user + "', '" + pass + "', 0);");
 
     if (!query.isValid()){
         log("Error when adding user to DB");
     }
 
+}
+
+void Server::updatePoints(QString userName, QString pass, int points){
+    //QSqlQuery query = db.exec("UPDATE users SET POINTS = '" + points + "' WHERE NAME = '" + userName + "';");
+    cout << "Updating points for " << userName.toStdString() << " " << QThread::currentThreadId() <<  endl;
+    QSqlQuery query(db);
+
+    bool valid = query.prepare("UPDATE users SET POINTS = :points WHERE NAME = :userName");
+
+    query.bindValue(":points", points);
+    query.bindValue(":userName", userName);
+
+    bool valid2 = query.exec();
+
+    if (!valid || !valid2){
+        cout << query.lastError().text().toStdString() << endl;
+        log("Error when updating points");
+        cout << "error when updating points for db" << endl;
+    }
 }
 
 void Server::disconnectUser(ActiveUser *au) {
@@ -178,7 +276,7 @@ void Server::disconnectUser(ActiveUser *au) {
     u->userSetLock.unlock();
 
     userLock.unlock();
-
+    cout << "done disconnecting" << endl;
 }
 
 void Server::displayMessage(QString message) {

@@ -85,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
                         m.setFragment(m.loginFrag);
                         m.loginFrag.disableButton(false);
                         m.loggedIn = false;
+                        m.c.closeSocket();
                     }
                     else if (s.compareTo("<$LOGIN$>-1") == 0){
                         Toast.makeText(m.getApplicationContext(), "User doesn't exist.", Toast.LENGTH_LONG).show();
@@ -121,6 +122,12 @@ public class MainActivity extends AppCompatActivity {
                         m.loginTemp = null;
                         m.loggedIn = true;
                     }
+                    else if (s.contains("<$POINTS$>")){
+                        int index = s.indexOf(">");
+                        int points = Integer.parseInt(s.substring(index + 1));
+                        m.c.setMyPoints(points);
+                        m.db.updateConfig(m.c.getUserName(), m.c.getPass(), m.c.getMyPoints());
+                    }
                     
                     break;
                 }
@@ -131,6 +138,7 @@ public class MainActivity extends AppCompatActivity {
                         m.enterApp();
                         m.state = State.loggedIn;
                         m.signupTemp = null;
+                        m.db.updateConfig(m.c.getUserName(), m.c.getPass(), m.c.getMyPoints());
                     }
                     else if (s.compareTo("<$SIGNUP$>-1") == 0){
                         Toast.makeText(m.getApplicationContext(), "User exists.", Toast.LENGTH_LONG).show();
@@ -143,6 +151,12 @@ public class MainActivity extends AppCompatActivity {
                         m.state = State.initial_Signup;
                         m.signupTemp = null;
                         m.loginFrag.disableButton(false);
+                    }
+                    else if (s.contains("<$POINTS$>")){
+                        int index = s.indexOf(">");
+                        int points = Integer.parseInt(s.substring(index + 1));
+                        m.c.setMyPoints(points);
+                        m.db.updateConfig(m.c.getUserName(), m.c.getPass(), m.c.getMyPoints());
                     }
                     break;
                 }
@@ -165,7 +179,8 @@ public class MainActivity extends AppCompatActivity {
                         }
                         m.loggedIn = false;
                         m.hostConnected = false;
-                        m.c.setMessageBuffer("");
+                        m.c.closeSocket();
+                        //m.c.setMessageBuffer("");
                     }
                     else if (s.compareTo("<$LOGIN$>1") == 0){
                         m.loginTemp = null;
@@ -222,6 +237,7 @@ public class MainActivity extends AppCompatActivity {
                             m.gameFrag.setOther("You won!");
                             m.gameFrag.endGame();
                             m.c.addToPoints(100);
+                            m.db.updateConfig(m.c.getUserName(), m.c.getPass(), m.c.getMyPoints());
                         }
                         m.onLineGame = null;
                     }
@@ -231,6 +247,7 @@ public class MainActivity extends AppCompatActivity {
                             m.gameFrag.setOther("Other user disconnected. Maybe you are too good!");
                             m.gameFrag.endGame();
                             m.c.addToPoints(50);
+                            m.db.updateConfig(m.c.getUserName(), m.c.getPass(), m.c.getMyPoints());
                         }
                         m.onLineGame = null;
                     }
@@ -240,6 +257,7 @@ public class MainActivity extends AppCompatActivity {
                             m.gameFrag.setOther("Other user quit. You are really good!");
                             m.gameFrag.endGame();
                             m.c.addToPoints(50);
+                            m.db.updateConfig(m.c.getUserName(), m.c.getPass(), m.c.getMyPoints());
                         }
                         m.onLineGame = null;
                     }
@@ -261,6 +279,26 @@ public class MainActivity extends AppCompatActivity {
                         if (m.onLineGame != null){
                             m.onLineGame.startTimer();
                         }
+                    }
+                    else if (s.contains("<$POINTS$>")){
+                        int index = s.indexOf(">");
+                        int points = Integer.parseInt(s.substring(index + 1));
+                        m.c.setMyPoints(points);
+                        m.db.updateConfig(m.c.getUserName(), m.c.getPass(), m.c.getMyPoints());
+                    }
+                    else if (s.contains("<$LEADER$>")){
+                        int index = s.indexOf(">");
+                        String sub = s.substring(index + 1);
+                        String players[] = sub.split("\\$");
+
+                        ArrayList<String> leaderBoard = new ArrayList<>();
+
+                        for (int i = 0; i < players.length; ++i){
+                            leaderBoard.add(players[i]);
+                        }
+
+                        m.leaderboardFrag.setList(leaderBoard);
+
                     }
                     break;
                 }
@@ -302,14 +340,13 @@ public class MainActivity extends AppCompatActivity {
             while (!kill) {
                 hostConnected = c.isConnectedToHost();
                 while (!hostConnected) {
-                    System.out.println("Connecting");
+                    System.out.println("Connecting-------------------------------------");
                     loginTemp = null;
                     signupTemp = null;
                     sendMessage("HOST DISCONNECTED");
                     hostConnected = c.connectToHost();
                     if (hostConnected) {
                         sendMessage("HOST CONNECTED");
-
                     } else {
                         try {
                             Thread.sleep(500);
@@ -318,6 +355,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 }
+
                 lock.lock();
                 switch (state) {
                     case initial_Login: {
@@ -349,11 +387,15 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     }
                     case loggedIn: {
-                        if (!loggedIn && loginTemp == null){
+                        if (!loggedIn && loginTemp == null && hostConnected){
+                            System.out.print("I was triggered!");
                             loginTemp = new CustomTask();
                             loginTemp.setUserName(c.getUserName());
                             loginTemp.setPass(c.getPass());
-                            c.sendMessage(loginTemp.prepareLogin());
+                            boolean flag = c.sendMessage(loginTemp.prepareLogin());
+                            if (!flag){
+                                loginTemp = null;
+                            }
                             break;
                         }
                         for (int i = 0; i < list.size(); ++i) {
@@ -421,6 +463,11 @@ public class MainActivity extends AppCompatActivity {
                         default:
                             break;
                     }
+                }
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }
 
@@ -509,8 +556,6 @@ public class MainActivity extends AppCompatActivity {
 
         serverThread = new Thread(new MyRunnable());
 
-
-
         loginFrag = new LoginFrag();
 
         screen = new LoadingScreen();
@@ -518,6 +563,8 @@ public class MainActivity extends AppCompatActivity {
         home = new HomeFrag();
 
         ArrayList<String> config = db.getConfig();
+
+        hostConnected = false;
 
         if (config != null){
             c.setUserName(config.get(0));
@@ -556,6 +603,7 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         System.out.println("OnStart was triggered.");
         if (serverThread != null && !serverThread.isAlive()){
+            System.out.println("onstart if");
             serverThread = new Thread(new MyRunnable());
             serverThread.start();
         }
@@ -565,6 +613,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         System.out.println("On resume was triggered.");
         if (serverThread != null && !serverThread.isAlive()){
+            System.out.println("onresume if");
             serverThread = new Thread(new MyRunnable());
             serverThread.start();
         }
@@ -676,6 +725,10 @@ public class MainActivity extends AppCompatActivity {
     public void returnHome(View v){
         setFragment(home);
         navigation.setVisibility(View.VISIBLE);
+    }
+
+    public void showPoints(View v){ // this is temporary
+        Toast.makeText(getApplicationContext(), Integer.toString(c.getMyPoints()), Toast.LENGTH_LONG).show();
     }
 
 }

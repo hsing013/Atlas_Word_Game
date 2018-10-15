@@ -178,6 +178,10 @@ void ActiveUser::messageRecieved() {
                             }
                             else {
                                 sendMessage(QString("<$LOGIN$>1"));
+                                QString points;
+                                points.setNum(potentialUser->points);
+                                sendMessage(QString("<$POINTS$>") + points);
+                                sendMessage(leaderBoard);
                                 this->user = potentialUser;
                             }
                         }
@@ -193,8 +197,12 @@ void ActiveUser::messageRecieved() {
                             userTable->insert(userName, u);
                             emit saveUser(userName, pass);
                             sendMessage(QString("<$SIGNUP$>1"));
+                            QString points;
+                            points.setNum(u->points);
+                            sendMessage(QString("<$POINTS$>") + points);
                             this->user = u;
                             u->setUser(this);
+                            sendMessage(leaderBoard);
                         }
                         else {
                             sendMessage(QString("<$SIGNUP$>-1"));
@@ -258,6 +266,9 @@ void ActiveUser::sendMessage(QString message) {
 
 
         qint64 sent = socket->write(c, s.size());
+
+        cout << "Size of message sent: " << sent << endl;
+
         while (sent < message.size() && sent != -1) {
             cout << "extra life" << endl;
             string rest = message.mid(sent, message.size()).toStdString();
@@ -315,3 +326,11 @@ void ActiveUser::addFriend(QString userName) {
     userLock.unlock();
 
 }
+
+
+void ActiveUser::updateLeaderBoard(QString newBoard){
+    this->leaderBoard = newBoard;
+    sendMessage(leaderBoard);
+}
+
+

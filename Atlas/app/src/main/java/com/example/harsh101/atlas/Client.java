@@ -33,6 +33,7 @@ public class Client {
         pass = null;
         pw = null;
         br = null;
+        connectedToHost = false;
     }
 
     public boolean isConnectedToHost() {
@@ -116,6 +117,8 @@ public class Client {
         }
         try{
             socket.close();
+            socket = null;
+            connectedToHost = false;
         }
         catch (IOException e){
             e.printStackTrace();
