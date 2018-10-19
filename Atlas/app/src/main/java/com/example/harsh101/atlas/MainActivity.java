@@ -52,7 +52,11 @@ public class MainActivity extends AppCompatActivity {
     public boolean loggedIn = false;
     public HashSet<String> wordTable = null;
     public DataBase db = null;
+<<<<<<< HEAD
     public boolean isInBackground;
+=======
+    public LeaderboardAdapter leaderboardAdapter = null;
+>>>>>>> b04706d5b9518efea599676678a34b10a49409ca
 
 
     public static class MyHandler extends Handler{  //this allows the serverThread talk with the mainThread(UI thread)
@@ -565,13 +569,24 @@ public class MainActivity extends AppCompatActivity {
 
         //System.out.println("I am here3");
 
+<<<<<<< HEAD
         isInBackground = false;
+=======
+
+>>>>>>> b04706d5b9518efea599676678a34b10a49409ca
 
         db = new DataBase(getApplicationContext());
 
         gameFrag = new GameFrag();
 
+        ArrayList<LeaderboardUser> list = new ArrayList<>();
+
+        leaderboardAdapter = new LeaderboardAdapter(getApplicationContext(), R.layout.leaderboard_list, list);
+
         leaderboardFrag = new LeaderboardFrag();
+
+        leaderboardFrag.setList(list);
+        leaderboardFrag.adapter = leaderboardAdapter;
 
         readWordFile();
 

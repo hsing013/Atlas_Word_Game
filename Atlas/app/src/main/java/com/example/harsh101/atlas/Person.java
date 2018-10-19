@@ -11,7 +11,7 @@ public class Person {
 
     }
 
-    public Person(String newName, int newPoints, int newAchievements){
+    public Person(String newName, int newPoints){
         name = newName;
         numPoints = newPoints;
     }
