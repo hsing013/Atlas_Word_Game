@@ -6,9 +6,11 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 
@@ -18,8 +20,8 @@ import java.util.ArrayList;
 public class LeaderboardFrag extends Fragment {
     public View myView = null;
     public ListView leaderboardListView = null;
-    public ArrayAdapter<String> adapter = null;
-    public ArrayList<String> list = null;
+    public LeaderboardAdapter adapter = null;
+    public ArrayList<LeaderboardUser> list = null;
 
 
     public LeaderboardFrag() {
@@ -34,34 +36,29 @@ public class LeaderboardFrag extends Fragment {
 
         if(myView == null) {
             myView = inflater.inflate(R.layout.fragment_leaderboard, container, false);
-            leaderboardListView = myView.findViewById(R.id.leaderboardListView);
-            if(list == null) {
-                list = new ArrayList<>();
+
+            if (list == null || adapter == null){
+                System.exit(-1);
             }
-            adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, list);
+
+            leaderboardListView = myView.findViewById(R.id.leaderboardListView);
+
             leaderboardListView.setAdapter(adapter);
         }
         return myView;
     }
 
-    public void setList(ArrayList<String> newList) {
-        if (list == null){
-            list = newList;
-        }
-        else {
-            list.clear();
-            for (int i = 0; i < newList.size(); ++i) {
-                list.add(newList.get(i));
-            }
-        }
-        if(adapter != null) {
+    public void setList(ArrayList<LeaderboardUser> newList) {
+        list = newList;
+        if (adapter != null){
+            adapter.updateList(newList);
             adapter.notifyDataSetChanged();
         }
     }
 
-    public void addToList(String s) {
-        if(s != null) {
-            list.add(s);
+    public void addToList(LeaderboardUser l) {
+        if(l != null) {
+            list.add(l);
             adapter.notifyDataSetChanged();
         }
     }

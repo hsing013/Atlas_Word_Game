@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean loggedIn = false;
     public HashSet<String> wordTable = null;
     public DataBase db = null;
+    public LeaderboardAdapter leaderboardAdapter = null;
 
 
     public static class MyHandler extends Handler{  //this allows the serverThread talk with the mainThread(UI thread)
@@ -291,10 +292,15 @@ public class MainActivity extends AppCompatActivity {
                         String sub = s.substring(index + 1);
                         String players[] = sub.split("\\$");
 
-                        ArrayList<String> leaderBoard = new ArrayList<>();
+                        ArrayList<LeaderboardUser> leaderBoard = new ArrayList<>();
 
                         for (int i = 0; i < players.length; ++i){
-                            leaderBoard.add(players[i]);
+                            String current = players[i];
+                            String split[] = current.split("-");
+                            LeaderboardUser user = new LeaderboardUser();
+                            user.name = split[0];
+                            user.numPoints = Integer.parseInt(split[1]);
+                            leaderBoard.add(user);
                         }
 
                         m.leaderboardFrag.setList(leaderBoard);
@@ -542,11 +548,20 @@ public class MainActivity extends AppCompatActivity {
 
         //System.out.println("I am here3");
 
+
+
         db = new DataBase(getApplicationContext());
 
         gameFrag = new GameFrag();
 
+        ArrayList<LeaderboardUser> list = new ArrayList<>();
+
+        leaderboardAdapter = new LeaderboardAdapter(getApplicationContext(), R.layout.leaderboard_list, list);
+
         leaderboardFrag = new LeaderboardFrag();
+
+        leaderboardFrag.setList(list);
+        leaderboardFrag.adapter = leaderboardAdapter;
 
         readWordFile();
 
