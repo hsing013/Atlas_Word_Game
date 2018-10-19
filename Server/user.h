@@ -6,6 +6,7 @@
 #include <iostream>
 #include <vector>
 #include "include.h"
+#include "notification.h"
 using namespace std;
 
 struct ActiveUser;
@@ -24,6 +25,8 @@ public:
     QMutex userSetLock;
     QMutex friendLock;
     QMutex messageLock;
+    vector<Notification*> recievedNotifications;
+    vector<Notification*> sentNotifications;
     User(){
         userName = "";
         pass = "";

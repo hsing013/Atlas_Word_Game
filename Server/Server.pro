@@ -31,7 +31,8 @@ SOURCES += \
         mainwindow.cpp \
         server.cpp \
         activeuser.cpp \
-    game.cpp
+    game.cpp \
+    notification.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -39,7 +40,8 @@ HEADERS += \
         include.h \
         activeuser.h \
         user.h \
-    game.h
+    game.h \
+    notification.h
 
 FORMS += \
         mainwindow.ui

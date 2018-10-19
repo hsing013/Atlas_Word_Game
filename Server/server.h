@@ -51,7 +51,6 @@ private:
    QHash<QString, User*> *userTable;
    QSqlDatabase db;
    QQueue<ActiveUser*> queue;
-   QVector<QString> leaderBoard;
    QTimer *leaderTimer;
    QString leaderBoardString;
 

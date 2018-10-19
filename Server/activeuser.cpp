@@ -115,12 +115,14 @@ void ActiveUser::messageRecieved() {
                         userLock.lock();
                         QString name = split.mid(7);
                         User *potentialUser = userTable->value(name);
+
                         if (potentialUser == NULL){
-                            sendMessage("<$ADF$>-1");
+                            sendMessage("<$ADF$>" + name + "-" + QString::setNum(-1));
                         }
                         else{
-                            sendMessage("<$ADF$>1");
+                            sendMessage("<$ADF$>" + name + "-" + QString::setNum(potentialUser->points));
                         }
+                        userLock.unlock();
                     }
                     else if (game == "<$GAME$>"){
                         QString code = split.mid(8);
@@ -129,7 +131,7 @@ void ActiveUser::messageRecieved() {
                                continue;
                             }
                             else{
-                                waitTimer->start(10000);
+                                waitTimer->start(5000);
                                 emit playGame(this);
                                 waitingRoom = true;
                                 inQueue = true;

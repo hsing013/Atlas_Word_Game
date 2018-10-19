@@ -15,7 +15,7 @@ Server::Server()
 
     connect(leaderTimer, SIGNAL(timeout()), this, SLOT(updateLeaderBoard()));
 
-    leaderTimer->start(15000);
+    leaderTimer->start(60000);
 
     ofstream out;
 
@@ -60,18 +60,24 @@ Server::Server()
         u->userName = query.value(0).toString();
         u->pass = query.value(1).toString();
         u->points = query.value(2).toInt();
-
+        QString notiTable = u->userName + "_nt";
         cout << u->points << endl;
 
         log ("Creating: " + u->userName + " " + u->pass);
 
         userTable->insert(u->userName, u);
 
-        QString tableName = u->userName + "_FL";
+        QString friendTable = u->userName + "_FL";
 
-        QSqlQuery q2 = db.exec("CREATE TABLE IF NOT EXISTS tableName (FREINDS TEXT);");
+        QSqlQuery q2 = db.exec("CREATE TABLE IF NOT EXISTS" + friendTable + " (FREINDS TEXT);");
+
+
 
         q2 = db.exec("SELECT * FROM " + tableName);
+
+        if (!q2.isValid()){
+            cout << "error when reading friend table" << endl;
+        }
 
         bool check = q2.first();
 
@@ -79,6 +85,33 @@ Server::Server()
             u->friendList.push_back(q2.value(0).toString());
             check = q2.next();
         }
+
+        QSqlQuery q3 = db.exec("CREATE TABLE IF NOT EXISTS" + notiTable + " (TYPE TEXT, SENDER TEXT, FROM TEXT, TO TEXT);");
+
+        q3 = db.exec("SELECT * FROM " + notiTable);
+
+        if (!q3.isValid()){
+            cout << "error when reading notiTable" << endl;
+        }
+
+        bool check = q3.first();
+
+        while (check){
+            QString type = q3.value(0).toString();
+            QString from = q3.value(2).toString();
+            QString to = q3.value(3).toString();
+            bool sender = false;
+            if (from == "$NULL$"){
+                sender = true;
+                u->sentNotifications.push_back(new Notification(from, to, sender, type));
+            }
+            else{
+                u->recievedNotifications.push_back(new Notification(from, to, sender, type));
+            }
+
+            check = q3.next();
+        }
+
         success = query.next();
     }
 
@@ -98,9 +131,8 @@ void Server::listen() {
 
 void Server::updateLeaderBoard(){
     userLock.lock();
-    leaderBoard.clear();
     QMap<int, QString> *leaderMap = new QMap<int, QString>();
-
+    QVector<QString> leaderBoard;
     QHash<QString, User*>::iterator it;
 
     for (it = userTable->begin(); it != userTable->end(); ++it){
@@ -116,9 +148,9 @@ void Server::updateLeaderBoard(){
 
     QMap<int, QString>::iterator it2 = leaderMap->begin();
 
-    int count = 1;
 
-    while (it2 != leaderMap->end() && count != 26){
+
+    while (it2 != leaderMap->end()){
         QString name = it2.value();
         QString points;
 
@@ -131,14 +163,19 @@ void Server::updateLeaderBoard(){
         leaderBoard.push_front(finalResult);
 
         ++it2;
-        ++count;
     }
     delete leaderMap;
     leaderMap = NULL;
 
     QString fullList = "<$LEADER$>";
 
-    for (int i = 0; i < leaderBoard.size(); ++i){
+    int size = leaderBoard.size();
+
+    if (size > 25){
+        size = 26;
+    }
+
+    for (int i = 0; i < size; ++i){
         if (i == 0){
             fullList = fullList + leaderBoard.at(i);
         }
@@ -154,7 +191,7 @@ void Server::updateLeaderBoard(){
 
     emit leaderBoardUpdate(leaderBoardString);
 
-    leaderTimer->start(15000);
+    leaderTimer->start(60000);
 
 
 }

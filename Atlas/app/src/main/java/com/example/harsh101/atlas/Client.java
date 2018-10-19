@@ -16,6 +16,8 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Client {
     private Socket socket;
@@ -26,6 +28,7 @@ public class Client {
     private BufferedReader br;
     private String messageBuffer = null;
     private int myPoints = 0;
+    private Lock clientLock = null;
 
     public Client(){
         socket = null;
@@ -34,6 +37,7 @@ public class Client {
         pw = null;
         br = null;
         connectedToHost = false;
+        clientLock = new ReentrantLock();
     }
 
     public boolean isConnectedToHost() {
@@ -74,6 +78,8 @@ public class Client {
 
     public boolean connectToHost(){ //this is where the client is going to attempt to connect to the server
         //System.out.println("I enter cth");
+
+        clientLock.lock();
         if (socket != null){
             try{
                 socket.close();
@@ -81,6 +87,7 @@ public class Client {
             catch (IOException e){
                 e.printStackTrace();
                 connectedToHost = false;
+                clientLock.unlock();
                 return false;
             }
             socket = null;
@@ -100,19 +107,22 @@ public class Client {
         catch (IOException e){
             e.printStackTrace();
             connectedToHost = false;
+            clientLock.unlock();
             return false;
         }
 
         if (socket.isConnected()){
             connectedToHost = true;
         }
-
+        clientLock.unlock();
         return true;
 
     }
 
     public void closeSocket(){
+        clientLock.lock();
         if (socket == null){
+            clientLock.unlock();
             return;
         }
         try{
@@ -123,13 +133,16 @@ public class Client {
         catch (IOException e){
             e.printStackTrace();
         }
+        clientLock.unlock();
     }
 
 
 
     public boolean sendMessage(String message){
+        clientLock.lock();
         System.out.println("Size of message before: " + message.length());
         if (socket == null || !connectedToHost){
+            clientLock.unlock();
             return false;
         }
 
@@ -140,7 +153,7 @@ public class Client {
         pw.write(message);
 
         pw.flush();
-
+        clientLock.unlock();
         return true;
 
     }
@@ -150,8 +163,10 @@ public class Client {
      */
 
     public ArrayList<String> readSocket(){
-        //System.out.println("I enter");
+        //System.out.println("I enter");+
+        clientLock.lock();
         if (socket == null || !connectedToHost){
+            clientLock.unlock();
             return null;
         }
 
@@ -192,6 +207,7 @@ public class Client {
             }
         }
 
+        clientLock.unlock();
         /*This block of code breaks the code at the newline
            If the newline doesnt exist then the message stays the message buffer
          */

@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean loggedIn = false;
     public HashSet<String> wordTable = null;
     public DataBase db = null;
+    public boolean isInBackground;
 
 
     public static class MyHandler extends Handler{  //this allows the serverThread talk with the mainThread(UI thread)
@@ -291,10 +292,15 @@ public class MainActivity extends AppCompatActivity {
                         String sub = s.substring(index + 1);
                         String players[] = sub.split("\\$");
 
-                        ArrayList<String> leaderBoard = new ArrayList<>();
+                        ArrayList<LeaderboardUser> leaderBoard = new ArrayList<>();
 
                         for (int i = 0; i < players.length; ++i){
-                            leaderBoard.add(players[i]);
+                            String current = players[i];
+                            String split[] = current.split("-");
+                            LeaderboardUser user = new LeaderboardUser();
+                            user.name = split[0];
+                            user.numPoints = Integer.parseInt(split[1]);
+                            leaderBoard.add(user);
                         }
 
                         m.leaderboardFrag.setList(leaderBoard);
@@ -338,8 +344,20 @@ public class MainActivity extends AppCompatActivity {
             System.out.println("I am running");
 
             while (!kill) {
+                while(isInBackground){
+                    try{
+                        Thread.sleep(300);
+                    }
+                    catch (InterruptedException e){
+                        e.printStackTrace();
+                    }
+                }
                 hostConnected = c.isConnectedToHost();
                 while (!hostConnected) {
+                    if (isInBackground){
+                        System.out.println("in background");
+                        break;
+                    }
                     System.out.println("Connecting-------------------------------------");
                     loginTemp = null;
                     signupTemp = null;
@@ -356,7 +374,12 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
+                if (isInBackground){
+                    continue;
+                }
+
                 lock.lock();
+
                 switch (state) {
                     case initial_Login: {
                         break;
@@ -542,6 +565,8 @@ public class MainActivity extends AppCompatActivity {
 
         //System.out.println("I am here3");
 
+        isInBackground = false;
+
         db = new DataBase(getApplicationContext());
 
         gameFrag = new GameFrag();
@@ -595,12 +620,19 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
         c.closeSocket();
         c.setMessageBuffer("");
+        isInBackground = true;
+        if (screen != null && screen.isVisible() && state == State.loggedIn){
+            if (home != null) {
+                setFragment(home);
+            }
+        }
         db.updateConfig(c.getUserName(), c.getPass(), c.getMyPoints());
         System.out.println("On pause was triggered.");
     }
 
     public void onStart(){
         super.onStart();
+        isInBackground = false;
         System.out.println("OnStart was triggered.");
         if (serverThread != null && !serverThread.isAlive()){
             System.out.println("onstart if");
@@ -612,6 +644,7 @@ public class MainActivity extends AppCompatActivity {
     public void onResume(){
         super.onResume();
         System.out.println("On resume was triggered.");
+        isInBackground = false;
         if (serverThread != null && !serverThread.isAlive()){
             System.out.println("onresume if");
             serverThread = new Thread(new MyRunnable());
