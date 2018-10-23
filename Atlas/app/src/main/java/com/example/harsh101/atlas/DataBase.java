@@ -71,5 +71,9 @@ public class DataBase{
 
     }
 
+    void deleteAllTables(Context context){
+        context.deleteDatabase("USERDATA");
+    }
+
 
 }

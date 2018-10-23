@@ -104,6 +104,7 @@ void ActiveUser::messageRecieved() {
                 QString addF = message.mid(0, 7);
                 QString game = message.mid(0, 8);
                 QString gameWord = message.mid(0, 9);
+                QString notif = message.mid(0, 16);
                 if (user != NULL) {  //if the user is logged in
                     if (split == "<$GETFL$>") {
                         sendFL();
@@ -117,12 +118,55 @@ void ActiveUser::messageRecieved() {
                         User *potentialUser = userTable->value(name);
 
                         if (potentialUser == NULL){
-                            sendMessage("<$ADF$>" + name + "-" + QString::setNum(-1));
+                            sendMessage("<$ADF$>" + name + "-" + QString::number(1));
+                        }
+                        else if (this->user != NULL && this->user->userName == name){
+                            sendMessage("<$ADF$>" + name + "-" + QString::number(5));
                         }
                         else{
-                            sendMessage("<$ADF$>" + name + "-" + QString::setNum(potentialUser->points));
+                            bool check = false;
+                            if (this->user != NULL){
+                                this->user->userSetLock.lock();
+                                check = this->user->friendExists(name);
+                                if (check){
+                                    sendMessage("<$ADF$>" + name + "-" + QString::number(4));
+                                }
+                                for (int i = 0; i < this->user->sentNotifications.size(); ++i){
+                                    if (check){
+                                        break;
+                                    }
+                                    Notification *n = this->user->sentNotifications.at(i);
+                                    if (n->getType() == "FRIEND_REQUEST" && n->getTo() == name){
+                                        check = true;
+                                        sendMessage("<$ADF$>" + name + "-" + QString::number(2));
+                                        break;
+                                    }
+                                }
+                                for (int i = 0; i < this->user->recievedNotifications.size(); ++i){
+                                    if (check){
+                                        break;
+                                    }
+                                    Notification *n = this->user->recievedNotifications.at(i);
+                                    if (n->getType() == "FRIEND_REQUEST" && n->getFrom() == name){
+                                        check = true;
+                                        sendMessage("<$ADF$>" + name + "-" + QString::number(3));
+                                        break;
+                                    }
+                                }
+
+                                this->user->userSetLock.unlock();
+
+
+                            }
+                            if (!check){
+                                sendMessage("<$ADF$>" + name + "-" + QString::number(potentialUser->points));
+                            }
+
                         }
                         userLock.unlock();
+                    }
+                    else if (notif == "<$NOTIFICATION$>"){
+                        handleNotificationResponse(message.mid(16));
                     }
                     else if (game == "<$GAME$>"){
                         QString code = split.mid(8);
@@ -185,6 +229,9 @@ void ActiveUser::messageRecieved() {
                                 sendMessage(QString("<$POINTS$>") + points);
                                 sendMessage(leaderBoard);
                                 this->user = potentialUser;
+                                sendFL();
+                                connect(potentialUser, SIGNAL(recievedNewNoti(Notification*)), this, SLOT(sendNotification(Notification*)));
+                                sendAllNotifications();
                             }
                         }
                         userLock.unlock();
@@ -205,6 +252,9 @@ void ActiveUser::messageRecieved() {
                             this->user = u;
                             u->setUser(this);
                             sendMessage(leaderBoard);
+                            sendFL();
+                            connect(u, SIGNAL(recievedNewNoti(Notification*)), this, SLOT(sendNotification(Notification*)));
+                            sendAllNotifications();
                         }
                         else {
                             sendMessage(QString("<$SIGNUP$>-1"));
@@ -285,6 +335,85 @@ void ActiveUser::sendMessage(QString message) {
     }
 }
 
+void ActiveUser::handleNotificationResponse(QString response){
+    cout << "Handle notification response was called " << response.toStdString() << endl;
+    if (disconnectFlag){
+        return;
+    }
+    if (this->user != NULL){
+        this->user->userSetLock.lock();
+        userLock.lock();
+        QStringList responseList = response.split(" ");
+        if (responseList.size() != 3){
+            this->user->userSetLock.unlock();
+            userLock.unlock();
+            return;
+        }
+        QString type = responseList.at(2).trimmed();
+        QString from = responseList.at(0);
+        QString yesOrNo = responseList.at(1);
+        for (int i = 0; i < this->user->recievedNotifications.size(); ++i){
+            Notification *current = this->user->recievedNotifications.at(i);
+            //cout << "From: " << current->getFrom() << " Type: " << current->getType() << endl;
+            if (current->getType() == type && current->getFrom() == from){
+                cout << "HNR ELSE" << endl;
+                User *other = userTable->value(from);
+                if (other != NULL){
+                    other->userSetLock.lock();
+                    int position = -1;
+                    for (int j = 0; j < other->sentNotifications.size(); ++j){
+                        Notification *sent = other->sentNotifications.at(j);
+                        if (sent->getTo() == this->user->userName && sent->getType() == type){
+                            cout << "the crucial one" << endl;
+                            position = j;
+                            if (yesOrNo == "YES" && type == "FRIEND_REQUEST"){
+                                other->addFriend(this->user->userName, false);
+                                this->user->addFriend(other->userName, false);
+                                emit updateFriend(this->user->userName, other->userName);
+                                emit updateFriend(other->userName, this->user->userName);
+                                sendMessage("<$NEWFRIEND$>" + other->userName);
+                            }
+                            if (other->userA != NULL && yesOrNo == "YES" && type == "FRIEND_REQUEST"){
+                                emit other->userA->newMessage("<$NEWFRIEND$>" + this->user->userName);
+                            }
+                            break;
+                        }
+                    }
+                    if (position != -1){
+                        other->sentNotifications.remove(position);
+                    }
+                    other->userSetLock.unlock();
+                }
+
+                this->user->recievedNotifications.remove(i);
+
+                break;
+            }
+        }
+        userLock.unlock();
+        this->user->userSetLock.unlock();
+
+    }
+    cout << "I am leaving HNR" << endl;
+}
+
+void ActiveUser::sendNotification(Notification *n){
+    if (this->user != NULL && socket != NULL && !disconnectFlag){
+        QString message = "<$NOTIFICATION$>" + n->getFrom() + "-" + n->getType();
+        sendMessage(message);
+    }
+}
+
+void ActiveUser::sendAllNotifications(){
+    if (this->user != NULL){
+        this->user->userSetLock.lock();
+        for (int  i = 0; i < this->user->recievedNotifications.size(); ++i){
+            sendNotification(this->user->recievedNotifications.at(i));
+        }
+        this->user->userSetLock.unlock();
+    }
+}
+
 void ActiveUser::sendFL() {
     if (socket != NULL && !disconnectFlag) {
         user->friendLock.lock();
@@ -295,7 +424,7 @@ void ActiveUser::sendFL() {
                 fList = fList + current;
                 continue;
             }
-            fList = fList + current + ",";
+            fList = fList + current + "-";
         }
         user->friendLock.unlock();
         sendMessage(fList);
@@ -303,28 +432,36 @@ void ActiveUser::sendFL() {
 }
 
 void ActiveUser::addFriend(QString userName) {
+    if (disconnectFlag){
+        return;
+    }
+    if (this->user != NULL && userName == this->user->userName){
+        return;
+    }
     userLock.lock();
     User *toAdd = userTable->value(userName);
 
-    if (toAdd == NULL || user->friendExists(userName)) {
-        QString result = "<$ADDRESULT$>" + userName + " 0";
-        sendMessage(result);
-    }
-    else {
-        toAdd->addFriend(user->userName, false);
-        user->addFriend(userName, false);
+    if (toAdd != NULL && this->user != NULL){
         toAdd->userSetLock.lock();
-        QString result = "<$NEWFRIEND$>" + user->userName;
-        if (toAdd->userA != NULL) {
-            toAdd->userA->newMessage(result);
+        this->user->userSetLock.lock();
+        for (int i = 0; i < this->user->recievedNotifications.size(); ++i){
+            Notification *current = this->user->recievedNotifications.at(i);
+            if (current->getType() == "FRIEND_REQUEST" && current->getFrom() == toAdd->userName){
+                toAdd->userSetLock.unlock();
+                this->user->userSetLock.unlock();
+                userLock.unlock();
+                return;
+            }
         }
-        else {
-            toAdd->saveMessage(result);
-        }
+        Notification *newNoti = new Notification(this->user->userName, toAdd->userName, true, "FRIEND_REQUEST");
+        this->user->sentNotifications.push_back(newNoti);
+        newNoti = new Notification(this->user->userName, toAdd->userName, false, "FRIEND_REQUEST");
+        toAdd->recievedNotifications.push_back(newNoti);
+        emit toAdd->recievedNewNoti(newNoti);
         toAdd->userSetLock.unlock();
-        result = "<$ADDRESULT$>" + userName + " 1";
-        sendMessage(result);
+        this->user->userSetLock.unlock();
     }
+
     userLock.unlock();
 
 }

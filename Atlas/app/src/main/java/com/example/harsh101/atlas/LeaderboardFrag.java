@@ -44,15 +44,21 @@ public class LeaderboardFrag extends Fragment {
             leaderboardListView = myView.findViewById(R.id.leaderboardListView);
 
             leaderboardListView.setAdapter(adapter);
+            System.out.println("this worked out pretty good.");
         }
         return myView;
     }
 
     public void setList(ArrayList<LeaderboardUser> newList) {
-        list = newList;
-        if (adapter != null){
-            adapter.updateList(newList);
-            adapter.notifyDataSetChanged();
+        if (list == null){
+            list = newList;
+        }
+        else{
+            list.clear();
+            list.addAll(newList);
+            if (adapter != null){
+                adapter.notifyDataSetChanged();
+            }
         }
     }
 
@@ -60,6 +66,15 @@ public class LeaderboardFrag extends Fragment {
         if(l != null) {
             list.add(l);
             adapter.notifyDataSetChanged();
+        }
+    }
+
+    public void signOut(){
+        if (list != null){
+            list.clear();
+            if (adapter != null){
+                adapter.notifyDataSetChanged();
+            }
         }
     }
 

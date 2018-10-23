@@ -28,7 +28,7 @@ public class Client {
     private BufferedReader br;
     private String messageBuffer = null;
     private int myPoints = 0;
-    private Lock clientLock = null;
+    public Lock clientLock = null;
 
     public Client(){
         socket = null;
