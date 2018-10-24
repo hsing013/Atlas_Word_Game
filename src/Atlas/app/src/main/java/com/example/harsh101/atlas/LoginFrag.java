@@ -14,6 +14,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import static java.lang.Character.isLetter;
+import static java.lang.Character.isLetterOrDigit;
 
 
 /**
@@ -57,51 +58,102 @@ public class LoginFrag extends Fragment {
     }
 
     public boolean checkInput(String name, String pass){
-//        if (name == "")
-//        {
-//            return false;
-//        }
-//
-//        else if (!isLetter(name.charAt(0)))
-//        {
-//            return false;
-//        }
-//
-//        else if (name.contains(" "))
-//        {
-//            return false;
-//        }
-//
-//        else if (name.length() < 6)
-//        {
-//            return false;
-//        }
-//
-//        else if ()
-//        {
-//            for (int i = 0; i < name.length(); ++i)
-//            {
-//                if (name.charAt(i) == '_') {
-//                    continue;
-//                }
-//
-//                else
-//                {
-//                    return false;
-//                }
-//            }
-//        }
-//
-//
-//        if (pass == "")
-//        {
-//            return false;
-//        }
-//
-//        else if (pass.contains(" "))
-//        {
-//            return false;
-//        }
+        if (name == "")
+        {
+            System.out.println("Invalid Username");
+            return false;
+        }
+
+        else if (!isLetter(name.charAt(0)))
+        {
+            System.out.println("Invalid Username");
+            return false;
+        }
+
+        else if (name.contains(" "))
+        {
+            System.out.println("Invalid Username");
+            return false;
+        }
+
+        else if (name.length() < 6)
+        {
+            System.out.println("Invalid Username");
+            return false;
+        }
+
+        else
+        {
+            for (int i = 0; i < name.length(); ++i)
+            {
+                if (!isLetterOrDigit(name.charAt(i))) {
+                    if (name.charAt(i) == '_')
+                    {
+                        continue;
+                    }
+
+                    else
+                    {
+                        System.out.println("Invalid Username");
+                        return false;
+                    }
+                }
+
+                else
+                {
+                    continue;
+                }
+            }
+        }
+
+
+        if (pass == "")
+        {
+            System.out.println("Invalid Password");
+            return false;
+        }
+
+        else if (pass.contains(" "))
+        {
+            System.out.println("Invalid Password");
+            return false;
+        }
+
+        else if (pass.length() < 8)
+        {
+            System.out.println("Invalid Password");
+            return false;
+        }
+
+        else if (!isLetterOrDigit(pass.charAt(0)))
+        {
+            System.out.println("Invalid Password");
+            return false;
+        }
+
+        else
+        {
+            for (int i = 0; i < pass.length(); ++i)
+            {
+                if (!isLetterOrDigit(pass.charAt(i))) {
+                    if (pass.charAt(i) == '_')
+                    {
+                        continue;
+                    }
+
+                    else
+                    {
+                        System.out.println("Invalid Username");
+                        return false;
+                    }
+                }
+
+                else
+                {
+                    continue;
+                }
+            }
+        }
 
         return true;
     }
