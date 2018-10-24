@@ -43,6 +43,7 @@ public slots:
     void disconnectGame(Game*);
     void updatePoints(QString, QString, int points);
     void updateLeaderBoard();
+    void updateFriendDB(QString, QString);
 signals:
     void disconnectAll();
     void leaderBoardUpdate(QString);

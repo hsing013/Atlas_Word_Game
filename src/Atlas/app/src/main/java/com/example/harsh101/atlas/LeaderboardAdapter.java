@@ -24,13 +24,17 @@ public class LeaderboardAdapter extends ArrayAdapter {
     }
 
     public void updateList(ArrayList<LeaderboardUser> newList){
+        System.out.println("Array adapter list was changed");
         myList = newList;
+        this.notifyDataSetChanged();
 
     }
 
     public View getView(int pos, View convertView, ViewGroup parent) {
+        System.out.println("get view is called");
         View v = convertView;
         LayoutInflater inflater = ((Activity) aContext).getLayoutInflater();
+        System.out.println("I passed");
         if(v == null) {
             v = inflater.inflate(R.layout.leaderboard_list, parent, false);
         }

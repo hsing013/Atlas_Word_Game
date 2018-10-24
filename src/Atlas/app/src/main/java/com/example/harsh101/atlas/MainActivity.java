@@ -12,8 +12,10 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,16 +54,19 @@ public class MainActivity extends AppCompatActivity {
     public boolean loggedIn = false;
     public HashSet<String> wordTable = null;
     public DataBase db = null;
-
     public boolean isInBackground;
-
+    public FriendFrag friendFrag = null;
     public LeaderboardAdapter leaderboardAdapter = null;
+    public AddFriendFrag addFriendFrag = null;
+    public NotificationFrag notificationFrag = null;
+    public SettingFrag settingFrag = null;
+    //<$NOTIFICATION$>FRIEND NAME
 
 
-
-    public static class MyHandler extends Handler{  //this allows the serverThread talk with the mainThread(UI thread)
+    public static class MyHandler extends Handler {  //this allows the serverThread talk with the mainThread(UI thread)
         private MainActivity myActivity;
-        public MyHandler(MainActivity instance){
+
+        public MyHandler(MainActivity instance) {
             myActivity = instance;
         }
 
@@ -73,17 +78,14 @@ public class MainActivity extends AppCompatActivity {
             System.out.println(s);
             m.lock.lock();
             switch (currentState) {
-                case initial_Login:
-                {
+                case initial_Login: {
                     break;
                 }
-                case initial_Signup:
-                {
+                case initial_Signup: {
                     break;
                 }
-                case loginAttempt:
-                {
-                    if (s.compareTo("HOST DISCONNECTED") == 0){
+                case loginAttempt: {
+                    if (s.compareTo("HOST DISCONNECTED") == 0) {
                         Toast.makeText(m.getApplicationContext(), "Lost Connection with the server", Toast.LENGTH_LONG).show();
                         m.state = State.initial_Login;
                         m.loginTemp = null;
@@ -91,73 +93,64 @@ public class MainActivity extends AppCompatActivity {
                         m.loginFrag.disableButton(false);
                         m.loggedIn = false;
                         m.c.closeSocket();
-                    }
-                    else if (s.compareTo("<$LOGIN$>-1") == 0){
+                    } else if (s.compareTo("<$LOGIN$>-1") == 0) {
                         Toast.makeText(m.getApplicationContext(), "User doesn't exist.", Toast.LENGTH_LONG).show();
                         m.state = State.initial_Login;
                         m.loginTemp = null;
                         m.setFragment(m.loginFrag);
                         m.loginFrag.disableButton(false);
-                    }
-                    else if (s.compareTo("<$LOGIN$>-2") == 0){
+                    } else if (s.compareTo("<$LOGIN$>-2") == 0) {
                         Toast.makeText(m.getApplicationContext(), "Password is incorrect.", Toast.LENGTH_LONG).show();
                         m.state = State.initial_Login;
                         m.loginTemp = null;
                         m.setFragment(m.loginFrag);
                         m.loginFrag.disableButton(false);
-                    }
-                    else if (s.compareTo("<$LOGIN$>-4") == 0){
+                    } else if (s.compareTo("<$LOGIN$>-4") == 0) {
                         Toast.makeText(m.getApplicationContext(), "Some unknown error occured.", Toast.LENGTH_LONG).show();
                         m.state = State.initial_Login;
                         m.loginTemp = null;
                         m.setFragment(m.loginFrag);
                         m.loginFrag.disableButton(false);
-                    }
-                    else if (s.compareTo("<$LOGIN$>-3") == 0){
+                    } else if (s.compareTo("<$LOGIN$>-3") == 0) {
                         Toast.makeText(m.getApplicationContext(), "User is already signed in.", Toast.LENGTH_LONG).show();
                         m.state = State.initial_Login;
                         m.loginTemp = null;
                         m.setFragment(m.loginFrag);
                         m.loginFrag.disableButton(false);
-                    }
-                    else if (s.compareTo("<$LOGIN$>1") == 0){
+                    } else if (s.compareTo("<$LOGIN$>1") == 0) {
                         Toast.makeText(m.getApplicationContext(), "Sign in success!", Toast.LENGTH_LONG).show();
                         m.enterApp();
                         m.state = State.loggedIn;
                         m.loginTemp = null;
                         m.loggedIn = true;
-                    }
-                    else if (s.contains("<$POINTS$>")){
+                    } else if (s.contains("<$POINTS$>")) {
                         int index = s.indexOf(">");
                         int points = Integer.parseInt(s.substring(index + 1));
                         m.c.setMyPoints(points);
                         m.db.updateConfig(m.c.getUserName(), m.c.getPass(), m.c.getMyPoints());
                     }
-                    
+
                     break;
                 }
-                case signupAttempt:
-                {
-                    if (s.compareTo("<$SIGNUP$>1") == 0){
+                case signupAttempt: {
+                    if (s.compareTo("<$SIGNUP$>1") == 0) {
                         Toast.makeText(m.getApplicationContext(), "Sign up Success!", Toast.LENGTH_LONG).show();
                         m.enterApp();
                         m.state = State.loggedIn;
+                        m.loggedIn = true;
                         m.signupTemp = null;
                         m.db.updateConfig(m.c.getUserName(), m.c.getPass(), m.c.getMyPoints());
-                    }
-                    else if (s.compareTo("<$SIGNUP$>-1") == 0){
+                    } else if (s.compareTo("<$SIGNUP$>-1") == 0) {
                         Toast.makeText(m.getApplicationContext(), "User exists.", Toast.LENGTH_LONG).show();
                         m.state = State.initial_Signup;
                         m.signupTemp = null;
                         m.loginFrag.disableButton(false);
-                    }
-                    else if (s.compareTo("<$SIGNUP$>-2") == 0){
+                    } else if (s.compareTo("<$SIGNUP$>-2") == 0) {
                         Toast.makeText(m.getApplicationContext(), "Unknown error occured.", Toast.LENGTH_LONG).show();
                         m.state = State.initial_Signup;
                         m.signupTemp = null;
                         m.loginFrag.disableButton(false);
-                    }
-                    else if (s.contains("<$POINTS$>")){
+                    } else if (s.contains("<$POINTS$>")) {
                         int index = s.indexOf(">");
                         int points = Integer.parseInt(s.substring(index + 1));
                         m.c.setMyPoints(points);
@@ -165,18 +158,16 @@ public class MainActivity extends AppCompatActivity {
                     }
                     break;
                 }
-                case loggedIn:
-                {
-                    if (s.compareTo("<$GAME$>$DISCONNECTED$") == 0){
-                        if (m.onLineGame != null){
+                case loggedIn: {
+                    if (s.compareTo("<$GAME$>$DISCONNECTED$") == 0) {
+                        if (m.onLineGame != null) {
                             m.onLineGame = null;
                             m.screen.exposeMenu();
                             m.screen.myBanner.setText("Game disconnected!");
                             m.setFragment(m.screen);
                         }
-                    }
-                    else if (s.compareTo("HOST DISCONNECTED") == 0){
-                        if (m.onLineGame != null){
+                    } else if (s.compareTo("HOST DISCONNECTED") == 0) {
+                        if (m.onLineGame != null) {
                             m.onLineGame.stopTimer();
                             m.onLineGame = null;
                             m.gameFrag.endGame();
@@ -186,23 +177,19 @@ public class MainActivity extends AppCompatActivity {
                         m.hostConnected = false;
                         m.c.closeSocket();
                         //m.c.setMessageBuffer("");
-                    }
-                    else if (s.compareTo("<$LOGIN$>1") == 0){
+                    } else if (s.compareTo("<$LOGIN$>1") == 0) {
                         m.loginTemp = null;
                         m.loggedIn = true;
-                    }
-                    else if (s.compareTo("<$LOGIN$>-1") == 0 || s.compareTo("<$LOGIN$>-2") == 0 || s.compareTo("<$LOGIN$>-3") == 0 || s.compareTo("<$LOGIN$>-4") == 0){
+                    } else if (s.compareTo("<$LOGIN$>-1") == 0 || s.compareTo("<$LOGIN$>-2") == 0 || s.compareTo("<$LOGIN$>-3") == 0 || s.compareTo("<$LOGIN$>-4") == 0) {
                         m.loginTemp = null;
-                    }
-                    else if (s.compareTo("<$GAME$>$NOTFOUND$") == 0){
-                        if (m.onLineGame != null){
+                    } else if (s.compareTo("<$GAME$>$NOTFOUND$") == 0) {
+                        if (m.onLineGame != null) {
                             m.onLineGame = null;
                             m.screen.exposeMenu();
                             m.screen.myBanner.setText("Couldn't find a game!");
                         }
-                    }
-                    else if (s.compareTo("<$GAME$>$first$") == 0){
-                        if (m.onLineGame != null){
+                    } else if (s.compareTo("<$GAME$>$first$") == 0) {
+                        if (m.onLineGame != null) {
                             System.out.println("I was triggered.");
                             m.onLineGame.myTurn = true;
                             m.onLineGame.setMyWord(m.wordOfTheDay);
@@ -214,9 +201,8 @@ public class MainActivity extends AppCompatActivity {
                             //m.onLineGame.startTimer();
 
                         }
-                    }
-                    else if (s.compareTo("<$GAME$>$second$") == 0){
-                        if (m.onLineGame != null){
+                    } else if (s.compareTo("<$GAME$>$second$") == 0) {
+                        if (m.onLineGame != null) {
                             System.out.println("I was triggered2.");
                             m.onLineGame.myTurn = false;
                             m.setFragment(m.gameFrag);
@@ -227,16 +213,14 @@ public class MainActivity extends AppCompatActivity {
                             //m.onLineGame.startTimer();
 
                         }
-                    }
-                    else if (s.compareTo("<$GAME$>$lost$") == 0){
+                    } else if (s.compareTo("<$GAME$>$lost$") == 0) {
                         if (m.onLineGame != null) {
                             m.onLineGame.stopTimer();
                             m.gameFrag.setOther("You lost!");
                             m.gameFrag.endGame();
                         }
                         m.onLineGame = null;
-                    }
-                    else if (s.compareTo("<$GAME$>$won$") == 0){
+                    } else if (s.compareTo("<$GAME$>$won$") == 0) {
                         if (m.onLineGame != null) {
                             m.onLineGame.stopTimer();
                             m.gameFrag.setOther("You won!");
@@ -245,8 +229,7 @@ public class MainActivity extends AppCompatActivity {
                             m.db.updateConfig(m.c.getUserName(), m.c.getPass(), m.c.getMyPoints());
                         }
                         m.onLineGame = null;
-                    }
-                    else if (s.compareTo("<$GAME$>$won2$") == 0){
+                    } else if (s.compareTo("<$GAME$>$won2$") == 0) {
                         if (m.onLineGame != null) {
                             m.onLineGame.stopTimer();
                             m.gameFrag.setOther("Other user disconnected. Maybe you are too good!");
@@ -255,8 +238,7 @@ public class MainActivity extends AppCompatActivity {
                             m.db.updateConfig(m.c.getUserName(), m.c.getPass(), m.c.getMyPoints());
                         }
                         m.onLineGame = null;
-                    }
-                    else if (s.compareTo("<$GAME$>$won3$") == 0){
+                    } else if (s.compareTo("<$GAME$>$won3$") == 0) {
                         if (m.onLineGame != null) {
                             m.onLineGame.stopTimer();
                             m.gameFrag.setOther("Other user quit. You are really good!");
@@ -265,9 +247,8 @@ public class MainActivity extends AppCompatActivity {
                             m.db.updateConfig(m.c.getUserName(), m.c.getPass(), m.c.getMyPoints());
                         }
                         m.onLineGame = null;
-                    }
-                    else if (s.contains("<$GAMEW$>")){
-                        if (m.onLineGame != null){
+                    } else if (s.contains("<$GAMEW$>")) {
+                        if (m.onLineGame != null) {
                             m.onLineGame.myTurn = true;
                             m.onLineGame.stopTimer();
                             int index = s.indexOf(">");
@@ -279,36 +260,85 @@ public class MainActivity extends AppCompatActivity {
                             //m.onLineGame.startTimer();
                             m.gameFrag.setTimer("15");
                         }
-                    }
-                    else if (s.compareTo("<$GAME$>startTimer") == 0){
-                        if (m.onLineGame != null){
+                    } else if (s.compareTo("<$GAME$>startTimer") == 0) {
+                        if (m.onLineGame != null) {
                             m.onLineGame.startTimer();
                         }
-                    }
-                    else if (s.contains("<$POINTS$>")){
+                    } else if (s.contains("<$POINTS$>")) {
                         int index = s.indexOf(">");
                         int points = Integer.parseInt(s.substring(index + 1));
                         m.c.setMyPoints(points);
                         m.db.updateConfig(m.c.getUserName(), m.c.getPass(), m.c.getMyPoints());
-                    }
-                    else if (s.contains("<$LEADER$>")){
+                    } else if (s.contains("<$LEADER$>")) {
                         int index = s.indexOf(">");
                         String sub = s.substring(index + 1);
                         String players[] = sub.split("\\$");
 
                         ArrayList<LeaderboardUser> leaderBoard = new ArrayList<>();
 
-                        for (int i = 0; i < players.length; ++i){
+                        for (int i = 0; i < players.length; ++i) {
                             String current = players[i];
-                            String split[] = current.split("-");
+                            String split[] = current.split("\\-");
+                            System.out.println("Size of split: " + split.length);
                             LeaderboardUser user = new LeaderboardUser();
                             user.name = split[0];
                             user.numPoints = Integer.parseInt(split[1]);
                             leaderBoard.add(user);
                         }
-
+                        System.out.println("Size of leaderboard list: " + leaderBoard.size());
                         m.leaderboardFrag.setList(leaderBoard);
 
+                    } else if (s.contains("<$NOTIFICATION$>")) {
+                        int index = s.indexOf(">");
+                        String sub = s.substring(index + 1);
+                        System.out.println("Split: " + sub);
+                        String split[] = sub.split("\\-");
+                        Notification n = new Notification(split[1], split[0]);
+                        m.notificationFrag.addToList(n);
+                    } else if (s.contains("<$ADF$>")) {
+                        int index = s.indexOf(">");
+                        String sub = s.substring(index + 1);
+                        String furtherSplit[] = sub.split("\\-");
+                        if (furtherSplit.length == 2) {
+                            int points = Integer.parseInt(furtherSplit[1]);
+                            System.out.println("ADF " + points);
+                            if (points == 1) {
+                                m.addFriendFrag.setBanner(furtherSplit[0] + " does not exist", false, "");
+                            }
+                            else if (points == 2) {
+                                m.addFriendFrag.setBanner(furtherSplit[0] + ": Friend request sent!", false, "");
+                            }
+                            else if (points == 3){
+                                m.addFriendFrag.setBanner(furtherSplit[0] + ": Check your notifications!", false, "");
+                            }
+                            else if (points == 4){
+                                m.addFriendFrag.setBanner(furtherSplit[0] + ": Already your friend!", false, "");
+                            }
+                            else if (points == 5){
+                                m.addFriendFrag.setBanner(furtherSplit[0] + ": That is you!", false, "");
+                            }
+                            else{
+                                m.addFriendFrag.setBanner(furtherSplit[0], true, "Add Friend");
+                            }
+
+                        }
+                    } else if (s.contains("<$FRIENDLIST$>")) {
+                        int index = s.indexOf(">");
+                        String sub = s.substring(index + 1);
+                        String split[] = sub.split("\\-");
+                        ArrayList<Friend> myFriends = new ArrayList<>();
+                        for (int i = 0; i < split.length; ++i) {
+                            Friend f = new Friend();
+                            f.name = split[i];
+                            myFriends.add(f);
+                        }
+                        m.friendFrag.setList(myFriends);
+                    } else if (s.contains("<$NEWFRIEND$>")) {
+                        int index = s.indexOf(">");
+                        String sub = s.substring(index + 1);
+                        Friend f = new Friend();
+                        f.name = sub;
+                        m.friendFrag.addToList(f);
                     }
                     break;
                 }
@@ -319,9 +349,11 @@ public class MainActivity extends AppCompatActivity {
 
 
         }
-    };
+    }
 
-    public void enterApp(){
+    ;
+
+    public void enterApp() {
         loginFrag.disableButton(false);
         navigation.setVisibility(View.VISIBLE);
         setFragment(home);
@@ -329,13 +361,14 @@ public class MainActivity extends AppCompatActivity {
 
     public MyHandler handler = new MyHandler(this);
 
-    public class MyRunnable implements Runnable{
+    public class MyRunnable implements Runnable {
         public boolean kill = false;
-        public MyRunnable(){
+
+        public MyRunnable() {
             kill = false;
         }
 
-        public void sendMessage(String s){  //send message to main thread (UI thread)
+        public void sendMessage(String s) {  //send message to main thread (UI thread)
             Message myMsg = new Message();
             Bundle bundle = new Bundle();
             bundle.putString("Message", s);
@@ -348,17 +381,16 @@ public class MainActivity extends AppCompatActivity {
             System.out.println("I am running");
 
             while (!kill) {
-                while(isInBackground){
-                    try{
+                while (isInBackground) {
+                    try {
                         Thread.sleep(300);
-                    }
-                    catch (InterruptedException e){
+                    } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
                 hostConnected = c.isConnectedToHost();
                 while (!hostConnected) {
-                    if (isInBackground){
+                    if (isInBackground) {
                         System.out.println("in background");
                         break;
                     }
@@ -378,7 +410,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
-                if (isInBackground){
+                if (isInBackground) {
                     continue;
                 }
 
@@ -414,13 +446,13 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     }
                     case loggedIn: {
-                        if (!loggedIn && loginTemp == null && hostConnected){
+                        if (!loggedIn && loginTemp == null && hostConnected) {
                             System.out.print("I was triggered!");
                             loginTemp = new CustomTask();
                             loginTemp.setUserName(c.getUserName());
                             loginTemp.setPass(c.getPass());
                             boolean flag = c.sendMessage(loginTemp.prepareLogin());
-                            if (!flag){
+                            if (!flag) {
                                 loginTemp = null;
                             }
                             break;
@@ -478,7 +510,7 @@ public class MainActivity extends AppCompatActivity {
                             if (message.compareTo("<$SIGNUP$>1") == 0) {
                                 c.setUserName(signupTemp.getUserName());
                                 c.setPass(signupTemp.getPass());
-                                db.updateConfig(signupTemp.getUserName(), signupTemp .getPass(), 0);
+                                db.updateConfig(signupTemp.getUserName(), signupTemp.getPass(), 0);
                             }
                             sendMessage(message);
                             break;
@@ -498,29 +530,28 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            }
+        }
 
         public void setKill(boolean kill) {
             this.kill = kill;
         }
     }
 
-    public void readWordFile(){
+    public void readWordFile() {
         BufferedReader reader = null;
         wordTable = new HashSet<>();
-        try{
+        try {
             reader = new BufferedReader(new InputStreamReader(getAssets().open("words.txt")));
 
             String input = "";
 
-            while((input = reader.readLine()) != null){
-                if (input == "" || input.contains(" ")){
+            while ((input = reader.readLine()) != null) {
+                if (input == "" || input.contains(" ")) {
                     continue;
                 }
                 wordTable.add(input);
             }
-        }
-        catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
             System.exit(-1);
         }
@@ -540,17 +571,20 @@ public class MainActivity extends AppCompatActivity {
                     setFragment(leaderboardFrag);
                     return true;
                 case R.id.navigation_notifications:
+                    setFragment(notificationFrag);
                     return true;
                 case R.id.settings:
+                    setFragment(settingFrag);
                     return true;
                 case R.id.friendList:
+                    setFragment(friendFrag);
                     return true;
             }
             return false;
         }
     };
 
-    private void setFragment(Fragment frag){
+    private void setFragment(Fragment frag) {
         FragmentTransaction fragTrans = getSupportFragmentManager().beginTransaction();
         fragTrans.replace(R.id.mainFrame, frag);
         fragTrans.commit();
@@ -573,26 +607,42 @@ public class MainActivity extends AppCompatActivity {
         isInBackground = false;
 
 
-
-
         db = new DataBase(getApplicationContext());
 
         gameFrag = new GameFrag();
 
-        ArrayList<LeaderboardUser> list = new ArrayList<>();
+        ArrayList<LeaderboardUser> leaderList = new ArrayList<>();
 
-        leaderboardAdapter = new LeaderboardAdapter(getApplicationContext(), R.layout.leaderboard_list, list);
+        LeaderboardUser tempUser = new LeaderboardUser();
+
+        tempUser.setName("Harsh");
+
+        tempUser.setNumPoints(10000);
+
+        leaderList.add(tempUser);
+
+        leaderboardAdapter = new LeaderboardAdapter(this, R.layout.leaderboard_list, leaderList);
 
         leaderboardFrag = new LeaderboardFrag();
 
-        leaderboardFrag.setList(list);
+        leaderboardFrag.setList(leaderList);
         leaderboardFrag.adapter = leaderboardAdapter;
 
         readWordFile();
 
+        addFriendFrag = new AddFriendFrag();
+
         c = new Client();
 
+        settingFrag = new SettingFrag();
+
         list = new ArrayList<>();
+
+        friendFrag = new FriendFrag();
+        ArrayList<Friend> friends = new ArrayList<>();
+        FriendArrayAdapter friendArrayAdapter = new FriendArrayAdapter(this, android.R.layout.simple_list_item_1, friends);
+        friendFrag.setList(friends);
+        friendFrag.adapter = friendArrayAdapter;
 
         serverThread = new Thread(new MyRunnable());
 
@@ -602,18 +652,27 @@ public class MainActivity extends AppCompatActivity {
 
         home = new HomeFrag();
 
+        notificationFrag = new NotificationFrag();
+
+        ArrayList<Notification> notifications = new ArrayList<>();
+
+        NotificationAdapter adapter = new NotificationAdapter(this, R.layout.notification_element, notifications);
+
+        notificationFrag.setList(notifications);
+
+        notificationFrag.adapter = adapter;
+
         ArrayList<String> config = db.getConfig();
 
         hostConnected = false;
 
-        if (config != null){
+        if (config != null) {
             c.setUserName(config.get(0));
             c.setPass(config.get(1));
             c.setMyPoints(Integer.valueOf(config.get(2)).intValue());
             state = State.loggedIn;
             returnHome(null);
-        }
-        else {
+        } else {
             setFragment(loginFrag);
         }
 
@@ -624,19 +683,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void onDestroy(){
+    public void onDestroy() {
         super.onDestroy();
         c.closeSocket();
         db.updateConfig(c.getUserName(), c.getPass(), c.getMyPoints());
         System.out.println("On destroy was triggered.");
     }
 
-    public void onPause(){
+    public void onPause() {
         super.onPause();
         c.closeSocket();
         c.setMessageBuffer("");
         isInBackground = true;
-        if (screen != null && screen.isVisible() && state == State.loggedIn){
+        if (screen != null && screen.isVisible() && state == State.loggedIn) {
             if (home != null) {
                 setFragment(home);
             }
@@ -645,22 +704,22 @@ public class MainActivity extends AppCompatActivity {
         System.out.println("On pause was triggered.");
     }
 
-    public void onStart(){
+    public void onStart() {
         super.onStart();
         isInBackground = false;
         System.out.println("OnStart was triggered.");
-        if (serverThread != null && !serverThread.isAlive()){
+        if (serverThread != null && !serverThread.isAlive()) {
             System.out.println("onstart if");
             serverThread = new Thread(new MyRunnable());
             serverThread.start();
         }
     }
 
-    public void onResume(){
+    public void onResume() {
         super.onResume();
         System.out.println("On resume was triggered.");
         isInBackground = false;
-        if (serverThread != null && !serverThread.isAlive()){
+        if (serverThread != null && !serverThread.isAlive()) {
             System.out.println("onresume if");
             serverThread = new Thread(new MyRunnable());
             serverThread.start();
@@ -668,35 +727,32 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void loginButtonClick(View v){
+    public void loginButtonClick(View v) {
         System.out.println("Button clicked");
-        if (!hostConnected){
+        if (!hostConnected) {
             Toast.makeText(getApplicationContext(), "Not connected to server", Toast.LENGTH_LONG).show();
             return;
         }
         loginFrag.disableButton(true);
         ArrayList<String> info = loginFrag.readInput();
-        if (info != null){
-            if (state == State.initial_Login){
+        if (info != null) {
+            if (state == State.initial_Login) {
                 loginTemp = new CustomTask();
                 loginTemp.setTAG("LOGIN");
                 loginTemp.setUserName(info.get(0));
                 loginTemp.setPass(info.get(1));
                 state = State.loginAttempt;
-            }
-            else if (state == State.initial_Signup){
+            } else if (state == State.initial_Signup) {
                 signupTemp = new CustomTask();
                 signupTemp.setTAG("LOGIN");
                 signupTemp.setUserName(info.get(0));
                 signupTemp.setPass(info.get(1));
                 state = State.signupAttempt;
             }
-        }
-        else{
+        } else {
             loginFrag.disableButton(false);
         }
     }
-
 
 
     /*If the user hits the looking for signup
@@ -704,28 +760,25 @@ public class MainActivity extends AppCompatActivity {
         but if the click it again, it will take them back to the
         login screen
      */
-    public void onSignUpClick(View v){
+    public void onSignUpClick(View v) {
         System.out.print("I work!");
-        if (state == State.initial_Login){
+        if (state == State.initial_Login) {
             state = State.initial_Signup;
             loginFrag.flipToSignUp(true);
-        }
-        else{
+        } else {
             state = State.initial_Login;
             loginFrag.flipToSignUp(false);
         }
     }
 
-    public void onPlayOnline(View v){
-        if (!hostConnected){
+    public void onPlayOnline(View v) {
+        if (!hostConnected) {
             Toast.makeText(getApplicationContext(), "Not connected to server.", Toast.LENGTH_LONG).show();
             return;
-        }
-        else if (!loggedIn){
+        } else if (!loggedIn) {
             Toast.makeText(getApplicationContext(), "User not logged in", Toast.LENGTH_LONG).show();
             return;
-        }
-        else if (onLineGame != null){
+        } else if (onLineGame != null) {
             //TODO
         }
 
@@ -746,11 +799,11 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void onGameSend(View v){
-        if (onLineGame != null){
+    public void onGameSend(View v) {
+        if (onLineGame != null) {
             String word = gameFrag.getInput();
             boolean check = onLineGame.checkWord(word);
-            if (check){
+            if (check) {
                 onLineGame.stopTimer();
                 CustomTask task = new CustomTask();
                 task.setTAG("<$GAMEW$>");
@@ -762,21 +815,133 @@ public class MainActivity extends AppCompatActivity {
                 gameFrag.setOther("Other players' turn");
                 gameFrag.setTimer("15");
                 onLineGame.startTimer();
-            }
-            else{
+            } else {
                 gameFrag.setButton(true);
                 gameFrag.setInputUser(true);
             }
         }
     }
 
-    public void returnHome(View v){
+    public void returnHome(View v) {
         setFragment(home);
         navigation.setVisibility(View.VISIBLE);
     }
 
-    public void showPoints(View v){ // this is temporary
+    public void showPoints(View v) { // this is temporary
         Toast.makeText(getApplicationContext(), Integer.toString(c.getMyPoints()), Toast.LENGTH_LONG).show();
+    }
+
+    public void onAddFriend(View v) {
+       setFragment(addFriendFrag);
+    }
+
+    public void backButtonAddFriend(View v) {
+        addFriendFrag.reset();
+        setFragment(friendFrag);
+    }
+
+    public void searchUser(View v) {
+        if (!hostConnected) {
+            Toast.makeText(getApplicationContext(), "Not connected to server.", Toast.LENGTH_LONG).show();
+            return;
+        } else if (!loggedIn) {
+            Toast.makeText(getApplicationContext(), "User not logged in", Toast.LENGTH_LONG).show();
+            return;
+        }
+        System.out.println("Search user was clicked");
+        addFriendFrag.searchButton.setEnabled(false);
+        CustomTask customTask = new CustomTask();
+        customTask.setTAG("<$ADF$>");
+        customTask.message = addFriendFrag.input.getText().toString();
+        addFriendFrag.reset();
+        addFriendFrag.banner.setText("Searching...");
+        addFriendFrag.searchButton.setEnabled(false);
+        lock.lock();
+        list.add(customTask);
+        lock.unlock();
+    }
+
+    public void sendFriendRequest(View v) {
+        if (!hostConnected) {
+            Toast.makeText(getApplicationContext(), "Not connected to server.", Toast.LENGTH_LONG).show();
+            return;
+        } else if (!loggedIn) {
+            Toast.makeText(getApplicationContext(), "User not logged in", Toast.LENGTH_LONG).show();
+            return;
+        }
+        CustomTask customTask = new CustomTask();
+        customTask.setTAG("<$ADD$>");
+        customTask.message = addFriendFrag.banner.getText().toString();
+        addFriendFrag.reset();
+        lock.lock();
+        list.add(customTask);
+        lock.unlock();
+        Toast.makeText(getApplicationContext(), "Friend Request Sent!", Toast.LENGTH_LONG).show();
+    }
+
+    public void yesToNotification(View v){
+        if (!hostConnected) {
+            Toast.makeText(getApplicationContext(), "Not connected to server.", Toast.LENGTH_LONG).show();
+            return;
+        } else if (!loggedIn) {
+            Toast.makeText(getApplicationContext(), "User not logged in", Toast.LENGTH_LONG).show();
+            return;
+        }
+        TextView view = (TextView) v;
+        int pos = (int) view.getTag();
+        Notification n = notificationFrag.getAndRemove(pos);
+        if (n != null){
+            CustomTask customTask = new CustomTask();
+            customTask.setTAG("<$NOTIFICATION$>");
+            customTask.message = n.from + " YES " + n.type;
+            lock.lock();
+            list.add(customTask);
+            lock.unlock();
+        }
+    }
+
+    public void notToNotification(View v){
+        if (!hostConnected) {
+            Toast.makeText(getApplicationContext(), "Not connected to server.", Toast.LENGTH_LONG).show();
+            return;
+        } else if (!loggedIn) {
+            Toast.makeText(getApplicationContext(), "User not logged in", Toast.LENGTH_LONG).show();
+            return;
+        }
+        TextView view = (TextView) v;
+        int pos = (int) view.getTag();
+        Notification n = notificationFrag.getAndRemove(pos);
+        if (n != null){
+            CustomTask customTask = new CustomTask();
+            customTask.setTAG("<$NOTIFICATION$>");
+            customTask.message = n.from + " NO " + n.type;
+            lock.lock();
+            list.add(customTask);
+            lock.unlock();
+        }
+    }
+
+    public void signOut(View v){
+        state = State.initial_Login;
+        loggedIn = false;
+        navigation.setVisibility(View.INVISIBLE);
+        //setFragment(screen);
+        c.clientLock.lock();
+        c.setUserName("");
+        c.setPass("");
+        c.clientLock.unlock();
+        c.closeSocket();
+        leaderboardFrag.signOut();
+        friendFrag.signOut();
+        notificationFrag.signOut();
+        loginFrag.flipToSignUp(false);
+        setFragment(loginFrag);
+
+        db.deleteAllTables(getApplicationContext());
+
+        db = new DataBase(getApplicationContext());
+
+
     }
 
 }

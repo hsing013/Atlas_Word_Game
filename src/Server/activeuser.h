@@ -43,6 +43,7 @@ signals:
     void removeFromQueue(ActiveUser*);
     void stopTimer();
     void updatePoints(QString, QString, int);
+    void updateFriend(QString, QString);
 public slots:
     void messageRecieved();
     void disconnect();
@@ -52,6 +53,9 @@ public slots:
     void sendSavedMessages();
     void timerTrigger();
     void updateLeaderBoard(QString newBoard);
+    void handleNotificationResponse(QString);
+    void sendNotification(Notification*);
+    void sendAllNotifications();
 
 private:
     QHash<QString, User*> *userTable;

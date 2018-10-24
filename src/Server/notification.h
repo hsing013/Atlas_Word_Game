@@ -19,7 +19,6 @@ public:
     void setTo(QString);
     void setSender(bool);
     void setType(QString);
-
 private:
     bool sender;
     QString to;

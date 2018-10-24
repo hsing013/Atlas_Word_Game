@@ -21,8 +21,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_Server_t {
-    QByteArrayData data[19];
-    char stringdata0[217];
+    QByteArrayData data[20];
+    char stringdata0[232];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -49,7 +49,8 @@ QT_MOC_LITERAL(14, 158, 14), // "disconnectGame"
 QT_MOC_LITERAL(15, 173, 5), // "Game*"
 QT_MOC_LITERAL(16, 179, 12), // "updatePoints"
 QT_MOC_LITERAL(17, 192, 6), // "points"
-QT_MOC_LITERAL(18, 199, 17) // "updateLeaderBoard"
+QT_MOC_LITERAL(18, 199, 17), // "updateLeaderBoard"
+QT_MOC_LITERAL(19, 217, 14) // "updateFriendDB"
 
     },
     "Server\0disconnectAll\0\0leaderBoardUpdate\0"
@@ -57,7 +58,7 @@ QT_MOC_LITERAL(18, 199, 17) // "updateLeaderBoard"
     "listen\0displayMessage\0saveUserToDB\0"
     "log\0findPlayerToPlay\0user\0removeFromQueue\0"
     "disconnectGame\0Game*\0updatePoints\0"
-    "points\0updateLeaderBoard"
+    "points\0updateLeaderBoard\0updateFriendDB"
 };
 #undef QT_MOC_LITERAL
 
@@ -67,7 +68,7 @@ static const uint qt_meta_data_Server[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-      13,   14, // methods
+      14,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -75,21 +76,22 @@ static const uint qt_meta_data_Server[] = {
        2,       // signalCount
 
  // signals: name, argc, parameters, tag, flags
-       1,    0,   79,    2, 0x06 /* Public */,
-       3,    1,   80,    2, 0x06 /* Public */,
+       1,    0,   84,    2, 0x06 /* Public */,
+       3,    1,   85,    2, 0x06 /* Public */,
 
  // slots: name, argc, parameters, tag, flags
-       4,    1,   83,    2, 0x0a /* Public */,
-       6,    0,   86,    2, 0x0a /* Public */,
-       7,    0,   87,    2, 0x0a /* Public */,
-       8,    1,   88,    2, 0x0a /* Public */,
-       9,    2,   91,    2, 0x0a /* Public */,
-      10,    1,   96,    2, 0x0a /* Public */,
-      11,    1,   99,    2, 0x0a /* Public */,
-      13,    1,  102,    2, 0x0a /* Public */,
-      14,    1,  105,    2, 0x0a /* Public */,
-      16,    3,  108,    2, 0x0a /* Public */,
-      18,    0,  115,    2, 0x0a /* Public */,
+       4,    1,   88,    2, 0x0a /* Public */,
+       6,    0,   91,    2, 0x0a /* Public */,
+       7,    0,   92,    2, 0x0a /* Public */,
+       8,    1,   93,    2, 0x0a /* Public */,
+       9,    2,   96,    2, 0x0a /* Public */,
+      10,    1,  101,    2, 0x0a /* Public */,
+      11,    1,  104,    2, 0x0a /* Public */,
+      13,    1,  107,    2, 0x0a /* Public */,
+      14,    1,  110,    2, 0x0a /* Public */,
+      16,    3,  113,    2, 0x0a /* Public */,
+      18,    0,  120,    2, 0x0a /* Public */,
+      19,    2,  121,    2, 0x0a /* Public */,
 
  // signals: parameters
     QMetaType::Void,
@@ -107,6 +109,7 @@ static const uint qt_meta_data_Server[] = {
     QMetaType::Void, 0x80000000 | 15,    2,
     QMetaType::Void, QMetaType::QString, QMetaType::QString, QMetaType::Int,    2,    2,   17,
     QMetaType::Void,
+    QMetaType::Void, QMetaType::QString, QMetaType::QString,    2,    2,
 
        0        // eod
 };
@@ -130,6 +133,7 @@ void Server::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void
         case 10: _t->disconnectGame((*reinterpret_cast< Game*(*)>(_a[1]))); break;
         case 11: _t->updatePoints((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2])),(*reinterpret_cast< int(*)>(_a[3]))); break;
         case 12: _t->updateLeaderBoard(); break;
+        case 13: _t->updateFriendDB((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2]))); break;
         default: ;
         }
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
@@ -208,13 +212,13 @@ int Server::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 13)
+        if (_id < 14)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 13;
+        _id -= 14;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 13)
+        if (_id < 14)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 13;
+        _id -= 14;
     }
     return _id;
 }

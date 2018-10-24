@@ -50,7 +50,7 @@ public class SettingFrag extends Fragment {
 
     public void fillList(ArrayList<String> newSlist)
     {
-        if(slist = null)
+        if(slist == null)
         {
             slist = newSlist;
         }

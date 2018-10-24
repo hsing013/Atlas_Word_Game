@@ -7,6 +7,7 @@
 #include <vector>
 #include "include.h"
 #include "notification.h"
+#include <QVector>
 using namespace std;
 
 struct ActiveUser;
@@ -25,8 +26,8 @@ public:
     QMutex userSetLock;
     QMutex friendLock;
     QMutex messageLock;
-    vector<Notification*> recievedNotifications;
-    vector<Notification*> sentNotifications;
+    QVector<Notification*> recievedNotifications;
+    QVector<Notification*> sentNotifications;
     User(){
         userName = "";
         pass = "";
@@ -80,6 +81,7 @@ public slots:
         friendLock.lock();
         friendList.push_back(myFriend);
         friendLock.unlock();
+
     }
     void saveMessage(QString s){
         messageLock.lock();
@@ -87,7 +89,8 @@ public slots:
         messageLock.unlock();
     }
 signals:
-
+    void recievedNewNoti(Notification *);
+    void newFriend(QString);
 };
 
 #endif // USER_H

@@ -6,11 +6,12 @@
 
     <TextView
         android:id="@+id/textView1"
-        android:layout_width="265dp"
+        android:layout_width="68dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:gravity="left"
-        android:text="TextView" />
+        android:text="TextView"
+        android:textSize="18sp" />
 
     <TextView
         android:id="@+id/textView2"
@@ -18,5 +19,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:gravity="right"
-        android:text="TextView" />
+        android:text="TextView"
+        android:textSize="18sp" />
+
 </LinearLayout>
