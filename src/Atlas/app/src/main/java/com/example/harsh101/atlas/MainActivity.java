@@ -269,20 +269,21 @@ public class MainActivity extends AppCompatActivity {
                         int points = Integer.parseInt(s.substring(index + 1));
                         m.c.setMyPoints(points);
                         m.db.updateConfig(m.c.getUserName(), m.c.getPass(), m.c.getMyPoints());
-                    } else if (s.contains("<$LEADER$>")) {
+                    } else if (s.contains("<$LEADER$>")) {  // server sending to the client
                         int index = s.indexOf(">");
                         String sub = s.substring(index + 1);
-                        String players[] = sub.split("\\$");
+                        String players[] = sub.split("\\$"); // First time the messsage to client is being split
+                        //each split is at the dollar sign ($)
 
                         ArrayList<LeaderboardUser> leaderBoard = new ArrayList<>();
 
-                        for (int i = 0; i < players.length; ++i) {
-                            String current = players[i];
+                        for (int i = 0; i < players.length; ++i) { // This is where we are actually adding the users name and
+                            String current = players[i]; // their points to the Leader Board list so that it can appear on leader board.
                             String split[] = current.split("\\-");
                             System.out.println("Size of split: " + split.length);
-                            LeaderboardUser user = new LeaderboardUser();
+                            LeaderboardUser user = new LeaderboardUser(); //  Section does the second split so it know that user name and
                             user.name = split[0];
-                            user.numPoints = Integer.parseInt(split[1]);
+                            user.numPoints = Integer.parseInt(split[1]); // how many poiints they have
                             leaderBoard.add(user);
                         }
                         System.out.println("Size of leaderboard list: " + leaderBoard.size());
