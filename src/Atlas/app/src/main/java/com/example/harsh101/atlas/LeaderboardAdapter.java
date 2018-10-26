@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 
 
-
+//Custom Leaderboard Adapter that integrates with ListView in LeaderboardFrag
 public class LeaderboardAdapter extends ArrayAdapter {
     private ArrayList<LeaderboardUser> myList;
     private Context aContext;
@@ -29,6 +29,8 @@ public class LeaderboardAdapter extends ArrayAdapter {
         this.notifyDataSetChanged();
 
     }
+
+
 
     public View getView(int pos, View convertView, ViewGroup parent) {
         System.out.println("get view is called");

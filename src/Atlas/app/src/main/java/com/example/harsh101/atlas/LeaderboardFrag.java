@@ -42,7 +42,7 @@ public class LeaderboardFrag extends Fragment {
             }
 
             leaderboardListView = myView.findViewById(R.id.leaderboardListView);
-
+        // Uses custom LeaderBoardAdapter to show more than just a TextView for the Leaderboard
             leaderboardListView.setAdapter(adapter);
             System.out.println("this worked out pretty good.");
         }
