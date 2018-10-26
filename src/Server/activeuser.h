@@ -6,6 +6,7 @@
 #include <QHash>
 #include "user.h"
 #include "game.h"
+#include "privatewaitingroom.h"
 #include <QMap>
 #include <QVector>
 using namespace std;
@@ -30,6 +31,7 @@ public:
     Game *g;
     QThread *mainThread;
     QString leaderBoard;
+    PrivateWaitingRoom *pRoom;
     ActiveUser();
     ActiveUser(QHash<QString, User*> *table);
     ~ActiveUser();

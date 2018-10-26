@@ -67,7 +67,7 @@ Server::Server()
 
         userTable->insert(u->userName, u);
 
-        QString friendTable = u->userName + "_FL";
+        QString friendTable = u->userName + "FL";
 
         QSqlQuery q2 = db.exec("CREATE TABLE IF NOT EXISTS " + friendTable + " (FRIENDS TEXT);");
 
@@ -251,6 +251,7 @@ void Server::newConnection() {
     connect(user, SIGNAL(updatePoints(QString,QString,int)), this, SLOT(updatePoints(QString,QString,int)));
     connect(this, SIGNAL(leaderBoardUpdate(QString)), user, SLOT(updateLeaderBoard(QString)));
     connect(user, SIGNAL(updateFriend(QString, QString)), this, SLOT(updateFriendDB(QString, QString)));
+
     if (!user->socket->isOpen()){
         user->disconnect();
     }
@@ -302,6 +303,7 @@ void Server::disconnectUser(ActiveUser *au) {
         au->socket->close();
         au->myLock.unlock();
         au->deleteLater();
+        au = NULL;
         userLock.unlock();
         return;
     }
@@ -313,7 +315,7 @@ void Server::disconnectUser(ActiveUser *au) {
     au->socket->close();
     au->myLock.unlock();
     au->deleteLater();
-
+    au = NULL;
     u->userSetLock.unlock();
 
     userLock.unlock();
@@ -413,12 +415,16 @@ void Server::disconnectGame(Game *g){
 }
 
 void Server::updateFriendDB(QString userName, QString newFriend){
-    QString friendTable = userName + "_FL";
+    QString friendTable = userName + "FL";
     QSqlQuery query = db.exec("INSERT INTO " + friendTable + " (FRIENDS) VALUES ('" + newFriend + "')");
 
     if (!query.isValid()){
        cout << "Error while adding a friend to DB" << endl;
     }
+}
+
+void Server::createGame(ActiveUser *owner, ActiveUser* other){
+
 }
 
 

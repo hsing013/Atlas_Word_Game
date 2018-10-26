@@ -44,6 +44,7 @@ public slots:
     void updatePoints(QString, QString, int points);
     void updateLeaderBoard();
     void updateFriendDB(QString, QString);
+    void createGame(ActiveUser*, ActiveUser*);
 signals:
     void disconnectAll();
     void leaderBoardUpdate(QString);

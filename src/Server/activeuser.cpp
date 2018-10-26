@@ -12,6 +12,7 @@ ActiveUser::ActiveUser()
     inQueue = false;
     g = NULL;
     waitTimer = new QTimer(NULL);
+    pRoom = NULL;
     connect(waitTimer, SIGNAL(timeout()), this, SLOT(timerTrigger()));
     connect(this, SIGNAL(stopTimer()), waitTimer, SLOT(stop()));
 }
@@ -28,6 +29,7 @@ ActiveUser::ActiveUser(QHash<QString, User *> *table) {
     inQueue = false;
     g = NULL;
     waitTimer = new QTimer();
+    pRoom = NULL;
     connect(waitTimer, SIGNAL(timeout()), this, SLOT(timerTrigger()));
 }
 
@@ -196,6 +198,13 @@ void ActiveUser::messageRecieved() {
                             myLock.lock();
                         }
                     }
+                    else if (gameWord == "<$GAMEI$>"){
+                        if (pRoom == NULL && !waitingRoom && !inQueue && !inGame){
+                            pRoom = new PrivateWaitingRoom(this);
+                            waitTimer->start(30000);
+                            waitingRoom = true;
+                        }
+                    }
 
                 }
                 else {
@@ -279,17 +288,38 @@ void ActiveUser::messageRecieved() {
 void ActiveUser::timerTrigger(){
     cout << "timer" << QThread::currentThreadId() <<  endl;
     myLock.lock();
-
-    if (!inGame && waitTimer != NULL && inQueue){
-        waitingRoom = false;
-        waitTimer->stop();
-        sendMessage("<$GAME$>$NOTFOUND$");
-        emit removeFromQueue(this);
+    if (pRoom == NULL){
+        if (!inGame && waitTimer != NULL && inQueue){
+            waitingRoom = false;
+            waitTimer->stop();
+            sendMessage("<$GAME$>$NOTFOUND$");
+            emit removeFromQueue(this);
+        }
+        else{
+            waitTimer->stop();
+        }
     }
     else{
-        waitTimer->stop();
+        if (!inGame && waitTimer != NULL){
+            pRoom->roomLock.lock();
+            if (pRoom->otherPlayerIn){
+                waitTimer->stop();
+            }
+            else{
+                pRoom->timerTriggered = true;
+                QObject::disconnect(pRoom, 0, 0, 0);
+                pRoom->roomLock.unlock();
+                delete pRoom;
+                pRoom = NULL;
+            }
+        }
+        else{
+            waitTimer->stop();
+        }
     }
+
     myLock.unlock();
+
 }
 
 void ActiveUser::sendSavedMessages() {
@@ -342,11 +372,11 @@ void ActiveUser::handleNotificationResponse(QString response){
     }
     if (this->user != NULL){
         this->user->userSetLock.lock();
-        userLock.lock();
+        //userLock.lock();
         QStringList responseList = response.split(" ");
         if (responseList.size() != 3){
             this->user->userSetLock.unlock();
-            userLock.unlock();
+            //userLock.unlock();
             return;
         }
         QString type = responseList.at(2).trimmed();
@@ -390,7 +420,7 @@ void ActiveUser::handleNotificationResponse(QString response){
                 break;
             }
         }
-        userLock.unlock();
+        //userLock.unlock();
         this->user->userSetLock.unlock();
 
     }
@@ -438,7 +468,7 @@ void ActiveUser::addFriend(QString userName) {
     if (this->user != NULL && userName == this->user->userName){
         return;
     }
-    userLock.lock();
+    //userLock.lock();
     User *toAdd = userTable->value(userName);
 
     if (toAdd != NULL && this->user != NULL){
@@ -449,7 +479,7 @@ void ActiveUser::addFriend(QString userName) {
             if (current->getType() == "FRIEND_REQUEST" && current->getFrom() == toAdd->userName){
                 toAdd->userSetLock.unlock();
                 this->user->userSetLock.unlock();
-                userLock.unlock();
+                //userLock.unlock();
                 return;
             }
         }
@@ -462,7 +492,7 @@ void ActiveUser::addFriend(QString userName) {
         this->user->userSetLock.unlock();
     }
 
-    userLock.unlock();
+    //userLock.unlock();
 
 }
 

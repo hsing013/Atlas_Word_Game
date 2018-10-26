@@ -32,7 +32,8 @@ SOURCES += \
         server.cpp \
         activeuser.cpp \
     game.cpp \
-    notification.cpp
+    notification.cpp \
+    privatewaitingroom.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -41,7 +42,8 @@ HEADERS += \
         activeuser.h \
         user.h \
     game.h \
-    notification.h
+    notification.h \
+    privatewaitingroom.h
 
 FORMS += \
         mainwindow.ui

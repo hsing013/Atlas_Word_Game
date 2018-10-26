@@ -44,6 +44,7 @@ public class SettingFrag extends Fragment {
             }
             sAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, slist);
             settingView.setAdapter(sAdapter);
+            settingView.setVisibility(View.INVISIBLE);
         }
         return myView;
     }
