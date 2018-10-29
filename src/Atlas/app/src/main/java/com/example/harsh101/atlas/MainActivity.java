@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -46,7 +47,8 @@ public class MainActivity extends AppCompatActivity {
     public GameFrag gameFrag = null;
     public ArrayList<CustomTask> list = null;
     public Game onLineGame = null;
-    public Game offlineGame = null;
+    public PassAndPlay offlineGame = null;
+    public PassAndPassFrag passAndPassFrag = null;
     public Lock lock = new ReentrantLock();
     public String wordOfTheDay = "hoopla"; //will change later
     public LeaderboardFrag leaderboardFrag = null;
@@ -653,6 +655,9 @@ public class MainActivity extends AppCompatActivity {
 
         home = new HomeFrag();
 
+
+        passAndPassFrag = new PassAndPassFrag();
+
         notificationFrag = new NotificationFrag();
 
         ArrayList<Notification> notifications = new ArrayList<>();
@@ -800,6 +805,25 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void offlineGame(View v){
+        if (offlineGame !=  null){
+            offlineGame = new PassAndPlay(this);
+            offlineGame.setHashSet(wordTable);
+            inGame = true;
+            passAndPassFrag.currentGame = offlineGame;
+            setFragment(passAndPassFrag);
+            navigation.setVisibility(View.INVISIBLE);
+            Random r = new Random();
+            int i = r.nextInt(2);
+            if (i == 0){
+                offlineGame.myTurn = true;
+            }
+            else{
+                offlineGame.myTurn = false;
+            }
+        }
+    }
+
     public void onGameSend(View v) {
         if (onLineGame != null) {
             String word = gameFrag.getInput();
@@ -821,6 +845,16 @@ public class MainActivity extends AppCompatActivity {
                 gameFrag.setInputUser(true);
             }
         }
+        else if (offlineGame != null){
+            String word = passAndPassFrag.getInput();
+            boolean check = offlineGame.checkWord(word);
+            if (check){
+                offlineGame.stopTimer();
+                passAndPassFrag.PlayerTurn();
+
+            }
+        }
+
     }
 
     public void returnHome(View v) {

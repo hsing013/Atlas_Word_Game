@@ -138,6 +138,7 @@ public class GameFrag extends Fragment {
         if (myView == null){
             return;
         }
+
         timer.setVisibility(View.INVISIBLE);
         inputUser.setVisibility(View.INVISIBLE);
         send.setVisibility(View.INVISIBLE);
