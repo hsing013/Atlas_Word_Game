@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
     public AddFriendFrag addFriendFrag = null;
     public NotificationFrag notificationFrag = null;
     public SettingFrag settingFrag = null;
+
     //<$NOTIFICATION$>FRIEND NAME
 
 
@@ -355,7 +356,7 @@ public class MainActivity extends AppCompatActivity {
     ;
 
     public void enterApp() {
-        loginFrag.disableButton(false);
+        //loginFrag.disableButton(false);
         navigation.setVisibility(View.VISIBLE);
         setFragment(home);
     }
@@ -604,7 +605,6 @@ public class MainActivity extends AppCompatActivity {
 
         //System.out.println("I am here3");
 
-
         isInBackground = false;
 
 
@@ -640,6 +640,7 @@ public class MainActivity extends AppCompatActivity {
         list = new ArrayList<>();
 
         friendFrag = new FriendFrag();
+        friendFrag.main = this;
         ArrayList<Friend> friends = new ArrayList<>();
         FriendArrayAdapter friendArrayAdapter = new FriendArrayAdapter(this, android.R.layout.simple_list_item_1, friends);
         friendFrag.setList(friends);
@@ -675,7 +676,12 @@ public class MainActivity extends AppCompatActivity {
             returnHome(null);
         } else {
             setFragment(loginFrag);
+
         }
+
+        c.setUserName("Hoopla");
+        c.setPass("Jesus");
+        enterApp();
 
         System.out.println("I am leaving");
 
