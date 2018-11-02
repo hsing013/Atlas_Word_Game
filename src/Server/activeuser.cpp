@@ -1,5 +1,5 @@
 #include "activeuser.h"
-
+#include "server.h"
 ActiveUser::ActiveUser()
 {
     socket = NULL;
@@ -12,6 +12,7 @@ ActiveUser::ActiveUser()
     inQueue = false;
     g = NULL;
     waitTimer = new QTimer(NULL);
+    pRoom = NULL;
     connect(waitTimer, SIGNAL(timeout()), this, SLOT(timerTrigger()));
     connect(this, SIGNAL(stopTimer()), waitTimer, SLOT(stop()));
 }
@@ -28,7 +29,9 @@ ActiveUser::ActiveUser(QHash<QString, User *> *table) {
     inQueue = false;
     g = NULL;
     waitTimer = new QTimer();
+    pRoom = NULL;
     connect(waitTimer, SIGNAL(timeout()), this, SLOT(timerTrigger()));
+    connect(this, SIGNAL(stopTimer()), waitTimer, SLOT(stop()));
 }
 
 ActiveUser::~ActiveUser() {
@@ -37,6 +40,10 @@ ActiveUser::~ActiveUser() {
     }
     if (socket != NULL) {
         delete socket;
+    }
+    if (pRoom != NULL){
+        delete pRoom;
+        pRoom = NULL;
     }
 }
 
@@ -116,7 +123,7 @@ void ActiveUser::messageRecieved() {
                         userLock.lock();
                         QString name = split.mid(7);
                         User *potentialUser = userTable->value(name);
-
+                        userLock.unlock();
                         if (potentialUser == NULL){
                             sendMessage("<$ADF$>" + name + "-" + QString::number(1));
                         }
@@ -136,7 +143,7 @@ void ActiveUser::messageRecieved() {
                                         break;
                                     }
                                     Notification *n = this->user->sentNotifications.at(i);
-                                    if (n->getType() == "FRIEND_REQUEST" && n->getTo() == name){
+                                    if (n->getType() == "FRIEND_REQUEST" && n->getTo()->userName == name){
                                         check = true;
                                         sendMessage("<$ADF$>" + name + "-" + QString::number(2));
                                         break;
@@ -147,7 +154,7 @@ void ActiveUser::messageRecieved() {
                                         break;
                                     }
                                     Notification *n = this->user->recievedNotifications.at(i);
-                                    if (n->getType() == "FRIEND_REQUEST" && n->getFrom() == name){
+                                    if (n->getType() == "FRIEND_REQUEST" && n->getFrom()->userName == name){
                                         check = true;
                                         sendMessage("<$ADF$>" + name + "-" + QString::number(3));
                                         break;
@@ -163,7 +170,6 @@ void ActiveUser::messageRecieved() {
                             }
 
                         }
-                        userLock.unlock();
                     }
                     else if (notif == "<$NOTIFICATION$>"){
                         handleNotificationResponse(message.mid(16));
@@ -195,6 +201,34 @@ void ActiveUser::messageRecieved() {
                             g->updateGame(this, split.mid(9));
                             myLock.lock();
                         }
+                    }
+                    else if (gameWord == "<$GAMEI$>"){
+                        if (pRoom == NULL && !waitingRoom && !inQueue && !inGame && this->user != NULL){
+                            //myLock.lock();
+                            QString gameID = gen->getGameID();
+                            QString otherPlayerName = split.mid(9);
+                            pRoom = new PrivateWaitingRoom(this);
+                            connect(pRoom, SIGNAL(startGame(ActiveUser*,ActiveUser*)), mainServer, SLOT(createGame(ActiveUser*, ActiveUser*)));
+                            pRoom->gameID = gameID;
+                            waitTimer->start(30000);
+                            waitingRoom = true;
+                            Notification *invite = new Notification(this->user, userTable->value(otherPlayerName), true, "$GAME_INVITE$", gameID);
+                            this->user->userSetLock.lock();
+                            this->user->sentNotifications.push_back(invite);
+                            invite = new Notification(this->user, userTable->value(otherPlayerName), false, "$GAME_INVITE$", gameID);
+                            userLock.lock();
+                            User *other = userTable->value(otherPlayerName);
+                            userLock.unlock();
+                            other->userSetLock.lock();
+                            other->recievedNotifications.push_back(invite);
+                            emit other->recievedNewNoti(invite);
+                            other->userSetLock.unlock();
+                            this->user->userSetLock.unlock();
+                            //myLock.unlock();
+                        }
+                    }
+                    else{
+                        sendMessage("<$GAME$>FAIL_TO_INVITE");
                     }
 
                 }
@@ -279,17 +313,73 @@ void ActiveUser::messageRecieved() {
 void ActiveUser::timerTrigger(){
     cout << "timer" << QThread::currentThreadId() <<  endl;
     myLock.lock();
-
-    if (!inGame && waitTimer != NULL && inQueue){
-        waitingRoom = false;
-        waitTimer->stop();
-        sendMessage("<$GAME$>$NOTFOUND$");
-        emit removeFromQueue(this);
+    if (pRoom == NULL){
+        if (!inGame && waitTimer != NULL && inQueue){
+            waitingRoom = false;
+            waitTimer->stop();
+            sendMessage("<$GAME$>$NOTFOUND$");
+            emit removeFromQueue(this);
+        }
+        else{
+            waitTimer->stop();
+        }
     }
     else{
-        waitTimer->stop();
+        if (!inGame && waitTimer != NULL){
+            pRoom->roomLock.lock();
+            if (pRoom->otherPlayerIn){
+                waitTimer->stop();
+                pRoom->roomLock.unlock();
+            }
+            else{
+                QString gameID = pRoom->gameID;
+                pRoom->timerTriggered = true;
+                QObject::disconnect(pRoom, 0, 0, 0);
+                pRoom->roomLock.unlock();
+                delete pRoom;
+                pRoom = NULL;
+                waitingRoom = false;
+                inQueue = false;
+                inGame = false;
+                waitTimer->stop();
+                sendMessage("<$GAME$>$NOT_JOIN$");
+                if (this->user != NULL){
+                    this->user->userSetLock.lock();
+                    for (int i = 0; i < user->sentNotifications.size(); ++i){
+                        Notification *n = user->sentNotifications.at(i);
+                        if (n->getType() == "$GAME_INVITE$" && n->getID() == gameID){
+                            User *u = n->getTo();
+                            u->userSetLock.lock();
+                            int pos = -1;
+                            for (int j = 0; j < u->recievedNotifications.size(); ++j){
+                                Notification *n = u->recievedNotifications.at(j);
+                                if (n->getType() == "$GAME_INVITE$" && n->getFrom()->userName == this->user->userName && n->getID() == gameID){
+                                    pos = j;
+                                    break;
+                                }
+                            }
+                            if (pos != -1){
+                                Notification *toDelete = u->recievedNotifications.at(pos);
+                                delete toDelete;
+                                u->recievedNotifications.remove(pos);
+                            }
+                            u->userSetLock.unlock();
+                            delete n;
+                            user->sentNotifications.remove(i);
+                            break;
+                        }
+                    }
+                    this->user->userSetLock.unlock();
+                }
+            }
+        }
+        else{
+            waitTimer->stop();
+        }
     }
+
     myLock.unlock();
+
 }
 
 void ActiveUser::sendSavedMessages() {
@@ -300,6 +390,19 @@ void ActiveUser::sendSavedMessages() {
 //    user->savedMessages.resize(0);
 //    user->messageLock.unlock();
 }
+
+
+void ActiveUser::denyGame(){
+    if (pRoom != NULL){
+        waitTimer->stop();
+        delete pRoom;
+        pRoom = NULL;
+        inGame = false;
+        waitingRoom = false;
+        inQueue = false;
+    }
+}
+
 
 void ActiveUser::sendMessage(QString message) {
     if (user != NULL){
@@ -342,28 +445,40 @@ void ActiveUser::handleNotificationResponse(QString response){
     }
     if (this->user != NULL){
         this->user->userSetLock.lock();
-        userLock.lock();
+        //userLock.lock();
+        QString type = "";
+        QString from = "";
+        QString yesOrNo = "";
+        QString gameID = "";
+        bool sentSomething = false;
         QStringList responseList = response.split(" ");
-        if (responseList.size() != 3){
+        if (responseList.size() == 3){
+            type = responseList.at(2).trimmed();
+            from = responseList.at(0);
+            yesOrNo = responseList.at(1);
+        }
+        else if (responseList.size() == 4){
+            type = responseList.at(2);
+            from = responseList.at(0);
+            yesOrNo = responseList.at(1);
+            gameID = responseList.at(3).trimmed();
+        }
+        else{
             this->user->userSetLock.unlock();
-            userLock.unlock();
             return;
         }
-        QString type = responseList.at(2).trimmed();
-        QString from = responseList.at(0);
-        QString yesOrNo = responseList.at(1);
         for (int i = 0; i < this->user->recievedNotifications.size(); ++i){
             Notification *current = this->user->recievedNotifications.at(i);
-            //cout << "From: " << current->getFrom() << " Type: " << current->getType() << endl;
-            if (current->getType() == type && current->getFrom() == from){
+            cout << "From: " << current->getFrom()->userName.toStdString() << " Type: " << current->getType().toStdString() << endl;
+            if (type == "$FRIEND_REQUEST$" && current->getType() == type && current->getFrom()->userName == from){
                 cout << "HNR ELSE" << endl;
-                User *other = userTable->value(from);
+                User *other = current->getFrom();
                 if (other != NULL){
                     other->userSetLock.lock();
                     int position = -1;
                     for (int j = 0; j < other->sentNotifications.size(); ++j){
                         Notification *sent = other->sentNotifications.at(j);
-                        if (sent->getTo() == this->user->userName && sent->getType() == type){
+                        if (sent->getTo()->userName == this->user->userName && sent->getType() == type){
                             cout << "the crucial one" << endl;
                             position = j;
                             if (yesOrNo == "YES" && type == "FRIEND_REQUEST"){
@@ -380,18 +495,76 @@ void ActiveUser::handleNotificationResponse(QString response){
                         }
                     }
                     if (position != -1){
+                        Notification *toDelete = other->sentNotifications.at(position);
+                        delete toDelete;
                         other->sentNotifications.remove(position);
                     }
                     other->userSetLock.unlock();
                 }
-
+                delete current;
                 this->user->recievedNotifications.remove(i);
 
                 break;
             }
+            else if (type == "$GAME_INVITE$" && current->getType() == type && current->getFrom()->userName == from && current->getID() == gameID){
+                User *u = current->getFrom();
+                u->userSetLock.lock();
+                if (u->userA != NULL){
+                    u->userA->myLock.lock();
+                    if (u->userA->pRoom != NULL && !u->userA->pRoom->timerTriggered && u->userA->pRoom->gameID == gameID && !u->userA->disconnectFlag){
+                        if (yesOrNo == "YES"){
+                            u->userA->pRoom->setOther(this);
+                            sentSomething = true;
+                        }
+                        else{
+                            u->userA->newMessage("<$GAME$>$DENIED$");
+                            u->userA->denyGame();
+                            sentSomething = true;
+                        }
+                    }
+                    else{
+                        sendMessage("<$GAME$>$GAME_NOT_VALID$");
+                        sentSomething = true;
+                    }
+                    u->userA->myLock.unlock();
+                }
+                else{
+                    sendMessage("<$GAME$>$GAME_NOT_VALID$");
+                    sentSomething = true;
+                }
+
+                int position = -1;
+
+                for (int j = 0; j < u->sentNotifications.size(); ++j){
+                    Notification *n = u->sentNotifications.at(j);
+                    if (n->getTo()->userName == this->user->userName && n->getType() == "$GAME_INVITE$" && n->getID() == gameID){
+                        position = j;
+                        delete n;
+                        break;
+                    }
+                }
+
+                if (position != -1){
+                    u->sentNotifications.remove(position);
+                }
+
+                u->userSetLock.unlock();
+
+                delete current;
+
+                this->user->recievedNotifications.remove(i);
+
+
+                break;
+
+
+            }
         }
-        userLock.unlock();
+        //userLock.unlock();
         this->user->userSetLock.unlock();
+        if (type == "$GAME_INVITE$" && !sentSomething){
+            sendMessage("<$GAME$>$GAME_NOT_VALID$");
+        }
 
     }
     cout << "I am leaving HNR" << endl;
@@ -399,7 +572,7 @@ void ActiveUser::handleNotificationResponse(QString response){
 
 void ActiveUser::sendNotification(Notification *n){
     if (this->user != NULL && socket != NULL && !disconnectFlag){
-        QString message = "<$NOTIFICATION$>" + n->getFrom() + "-" + n->getType();
+        QString message = "<$NOTIFICATION$>" + n->getFrom()->userName + "-" + n->getType() + "-" + n->getID();
         sendMessage(message);
     }
 }
@@ -438,7 +611,7 @@ void ActiveUser::addFriend(QString userName) {
     if (this->user != NULL && userName == this->user->userName){
         return;
     }
-    userLock.lock();
+    //userLock.lock();
     User *toAdd = userTable->value(userName);
 
     if (toAdd != NULL && this->user != NULL){
@@ -446,23 +619,23 @@ void ActiveUser::addFriend(QString userName) {
         this->user->userSetLock.lock();
         for (int i = 0; i < this->user->recievedNotifications.size(); ++i){
             Notification *current = this->user->recievedNotifications.at(i);
-            if (current->getType() == "FRIEND_REQUEST" && current->getFrom() == toAdd->userName){
+            if (current->getType() == "$FRIEND_REQUEST$" && current->getFrom()->userName == toAdd->userName){
                 toAdd->userSetLock.unlock();
                 this->user->userSetLock.unlock();
-                userLock.unlock();
+                //userLock.unlock();
                 return;
             }
         }
-        Notification *newNoti = new Notification(this->user->userName, toAdd->userName, true, "FRIEND_REQUEST");
+        Notification *newNoti = new Notification(this->user, toAdd, true, "$FRIEND_REQUEST$", "");
         this->user->sentNotifications.push_back(newNoti);
-        newNoti = new Notification(this->user->userName, toAdd->userName, false, "FRIEND_REQUEST");
+        newNoti = new Notification(this->user, toAdd, false, "$FRIEND_REQUEST$", "");
         toAdd->recievedNotifications.push_back(newNoti);
         emit toAdd->recievedNewNoti(newNoti);
         toAdd->userSetLock.unlock();
         this->user->userSetLock.unlock();
     }
 
-    userLock.unlock();
+    //userLock.unlock();
 
 }
 

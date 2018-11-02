@@ -10,12 +10,18 @@ public class Game {
     public boolean inGame = false;
     public CountDownTimer timer;
     public boolean myTurn = false;
+    public boolean passAndPlay = false;
     public GameFrag gameFrag = null;
     public String myWord = "";
     public HashSet<String> original = null;
     public HashSet<String> usedWords = null;
     public MainActivity m;
+    public boolean player1Turn = false;
+    public PassAndPlayFrag passAndPlayFrag = null;
 
+    Game(){
+        m = null;
+    }
 
     Game(MainActivity main){
         usedWords = new HashSet<>(50);
@@ -24,12 +30,22 @@ public class Game {
             @Override
             public void onTick(long millisUntilFinished) {
                 int seconds = (int) millisUntilFinished / 1000;
-                gameFrag.setTimer(Integer.toString(seconds));
+                if (gameFrag != null) {
+                    gameFrag.setTimer(Integer.toString(seconds));
+                }
+                else if (passAndPlayFrag != null){
+                    passAndPlayFrag.setTimer(Integer.toString(seconds));
+                }
             }
 
             @Override
             public void onFinish() {
-                gameFrag.staleMate();
+                if (!passAndPlay) {
+                    gameFrag.staleMate();
+                }
+                else{
+                    passAndPlayFrag.endGame();
+                }
             }
         };
 

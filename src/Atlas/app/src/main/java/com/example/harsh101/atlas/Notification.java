@@ -6,6 +6,7 @@ public class Notification {
     public String type = null;
     public String from = null;
     public TextView textView = null;
+    public String gameID = null;
 
     public Notification(String type, String from){
         this.type = type;

@@ -1,36 +1,42 @@
 #include "notification.h"
+#include "user.h"
 
 Notification::Notification()
 {
-    to = "";
-    from = "";
+    to = NULL;
+    from = NULL;
     sender = false;
     type = "";
+    gameID = "";
 }
 
-Notification::Notification(QString from, QString to, bool sender, QString type){
+Notification::Notification(User *from, User *to, bool sender, QString type, QString ID){
     this->to = to;
     this->from = from;
     this->sender = sender;
     this->type = type;
+    this->gameID = ID;
 }
 
 bool Notification::getSender(){
     return sender;
 }
-QString Notification::getFrom(){
+User* Notification::getFrom(){
     return from;
 }
-QString Notification::getTo(){
+User* Notification::getTo(){
     return to;
 }
 QString Notification::getType(){
     return type;
 }
-void Notification::setFrom(QString from){
+QString Notification::getID(){
+    return gameID;
+}
+void Notification::setFrom(User *from){
     this->from = from;
 }
-void Notification::setTo(QString to){
+void Notification::setTo(User *to){
     this->to = to;
 }
 void Notification::setSender(bool sender){
@@ -38,5 +44,8 @@ void Notification::setSender(bool sender){
 }
 void Notification::setType(QString type){
     this->type = type;
+}
+void Notification::setID(QString ID){
+    gameID = ID;
 }
 

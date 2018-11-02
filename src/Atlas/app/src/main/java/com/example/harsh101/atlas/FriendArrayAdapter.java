@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -21,15 +22,23 @@ public class FriendArrayAdapter extends ArrayAdapter {
     }
 
     public View getView(int pos, View convertView, ViewGroup parent) {
+        System.out.println("Friend view was called");
         View currentView = convertView;
         LayoutInflater inflater = ((Activity) mContext).getLayoutInflater();
         if (currentView == null) {
-            currentView = inflater.inflate(android.R.layout.simple_list_item_1, parent, false);
+            currentView = inflater.inflate(R.layout.friend_element, parent, false);
         }
 
-        TextView textView = currentView.findViewById(android.R.id.text1);
+        TextView textView = currentView.findViewById(R.id.friendName);
+
 
         textView.setText(friendArrayList.get(pos).name);
+
+
+        Button myButton = currentView.findViewById(R.id.gameInvite);
+
+        myButton.setTag(friendArrayList.get(pos).name);
+
 
         return currentView;
 

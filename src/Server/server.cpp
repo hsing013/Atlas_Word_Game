@@ -6,6 +6,10 @@ Server::Server()
     db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName("testDB2");
 
+    srand(time(0));
+
+    gen = new GameIDGen();
+
     bool open = db.open();
 
     userTable = new QHash<QString, User*>();
@@ -67,13 +71,11 @@ Server::Server()
 
         userTable->insert(u->userName, u);
 
-        QString friendTable = u->userName + "_FL";
+        QString friendTable = u->userName + "FL";
 
         QSqlQuery q2 = db.exec("CREATE TABLE IF NOT EXISTS " + friendTable + " (FRIENDS TEXT);");
 
-        if (!q2.isValid()){
-            exit(-1);
-        }
+
 
         q2 = db.exec("SELECT * FROM " + friendTable);
 
@@ -106,10 +108,10 @@ Server::Server()
             bool sender = false;
             if (senderString == "TRUE"){
                 sender = true;
-                u->sentNotifications.push_back(new Notification(from, to, sender, type));
+                //u->sentNotifications.push_back(new Notification(from, to, sender, type, ""));
             }
             else{
-                u->recievedNotifications.push_back(new Notification(from, to, sender, type));
+                //u->recievedNotifications.push_back(new Notification(from, to, sender, type, ""));
             }
 
             check = q3.next();
@@ -239,6 +241,10 @@ void Server::newConnection() {
 
     user->thread->start();
 
+    user->gen = this->gen;
+
+    user->mainServer = this;
+
     connect(socket, SIGNAL(readyRead()), user, SLOT(messageRecieved()));
     connect(socket, SIGNAL(disconnected()), user, SLOT(disconnect()));
     connect(user, SIGNAL(disconnectUser(ActiveUser*)), this, SLOT(disconnectUser(ActiveUser*)));
@@ -251,6 +257,7 @@ void Server::newConnection() {
     connect(user, SIGNAL(updatePoints(QString,QString,int)), this, SLOT(updatePoints(QString,QString,int)));
     connect(this, SIGNAL(leaderBoardUpdate(QString)), user, SLOT(updateLeaderBoard(QString)));
     connect(user, SIGNAL(updateFriend(QString, QString)), this, SLOT(updateFriendDB(QString, QString)));
+
     if (!user->socket->isOpen()){
         user->disconnect();
     }
@@ -302,6 +309,7 @@ void Server::disconnectUser(ActiveUser *au) {
         au->socket->close();
         au->myLock.unlock();
         au->deleteLater();
+        //au = NULL;
         userLock.unlock();
         return;
     }
@@ -313,7 +321,7 @@ void Server::disconnectUser(ActiveUser *au) {
     au->socket->close();
     au->myLock.unlock();
     au->deleteLater();
-
+    //au = NULL;
     u->userSetLock.unlock();
 
     userLock.unlock();
@@ -413,11 +421,69 @@ void Server::disconnectGame(Game *g){
 }
 
 void Server::updateFriendDB(QString userName, QString newFriend){
-    QString friendTable = userName + "_FL";
+    QString friendTable = userName + "FL";
     QSqlQuery query = db.exec("INSERT INTO " + friendTable + " (FRIENDS) VALUES ('" + newFriend + "')");
 
     if (!query.isValid()){
        cout << "Error while adding a friend to DB" << endl;
+    }
+}
+
+void Server::createGame(ActiveUser *owner, ActiveUser* other){
+    userLock.lock();
+    if (owner == NULL && other != NULL){
+        userLock.unlock();
+        other->sendMessage("<$GAME$>$DISCONNECTED$");
+        return;
+    }
+    else if (owner != NULL && other == NULL){
+        owner->sendMessage("<$GAME$>$DISCONNECTED$");
+        if (owner->pRoom != NULL){
+            delete owner->pRoom;
+            owner->pRoom = NULL;
+        }
+        userLock.unlock();
+        return;
+    }
+    else if (owner != NULL && other != NULL){
+        owner->myLock.lock();
+        other->myLock.lock();
+        if (owner->pRoom != NULL){
+            delete owner->pRoom;
+            owner->pRoom = NULL;
+            emit owner->stopTimer();
+            Game *g = new Game();
+            connect(g, SIGNAL(destroyMe(Game*)), this, SLOT(disconnectGame(Game*)));
+            connect(g, SIGNAL(changeOwnership()), g, SLOT(handControlToMain()));
+            QThread *t = new QThread();
+            connect(t, SIGNAL(started()), g, SLOT(startGame()));
+            g->player1 = owner;
+            g->player2 = other;
+            g->myThread = t;
+            g->timer->moveToThread(t);
+            g->mainThread = QThread::currentThread();
+            other->inGame = true;
+            owner->inGame = true;
+            other->waitingRoom = false;
+            other->inQueue = false;
+            owner->waitingRoom = false;
+            owner->inQueue = false;
+            owner->g = g;
+            other->g = g;
+            owner->myLock.unlock();
+            other->myLock.unlock();
+            g->moveToThread(t);
+            t->start();
+        }
+        else{
+            other->sendMessage("<$GAME$>$DISCONNECTED$");
+            owner->sendMessage("<$GAME$>$DISCONNECTED$");
+            owner->myLock.unlock();
+            other->myLock.unlock();
+        }
+
+        userLock.unlock();
+
     }
 }
 

@@ -6,12 +6,16 @@
 #include <QHash>
 #include "user.h"
 #include "game.h"
+#include "privatewaitingroom.h"
 #include <QMap>
 #include <QVector>
+#include <cstdlib>
+#include "gameidgen.h"
+#include <ctime>
 using namespace std;
 
 
-
+class Server;
 
 struct ActiveUser : public QObject
 {
@@ -30,8 +34,11 @@ public:
     Game *g;
     QThread *mainThread;
     QString leaderBoard;
+    PrivateWaitingRoom *pRoom;
+    Server *mainServer;
     ActiveUser();
     ActiveUser(QHash<QString, User*> *table);
+    GameIDGen *gen;
     ~ActiveUser();
 
 signals:
@@ -56,7 +63,7 @@ public slots:
     void handleNotificationResponse(QString);
     void sendNotification(Notification*);
     void sendAllNotifications();
-
+    void denyGame();
 private:
     QHash<QString, User*> *userTable;
 

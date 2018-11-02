@@ -4,26 +4,35 @@
 #include <QObject>
 #include <iostream>
 #include <QString>
+
+
+class PrivateWaitingRoom;
+
 using namespace std;
+
+struct User;
 
 class Notification
 {
 public:
     Notification();
-    Notification(QString from, QString to, bool sender, QString type);
+    Notification(User *from, User *to, bool sender, QString type, QString ID);
     bool getSender();
-    QString getFrom();
-    QString getTo();
+    User* getFrom();
+    User* getTo();
     QString getType();
-    void setFrom(QString);
-    void setTo(QString);
+    QString getID();
+    void setFrom(User*);
+    void setTo(User*);
     void setSender(bool);
     void setType(QString);
+    void setID(QString);
 private:
     bool sender;
-    QString to;
-    QString from;
+    User *to;
+    User *from;
     QString type;
+    QString gameID;
 };
 
 #endif // NOTIFICATION_H
