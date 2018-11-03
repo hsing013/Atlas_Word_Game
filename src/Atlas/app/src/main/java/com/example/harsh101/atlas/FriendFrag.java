@@ -3,13 +3,17 @@ package com.example.harsh101.atlas;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-
-import java.util.ArrayList;
+import static com.example.harsh101.atlas.R.id.action_add_friend;
 
 
 /**
@@ -20,6 +24,7 @@ public class FriendFrag extends Fragment {
     public ListView listView = null;
     public FriendArrayAdapter adapter = null;
     public ArrayList<Friend> friends = null;
+    public MainActivity main = null;
     public FriendFrag() {
         // Required empty public constructor
     }
@@ -37,11 +42,29 @@ public class FriendFrag extends Fragment {
                 System.exit(-1);
             }
             listView.setAdapter(adapter);
+            setHasOptionsMenu(true);
         }
 
         return myView;
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.friendlist_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch (id) {
+            case action_add_friend:
+                System.out.println("Add Friend");
+                main.onAddFriend(null);
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+
+    }
     public void setList(ArrayList<Friend> newList){
         if (friends == null){
             friends = newList;

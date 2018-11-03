@@ -695,6 +695,7 @@ public class MainActivity extends AppCompatActivity {
         list = new ArrayList<>();
 
         friendFrag = new FriendFrag();
+        friendFrag.main = this;
         ArrayList<Friend> friends = new ArrayList<>();
         FriendArrayAdapter friendArrayAdapter = new FriendArrayAdapter(this, R.layout.friend_element, friends);
         friendFrag.setList(friends);
