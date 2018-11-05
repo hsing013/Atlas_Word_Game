@@ -294,11 +294,7 @@ public class MainActivity extends AppCompatActivity {
                             m.gameFrag.setTimer("15");
                             m.onLineGame.startTimer();
                         }
-<<<<<<< HEAD
-                    } else if (s.compareTo("<$GAME$>$startTimer$") == 0) {
-=======
                     } else if (s.compareTo("<$GAME$>$startTimer") == 0) {
->>>>>>> 551271545fa69755c14bf2dfc06449171968f0c6
                         if (m.onLineGame != null) {
                             m.onLineGame.startTimer();
                         }
