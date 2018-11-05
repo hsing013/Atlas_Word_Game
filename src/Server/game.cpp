@@ -69,8 +69,8 @@ void Game::startGame(){
         player2->newMessage("<$GAME$>$first$");
         player1->newMessage("<$GAME$>$second$");
     }
-    player1->newMessage("<$GAME$>startTimer");
-    player2->newMessage("<$GAME$>startTimer");
+    player1->newMessage("<$GAME$>$startTimer$");
+    player2->newMessage("<$GAME$>$startTimer$");
     player1->myLock.unlock();
     player2->myLock.unlock();
     gameMutex.unlock();
