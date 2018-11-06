@@ -20,6 +20,7 @@ public class AddFriendFrag extends Fragment {
     public Button searchButton = null;
     public TextView banner = null;
     public EditText input = null;
+    public Button addFriendButton = null;
 
     public AddFriendFrag() {
         // Required empty public constructor
@@ -36,6 +37,7 @@ public class AddFriendFrag extends Fragment {
             searchButton = myView.findViewById(R.id.searchButton);
             banner = myView.findViewById(R.id.friendInfo);
             input = myView.findViewById(R.id.searchUser);
+            addFriendButton = myView.findViewById(R.id.sendFriendRequest);
         }
         this.reset();
         return myView;
@@ -47,6 +49,7 @@ public class AddFriendFrag extends Fragment {
         }
 
         input.setText("");
+        addFriendButton.setVisibility(View.INVISIBLE);
         banner.setText("");
         searchButton.setEnabled(true);
     }
@@ -57,6 +60,10 @@ public class AddFriendFrag extends Fragment {
         }
         else{
             banner.setText(text);
+            if (flag){
+                addFriendButton.setVisibility(View.VISIBLE);
+            }
+            addFriendButton.setText(textButton);
             searchButton.setEnabled(true);
         }
     }
