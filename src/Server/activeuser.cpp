@@ -143,7 +143,7 @@ void ActiveUser::messageRecieved() {
                                         break;
                                     }
                                     Notification *n = this->user->sentNotifications.at(i);
-                                    if (n->getType() == "FRIEND_REQUEST" && n->getTo()->userName == name){
+                                    if (n->getType() == "$FRIEND_REQUEST$" && n->getTo()->userName == name){
                                         check = true;
                                         sendMessage("<$ADF$>" + name + "-" + QString::number(2));
                                         break;
@@ -154,7 +154,7 @@ void ActiveUser::messageRecieved() {
                                         break;
                                     }
                                     Notification *n = this->user->recievedNotifications.at(i);
-                                    if (n->getType() == "FRIEND_REQUEST" && n->getFrom()->userName == name){
+                                    if (n->getType() == "$FRIEND_REQUEST$" && n->getFrom()->userName == name){
                                         check = true;
                                         sendMessage("<$ADF$>" + name + "-" + QString::number(3));
                                         break;
@@ -481,14 +481,14 @@ void ActiveUser::handleNotificationResponse(QString response){
                         if (sent->getTo()->userName == this->user->userName && sent->getType() == type){
                             cout << "the crucial one" << endl;
                             position = j;
-                            if (yesOrNo == "YES" && type == "FRIEND_REQUEST"){
+                            if (yesOrNo == "YES" && type == "$FRIEND_REQUEST$"){
                                 other->addFriend(this->user->userName, false);
                                 this->user->addFriend(other->userName, false);
                                 emit updateFriend(this->user->userName, other->userName);
                                 emit updateFriend(other->userName, this->user->userName);
                                 sendMessage("<$NEWFRIEND$>" + other->userName);
                             }
-                            if (other->userA != NULL && yesOrNo == "YES" && type == "FRIEND_REQUEST"){
+                            if (other->userA != NULL && yesOrNo == "YES" && type == "$FRIEND_REQUEST$"){
                                 emit other->userA->newMessage("<$NEWFRIEND$>" + this->user->userName);
                             }
                             break;
