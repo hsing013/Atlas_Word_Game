@@ -40,10 +40,6 @@ public class NotificationAdapter extends ArrayAdapter {
         button1.setTag(pos);
         button2.setTag(pos);
 
-
-
-
-
         return currentView;
 
     }

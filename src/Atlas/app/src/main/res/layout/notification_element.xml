@@ -14,12 +14,13 @@
         android:text="TextView"
         android:textAlignment="center"
         android:textSize="20sp"
+        android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/from"
-        android:layout_width="145dp"
+        android:layout_width="wrap_content"
         android:layout_height="31dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
@@ -31,27 +32,35 @@
 
     <Button
         android:id="@+id/acceptButton"
-        android:layout_width="80dp"
-        android:layout_height="45dp"
-        android:layout_marginStart="45dp"
-        android:text="Accept"
+        style="@android:style/Widget.Material.Button"
+        android:layout_width="70dp"
+        android:layout_height="35dp"
+        android:layout_marginEnd="5dp"
+        android:backgroundTint="@color/colorGreen"
         android:onClick="yesToNotification"
+        android:text="Accept"
         android:textAlignment="center"
+        android:textAllCaps="true"
+        android:textColor="@color/colorWhite"
+        android:textSize="10sp"
+        android:textStyle="bold"
         app:layout_constraintBaseline_toBaselineOf="@+id/from"
-        app:layout_constraintStart_toEndOf="@+id/from" />
+        app:layout_constraintEnd_toStartOf="@+id/denyButton" />
 
     <Button
         android:id="@+id/denyButton"
-        android:layout_width="80dp"
-        android:layout_height="45dp"
-        android:layout_marginStart="8dp"
+        style="@android:style/Widget.Material.Button"
+        android:layout_width="70dp"
+        android:layout_height="35dp"
         android:layout_marginEnd="5dp"
-        android:text="Deny"
+        android:backgroundTint="@color/colorRed"
         android:onClick="noToNotification"
+        android:text="Deny"
         android:textAlignment="center"
+        android:textColor="@color/colorWhite"
+        android:textSize="10sp"
+        android:textStyle="bold"
         app:layout_constraintBaseline_toBaselineOf="@+id/acceptButton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toEndOf="@+id/acceptButton" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </android.support.constraint.ConstraintLayout>
