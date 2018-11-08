@@ -707,6 +707,7 @@ public class MainActivity extends AppCompatActivity {
         serverThread = new Thread(new MyRunnable());
 
         loginFrag = new LoginFrag();
+        loginFrag.m = this;
 
         screen = new LoadingScreen();
 

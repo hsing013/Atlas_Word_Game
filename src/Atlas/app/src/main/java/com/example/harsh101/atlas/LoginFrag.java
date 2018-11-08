@@ -29,7 +29,7 @@ public class LoginFrag extends Fragment {
     public EditText userName = null;
     public EditText password = null;
     public View myView = null;
-    public MainActivity m;
+    public MainActivity m = null;
 
     public LoginFrag() {
         // Required empty public constructor
@@ -60,7 +60,7 @@ public class LoginFrag extends Fragment {
     }
 
     public boolean checkInput(String name, String pass){
-        if (name == "")
+        if (name.equals(""))
         {
             Toast.makeText(m.getApplicationContext(), "Invalid Username", Toast.LENGTH_LONG).show();
             return false;
@@ -109,7 +109,7 @@ public class LoginFrag extends Fragment {
         }
 
 
-        if (pass == "")
+        if (pass.equals(""))
         {
             Toast.makeText(m.getApplicationContext(), "Invalid Password", Toast.LENGTH_LONG).show();
             return false;
