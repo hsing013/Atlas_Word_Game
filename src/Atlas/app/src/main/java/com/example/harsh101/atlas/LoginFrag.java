@@ -10,10 +10,12 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
 import static java.lang.Character.isLetter;
+import static java.lang.Character.isLetterOrDigit;
 
 
 /**
@@ -27,6 +29,7 @@ public class LoginFrag extends Fragment {
     public EditText userName = null;
     public EditText password = null;
     public View myView = null;
+    public MainActivity m;
 
     public LoginFrag() {
         // Required empty public constructor
@@ -57,51 +60,102 @@ public class LoginFrag extends Fragment {
     }
 
     public boolean checkInput(String name, String pass){
-//        if (name == "")
-//        {
-//            return false;
-//        }
-//
-//        else if (!isLetter(name.charAt(0)))
-//        {
-//            return false;
-//        }
-//
-//        else if (name.contains(" "))
-//        {
-//            return false;
-//        }
-//
-//        else if (name.length() < 6)
-//        {
-//            return false;
-//        }
-//
-//        else if ()
-//        {
-//            for (int i = 0; i < name.length(); ++i)
-//            {
-//                if (name.charAt(i) == '_') {
-//                    continue;
-//                }
-//
-//                else
-//                {
-//                    return false;
-//                }
-//            }
-//        }
-//
-//
-//        if (pass == "")
-//        {
-//            return false;
-//        }
-//
-//        else if (pass.contains(" "))
-//        {
-//            return false;
-//        }
+        if (name == "")
+        {
+            Toast.makeText(m.getApplicationContext(), "Invalid Username", Toast.LENGTH_LONG).show();
+            return false;
+        }
+
+        else if (!isLetter(name.charAt(0)))
+        {
+            Toast.makeText(m.getApplicationContext(), "Invalid Username", Toast.LENGTH_LONG).show();
+            return false;
+        }
+
+        else if (name.contains(" "))
+        {
+            Toast.makeText(m.getApplicationContext(), "Invalid Username", Toast.LENGTH_LONG).show();
+            return false;
+        }
+
+        else if (name.length() < 6)
+        {
+            Toast.makeText(m.getApplicationContext(), "Invalid Username", Toast.LENGTH_LONG).show();
+            return false;
+        }
+
+        else
+        {
+            for (int i = 0; i < name.length(); ++i)
+            {
+                if (isLetterOrDigit(name.charAt(i))) {
+                    if (name.charAt(i) == '_')
+                    {
+                        continue;
+                    }
+
+                    else
+                    {
+                        Toast.makeText(m.getApplicationContext(), "Invalid Username", Toast.LENGTH_LONG).show();
+                        return false;
+                    }
+                }
+
+                else
+                {
+                    continue;
+                }
+            }
+        }
+
+
+        if (pass == "")
+        {
+            Toast.makeText(m.getApplicationContext(), "Invalid Password", Toast.LENGTH_LONG).show();
+            return false;
+        }
+
+        else if (pass.contains(" "))
+        {
+            Toast.makeText(m.getApplicationContext(), "Invalid Password", Toast.LENGTH_LONG).show();
+            return false;
+        }
+
+        else if (pass.length() < 8)
+        {
+            Toast.makeText(m.getApplicationContext(), "Invalid Password", Toast.LENGTH_LONG).show();
+            return false;
+        }
+
+        else if (!isLetterOrDigit(pass.charAt(0)))
+        {
+            Toast.makeText(m.getApplicationContext(), "Invalid Password", Toast.LENGTH_LONG).show();
+            return false;
+        }
+
+        else
+        {
+            for (int i = 0; i < pass.length(); ++i)
+            {
+                if (!isLetterOrDigit(pass.charAt(i))) {
+                    if (pass.charAt(i) == '_')
+                    {
+                        continue;
+                    }
+
+                    else
+                    {
+                        Toast.makeText(m.getApplicationContext(), "Invalid Password", Toast.LENGTH_LONG).show();
+                        return false;
+                    }
+                }
+
+                else
+                {
+                    continue;
+                }
+            }
+}
 
         return true;
     }
