@@ -18,9 +18,9 @@ public class AddFriendFrag extends Fragment {
     public View myView = null;
     public Button backButton = null;
     public Button searchButton = null;
-    public Button addFriendButton = null;
     public TextView banner = null;
     public EditText input = null;
+    public Button addFriendButton = null;
 
     public AddFriendFrag() {
         // Required empty public constructor
@@ -36,8 +36,8 @@ public class AddFriendFrag extends Fragment {
             backButton = myView.findViewById(R.id.tempBack);
             searchButton = myView.findViewById(R.id.searchButton);
             banner = myView.findViewById(R.id.friendInfo);
-            addFriendButton = myView.findViewById(R.id.sendFriendRequest);
             input = myView.findViewById(R.id.searchUser);
+            addFriendButton = myView.findViewById(R.id.sendFriendRequest);
         }
         this.reset();
         return myView;

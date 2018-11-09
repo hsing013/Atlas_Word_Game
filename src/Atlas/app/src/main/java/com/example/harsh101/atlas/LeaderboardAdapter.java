@@ -36,7 +36,7 @@ public class LeaderboardAdapter extends ArrayAdapter {
         LayoutInflater inflater = ((Activity) aContext).getLayoutInflater();
         System.out.println("I passed");
         if(v == null) {
-            v = inflater.inflate(R.layout.leaderboard_list, parent, false);
+            v = inflater.inflate(R.layout.leaderboard_list, parent,  false);
         }
         LeaderboardUser currentUser = myList.get(pos);
 

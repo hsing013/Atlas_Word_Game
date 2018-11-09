@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+import android.widget.Button;
 
 import java.util.ArrayList;
 
@@ -31,15 +32,13 @@ public class NotificationAdapter extends ArrayAdapter {
 
         TextView textView = currentView.findViewById(R.id.type);
         TextView textView1 = currentView.findViewById(R.id.from);
-        TextView textView2 = currentView.findViewById(R.id.yesButton);
-        TextView textView3 = currentView.findViewById(R.id.noButton);
+        Button button1 = currentView.findViewById(R.id.acceptButton);
+        Button button2 = currentView.findViewById(R.id.denyButton);
+
         textView.setText(n.type);
         textView1.setText(n.from);
-        textView2.setTag(pos);
-        textView3.setTag(pos);
-
-
-
+        button1.setTag(pos);
+        button2.setTag(pos);
 
         return currentView;
 

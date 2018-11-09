@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     public Game onLineGame = null;
     public Game friendGame = null;
     public Game offlineGame = null;
+    public Game aiGame = null;
     public Lock lock = new ReentrantLock();
     public String wordOfTheDay = "hoopla"; //will change later
     public LeaderboardFrag leaderboardFrag = null;
@@ -64,6 +65,9 @@ public class MainActivity extends AppCompatActivity {
     public NotificationFrag notificationFrag = null;
     public SettingFrag settingFrag = null;
     public PassAndPlayFrag passAndPlayFrag = null;
+    public AIGameFrag aiGameFrag = null;
+
+    //public HowToPlayFrag howToPlayFrag = null;
     //<$NOTIFICATION$>FRIEND NAME
 
 
@@ -294,7 +298,7 @@ public class MainActivity extends AppCompatActivity {
                             m.gameFrag.setTimer("15");
                             m.onLineGame.startTimer();
                         }
-                    } else if (s.compareTo("<$GAME$>$startTimer") == 0) {
+                    } else if (s.compareTo("<$GAME$>$startTimer$") == 0) {
                         if (m.onLineGame != null) {
                             m.onLineGame.startTimer();
                         }
@@ -705,6 +709,7 @@ public class MainActivity extends AppCompatActivity {
         serverThread = new Thread(new MyRunnable());
 
         loginFrag = new LoginFrag();
+        loginFrag.m = this;
 
         screen = new LoadingScreen();
 
@@ -904,6 +909,34 @@ public class MainActivity extends AppCompatActivity {
                 passAndPlayFrag.setInputUser(true);
             }
         }
+
+        else if (aiGame != null)
+        {
+            String word = aiGameFrag.getInput();
+            boolean check = aiGame.checkWord(word);
+            if(check)
+            {
+                aiGame.stopTimer();
+                aiGame.recievedWord(word);
+                aiGame.setMyWord(word);
+                aiGameFrag.myTurn();
+            if (aiGame.player1Turn) {
+                aiGameFrag.setOther("AI's word: " + word);
+                aiGame.player1Turn = false;
+            }
+            else{
+                aiGameFrag.setOther("Player's word: " + word);
+                aiGame.player1Turn = true;
+            }
+            aiGameFrag.setTimer("15");
+            aiGame.startTimer();
+            }
+            else{
+                aiGameFrag.setButton(true);
+                aiGameFrag.setInputUser(true);
+            }
+        }
+
     }
 
     public void returnHome(View v) {
@@ -1093,5 +1126,30 @@ public class MainActivity extends AppCompatActivity {
         setFragment(passAndPlayFrag);
 
     }
+
+    public void AIGAME(View v)
+    {
+        aiGame = new Game(this);
+        navigation.setVisibility(View.INVISIBLE);
+        aiGameFrag.reset();
+        aiGameFrag.aiGame = aiGame;
+        aiGame.aiBGame = true;
+        aiGame.player1Turn = true;
+        aiGame.aiGameFrag = aiGameFrag;
+        aiGame.setHashSet(wordTable);
+        aiGame.setMyWord("Player's word: " + wordOfTheDay);
+        aiGame.startTimer();
+        setFragment(aiGameFrag);
+    }
+
+   /* public void onHowToPlay(View v) {
+        setFragment(howToPlayFrag);
+    }
+
+
+    public void backButtonSetting(View v) {
+        setFragment(settingFrag);
+    }*/
+
 
 }

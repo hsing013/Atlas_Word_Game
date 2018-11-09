@@ -11,6 +11,7 @@ public class Game {
     public CountDownTimer timer;
     public boolean myTurn = false;
     public boolean passAndPlay = false;
+    public boolean aiBGame = false;
     public GameFrag gameFrag = null;
     public String myWord = "";
     public HashSet<String> original = null;
@@ -18,6 +19,7 @@ public class Game {
     public MainActivity m;
     public boolean player1Turn = false;
     public PassAndPlayFrag passAndPlayFrag = null;
+    public AIGameFrag aiGameFrag = null;
 
     Game(){
         m = null;
@@ -35,6 +37,10 @@ public class Game {
                 }
                 else if (passAndPlayFrag != null){
                     passAndPlayFrag.setTimer(Integer.toString(seconds));
+                }
+                else if (aiGameFrag != null)
+                {
+                    aiGameFrag.setTimer(Integer.toString(seconds));
                 }
             }
 
