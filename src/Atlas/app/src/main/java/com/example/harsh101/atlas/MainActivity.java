@@ -66,6 +66,8 @@ public class MainActivity extends AppCompatActivity {
     public SettingFrag settingFrag = null;
     public PassAndPlayFrag passAndPlayFrag = null;
     public AIGameFrag aiGameFrag = null;
+
+    //public HowToPlayFrag howToPlayFrag = null;
     //<$NOTIFICATION$>FRIEND NAME
 
 
@@ -1139,5 +1141,15 @@ public class MainActivity extends AppCompatActivity {
         aiGame.startTimer();
         setFragment(aiGameFrag);
     }
+
+   /* public void onHowToPlay(View v) {
+        setFragment(howToPlayFrag);
+    }
+
+
+    public void backButtonSetting(View v) {
+        setFragment(settingFrag);
+    }*/
+
 
 }
