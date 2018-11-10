@@ -702,6 +702,9 @@ public class MainActivity extends AppCompatActivity {
                     continue;
                 }
                 wordTable.add(input);
+                if (input.length() < 4){
+                    continue;
+                }
                 char c = input.charAt(0);
                 int index = getIndex(c);
                 //System.out.println(c);
