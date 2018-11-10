@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
     public AIGameFrag aiGameFrag = null;
     public AI myAI = null;
     public DifficultyFrag difficultyFrag = null;
-
+    public HowToPlayFrag howToPlayFrag = null;
 
 
     public static class MyHandler extends Handler {  //this allows the serverThread talk with the mainThread(UI thread)
@@ -762,6 +762,10 @@ public class MainActivity extends AppCompatActivity {
         fragTrans.commit();
     }
 
+    public void showHowToPlay(View v){
+        setFragment(howToPlayFrag);
+    }
+
     public void showDifficultScreen(View v){
         setFragment(difficultyFrag);
     }
@@ -828,6 +832,8 @@ public class MainActivity extends AppCompatActivity {
         home = new HomeFrag();
 
         notificationFrag = new NotificationFrag();
+
+        howToPlayFrag = new HowToPlayFrag();
 
         ArrayList<Notification> notifications = new ArrayList<>();
 
