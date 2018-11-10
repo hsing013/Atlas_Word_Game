@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -66,9 +67,9 @@ public class MainActivity extends AppCompatActivity {
     public SettingFrag settingFrag = null;
     public PassAndPlayFrag passAndPlayFrag = null;
     public AIGameFrag aiGameFrag = null;
+    public AI myAI = null;
+    public DifficultyFrag difficultyFrag = null;
 
-    //public HowToPlayFrag howToPlayFrag = null;
-    //<$NOTIFICATION$>FRIEND NAME
 
 
     public static class MyHandler extends Handler {  //this allows the serverThread talk with the mainThread(UI thread)
@@ -596,19 +597,128 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+    public int getIndex(char c){
+        int index = -1;
+        if (c == 'a'){
+            index = 1;
+        }
+        else if (c == 'b'){
+            index = 2;
+        }
+        else if (c == 'c'){
+            index = 3;
+        }
+        else if (c == 'd'){
+            index = 4;
+        }
+        else if (c == 'e'){
+            index = 5;
+        }
+        else if (c == 'f'){
+            index = 6;
+        }
+        else if (c == 'g'){
+            index = 7;
+        }
+        else if (c == 'h'){
+            index = 8;
+        }
+        else if (c == 'i'){
+            index = 9;
+        }
+        else if (c == 'j'){
+            index = 10;
+        }
+        else if (c == 'k'){
+            index = 11;
+        }
+        else if (c == 'l'){
+            index = 12;
+        }
+        else if (c == 'm'){
+            index = 13;
+        }
+        else if (c == 'n'){
+            index = 14;
+        }
+        else if (c == 'o'){
+            index = 15;
+        }
+        else if (c == 'p'){
+            index = 16;
+        }
+        else if (c == 'q'){
+            index = 17;
+        }
+        else if (c == 'r'){
+            index = 18;
+        }
+        else if (c == 's'){
+            index = 19;
+        }
+        else if (c == 't'){
+            index = 20;
+        }
+        else if (c == 'u'){
+            index = 21;
+        }
+        else if (c == 'v'){
+            index = 22;
+        }
+        else if (c == 'w'){
+            index = 23;
+        }
+        else if (c == 'x'){
+            index = 24;
+        }
+        else if (c == 'y'){
+            index = 25;
+        }
+        else if (c == 'z'){
+            index = 26;
+        }
+        return index;
+    }
+
     public void readWordFile() {
         BufferedReader reader = null;
         wordTable = new HashSet<>();
+        myAI = new AI();
+        myAI.easy = new Hashtable<>();
+        myAI.medium = new Hashtable<>();
+        myAI.hard = new Hashtable<>();
+        int counter[] = new int[26];
+        for (int i = 0; i < 26; ++i){
+            counter[i] = 0;
+        }
         try {
             reader = new BufferedReader(new InputStreamReader(getAssets().open("words.txt")));
 
             String input = "";
-
+            //int countEasy = 0;
             while ((input = reader.readLine()) != null) {
-                if (input == "" || input.contains(" ")) {
+                if (input == "" || input.contains(" ") || input.length() == 1) {
                     continue;
                 }
                 wordTable.add(input);
+                char c = input.charAt(0);
+                int index = getIndex(c);
+                //System.out.println(c);
+                int count = counter[index - 1];
+                String key = input.charAt(0) + Integer.toString(count);
+                if (count <= 100){
+                    System.out.println("Key: " + key + " " + input);
+                    myAI.easy.put(key, input);
+
+                }
+                if (count <= 250){
+                    myAI.medium.put(key, input);
+                }
+                if (count <= 500){
+                    myAI.hard.put(key, input);
+                }
+                counter[index - 1] = count + 1;
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -649,6 +759,10 @@ public class MainActivity extends AppCompatActivity {
         fragTrans.commit();
     }
 
+    public void showDifficultScreen(View v){
+        setFragment(difficultyFrag);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -664,7 +778,8 @@ public class MainActivity extends AppCompatActivity {
 
 
         isInBackground = false;
-
+        aiGameFrag = new AIGameFrag();
+        difficultyFrag = new DifficultyFrag();
 
         db = new DataBase(getApplicationContext());
 
@@ -672,13 +787,7 @@ public class MainActivity extends AppCompatActivity {
 
         ArrayList<LeaderboardUser> leaderList = new ArrayList<>();
 
-        LeaderboardUser tempUser = new LeaderboardUser();
 
-        tempUser.setName("Harsh");
-
-        tempUser.setNumPoints(10000);
-
-        leaderList.add(tempUser);
 
         leaderboardAdapter = new LeaderboardAdapter(this, R.layout.leaderboard_list, leaderList);
 
@@ -917,19 +1026,32 @@ public class MainActivity extends AppCompatActivity {
             if(check)
             {
                 aiGame.stopTimer();
-                aiGame.recievedWord(word);
-                aiGame.setMyWord(word);
                 aiGameFrag.myTurn();
-            if (aiGame.player1Turn) {
-                aiGameFrag.setOther("AI's word: " + word);
-                aiGame.player1Turn = false;
-            }
-            else{
-                aiGameFrag.setOther("Player's word: " + word);
-                aiGame.player1Turn = true;
-            }
-            aiGameFrag.setTimer("15");
-            aiGame.startTimer();
+                aiGame.setMyWord(word);
+                while (true){
+                    String userWord = word;
+                    String aiWord = myAI.getWord(userWord.charAt(userWord.length() - 1));
+                    System.out.println(aiWord);
+                    if (aiWord == null){
+                        System.out.println("This triggered, NULL");
+                        aiGame.player1Turn = false;
+                        aiGameFrag.endGame();
+                        //aiGameFrag.setOther("AI lost!");
+                        return;
+                    }
+                    boolean check2 = aiGame.checkWord(aiWord);
+                    if (!check2){
+                        System.out.println("Just continuing!!!!!!!");
+                        continue;
+                    }
+                    else{
+                        aiGame.setMyWord(aiWord);
+                        aiGameFrag.setOther("Your word: " + aiWord);
+                        break;
+                    }
+                }
+                aiGameFrag.setTimer("15");
+                aiGame.startTimer();
             }
             else{
                 aiGameFrag.setButton(true);
@@ -1129,27 +1251,28 @@ public class MainActivity extends AppCompatActivity {
 
     public void AIGAME(View v)
     {
+        Button button = (Button) v;
+        String difficulty = button.getText().toString();
         aiGame = new Game(this);
         navigation.setVisibility(View.INVISIBLE);
+        myAI.startGame(difficulty);
         aiGameFrag.reset();
         aiGameFrag.aiGame = aiGame;
         aiGame.aiBGame = true;
+        aiGame.aiBot = myAI;
         aiGame.player1Turn = true;
         aiGame.aiGameFrag = aiGameFrag;
         aiGame.setHashSet(wordTable);
-        aiGame.setMyWord("Player's word: " + wordOfTheDay);
+        aiGame.setMyWord(wordOfTheDay);
+        //aiGameFrag.setOther("Player's word: " + wordOfTheDay);
+        aiGameFrag.setTimer("15");
         aiGame.startTimer();
         setFragment(aiGameFrag);
     }
 
-   /* public void onHowToPlay(View v) {
-        setFragment(howToPlayFrag);
-    }
 
 
-    public void backButtonSetting(View v) {
-        setFragment(settingFrag);
-    }*/
+
 
 
 }

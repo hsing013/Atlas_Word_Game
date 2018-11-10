@@ -60,102 +60,102 @@ public class LoginFrag extends Fragment {
     }
 
     public boolean checkInput(String name, String pass){
-        if (name.equals(""))
-        {
-            Toast.makeText(m.getApplicationContext(), "Invalid Username", Toast.LENGTH_LONG).show();
-            return false;
-        }
-
-        else if (!isLetter(name.charAt(0)))
-        {
-            Toast.makeText(m.getApplicationContext(), "Invalid Username", Toast.LENGTH_LONG).show();
-            return false;
-        }
-
-        else if (name.contains(" "))
-        {
-            Toast.makeText(m.getApplicationContext(), "Invalid Username", Toast.LENGTH_LONG).show();
-            return false;
-        }
-
-        else if (name.length() < 6)
-        {
-            Toast.makeText(m.getApplicationContext(), "Invalid Username", Toast.LENGTH_LONG).show();
-            return false;
-        }
-
-        else
-        {
-            for (int i = 0; i < name.length(); ++i)
-            {
-                if (isLetterOrDigit(name.charAt(i))) {
-                    if (name.charAt(i) == '_')
-                    {
-                        continue;
-                    }
-
-                    else
-                    {
-                        Toast.makeText(m.getApplicationContext(), "Invalid Username", Toast.LENGTH_LONG).show();
-                        return false;
-                    }
-                }
-
-                else
-                {
-                    continue;
-                }
-            }
-        }
-
-
-        if (pass.equals(""))
-        {
-            Toast.makeText(m.getApplicationContext(), "Invalid Password", Toast.LENGTH_LONG).show();
-            return false;
-        }
-
-        else if (pass.contains(" "))
-        {
-            Toast.makeText(m.getApplicationContext(), "Invalid Password", Toast.LENGTH_LONG).show();
-            return false;
-        }
-
-        else if (pass.length() < 8)
-        {
-            Toast.makeText(m.getApplicationContext(), "Invalid Password", Toast.LENGTH_LONG).show();
-            return false;
-        }
-
-        else if (!isLetterOrDigit(pass.charAt(0)))
-        {
-            Toast.makeText(m.getApplicationContext(), "Invalid Password", Toast.LENGTH_LONG).show();
-            return false;
-        }
-
-        else
-        {
-            for (int i = 0; i < pass.length(); ++i)
-            {
-                if (!isLetterOrDigit(pass.charAt(i))) {
-                    if (pass.charAt(i) == '_')
-                    {
-                        continue;
-                    }
-
-                    else
-                    {
-                        Toast.makeText(m.getApplicationContext(), "Invalid Password", Toast.LENGTH_LONG).show();
-                        return false;
-                    }
-                }
-
-                else
-                {
-                    continue;
-                }
-            }
-}
+//        if (name.equals(""))
+//        {
+//            Toast.makeText(m.getApplicationContext(), "Username is empty", Toast.LENGTH_LONG).show();
+//            return false;
+//        }
+//
+//        else if (!isLetter(name.charAt(0)))
+//        {
+//            Toast.makeText(m.getApplicationContext(), "Username must start with a letter", Toast.LENGTH_LONG).show();
+//            return false;
+//        }
+//
+//        else if (name.contains(" "))
+//        {
+//            Toast.makeText(m.getApplicationContext(), "There must not be any whitespace", Toast.LENGTH_LONG).show();
+//            return false;
+//        }
+//
+//        else if (name.length() < 6)
+//        {
+//            Toast.makeText(m.getApplicationContext(), "Username must be atleast 6 letters long", Toast.LENGTH_LONG).show();
+//            return false;
+//        }
+//
+//        else
+//        {
+//            for (int i = 0; i < name.length(); ++i)
+//            {
+//                if (isLetterOrDigit(name.charAt(i))) {
+//                    if (name.charAt(i) == '_')
+//                    {
+//                        continue;
+//                    }
+//
+//                    else
+//                    {
+//                        Toast.makeText(m.getApplicationContext(), "Invalid Username", Toast.LENGTH_LONG).show();
+//                        return false;
+//                    }
+//                }
+//
+//                else
+//                {
+//                    continue;
+//                }
+//            }
+//        }
+//
+//
+//        if (pass.equals(""))
+//        {
+//            Toast.makeText(m.getApplicationContext(), "Invalid Password", Toast.LENGTH_LONG).show();
+//            return false;
+//        }
+//
+//        else if (pass.contains(" "))
+//        {
+//            Toast.makeText(m.getApplicationContext(), "Invalid Password", Toast.LENGTH_LONG).show();
+//            return false;
+//        }
+//
+//        else if (pass.length() < 8)
+//        {
+//            Toast.makeText(m.getApplicationContext(), "Invalid Password", Toast.LENGTH_LONG).show();
+//            return false;
+//        }
+//
+//        else if (!isLetterOrDigit(pass.charAt(0)))
+//        {
+//            Toast.makeText(m.getApplicationContext(), "Invalid Password", Toast.LENGTH_LONG).show();
+//            return false;
+//        }
+//
+//        else
+//        {
+//            for (int i = 0; i < pass.length(); ++i)
+//            {
+//                if (!isLetterOrDigit(pass.charAt(i))) {
+//                    if (pass.charAt(i) == '_')
+//                    {
+//                        continue;
+//                    }
+//
+//                    else
+//                    {
+//                        Toast.makeText(m.getApplicationContext(), "Invalid Password", Toast.LENGTH_LONG).show();
+//                        return false;
+//                    }
+//                }
+//
+//                else
+//                {
+//                    continue;
+//                }
+//            }
+//    }
 
         return true;
     }

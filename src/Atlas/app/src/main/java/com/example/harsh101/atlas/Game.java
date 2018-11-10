@@ -20,6 +20,7 @@ public class Game {
     public boolean player1Turn = false;
     public PassAndPlayFrag passAndPlayFrag = null;
     public AIGameFrag aiGameFrag = null;
+    public AI aiBot = null;
 
     Game(){
         m = null;
@@ -46,11 +47,14 @@ public class Game {
 
             @Override
             public void onFinish() {
-                if (!passAndPlay) {
+                if (!passAndPlay && aiGameFrag == null) {
                     gameFrag.staleMate();
                 }
-                else{
+                else if (passAndPlay){
                     passAndPlayFrag.endGame();
+                }
+                else if (aiGameFrag != null){
+                    aiGameFrag.endGame();
                 }
             }
         };
@@ -71,10 +75,12 @@ public class Game {
 
         if(original.contains(word)) {
             if(usedWords.contains(word)) {
+                System.out.print("Word1");
                 Toast.makeText(m.getApplicationContext(), "Word already used!", Toast.LENGTH_LONG).show();
                 return false;
             }
             else if (myWord.charAt(myWord.length() - 1) != word.charAt(0)){
+                System.out.print("Word2");
                 Toast.makeText(m.getApplicationContext(), "Word must start with " + myWord.charAt(myWord.length() - 1), Toast.LENGTH_LONG).show();
                 return false;
             }
@@ -85,6 +91,7 @@ public class Game {
         }
         else {
             Toast.makeText(m.getApplicationContext(), "Word does not exist", Toast.LENGTH_LONG).show();
+            System.out.print("Word3");
             return false;
         }
 

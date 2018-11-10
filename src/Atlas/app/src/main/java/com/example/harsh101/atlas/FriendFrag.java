@@ -28,6 +28,7 @@ public class FriendFrag extends Fragment {
     public FriendArrayAdapter adapter = null;
     public ArrayList<Friend> friends = null;
     public MainActivity main = null;
+
     public FriendFrag() {
         // Required empty public constructor
     }

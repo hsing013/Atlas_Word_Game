@@ -26,7 +26,7 @@ public class AIGameFrag extends GameFrag {
         View v = super.onCreateView(inflater, container, savedInstanceState);
         if (aiGame != null)
         {
-            setOther("AI's word: " + aiGame.myWord);
+            setOther("Your word: " + aiGame.myWord);
             myTurn();
         }
         return v;
@@ -51,6 +51,7 @@ public class AIGameFrag extends GameFrag {
         {
             setOther("Player won!");
         }
+        this.aiGame.aiBot.reset();
         this.aiGame = null;
     }
 
