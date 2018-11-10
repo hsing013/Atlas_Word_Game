@@ -16,5 +16,5 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:onClick="playWithFriend"
-        android:text="Button" />
+        android:text="Play" />
 </LinearLayout>
