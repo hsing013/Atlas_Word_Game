@@ -80,8 +80,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        public void handleMessage(Message msg) {
-            MainActivity m = myActivity;
+        public void handleMessage(Message msg) { //This function is used to create the appropriate
+            MainActivity m = myActivity;        // for anything done on the app and display if necessary.
             String s = msg.getData().getString("Message");
             State currentState = myActivity.state;
             System.out.println(s);
@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
                 case initial_Signup: {
                     break;
                 }
-                case loginAttempt: {
+                case loginAttempt: { // this case handles any actions connected to a person logging to the app
                     if (s.compareTo("HOST DISCONNECTED") == 0) {
                         Toast.makeText(m.getApplicationContext(), "Lost Connection with the server", Toast.LENGTH_LONG).show();
                         m.state = State.initial_Login;
@@ -141,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
 
                     break;
                 }
-                case signupAttempt: {
+                case signupAttempt: { // This case handle what happens when a person signs up for the first time
                     if (s.compareTo("<$SIGNUP$>1") == 0) {
                         Toast.makeText(m.getApplicationContext(), "Sign up Success!", Toast.LENGTH_LONG).show();
                         m.enterApp();
@@ -167,8 +167,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                     break;
                 }
-                case loggedIn: {
-                    if (s.compareTo("<$GAME$>$DISCONNECTED$") == 0) {
+                case loggedIn: { //From here down handles whether a game, person,
+                    if (s.compareTo("<$GAME$>$DISCONNECTED$") == 0) { //or server can connect and if they are valid or can find a game
                         if (m.onLineGame != null) {
                             m.onLineGame = null;
                             m.screen.exposeMenu();
@@ -251,7 +251,7 @@ public class MainActivity extends AppCompatActivity {
                             //m.onLineGame.startTimer();
 
                         }
-                    } else if (s.compareTo("<$GAME$>$lost$") == 0) {
+                    } else if (s.compareTo("<$GAME$>$lost$") == 0) { //These cases handles the wins and loses and who won or lost in the game
                         if (m.onLineGame != null) {
                             m.onLineGame.stopTimer();
                             m.gameFrag.setOther("You lost!");
@@ -308,7 +308,7 @@ public class MainActivity extends AppCompatActivity {
                         int points = Integer.parseInt(s.substring(index + 1));
                         m.c.setMyPoints(points);
                         m.db.updateConfig(m.c.getUserName(), m.c.getPass(), m.c.getMyPoints());
-                    } else if (s.contains("<$LEADER$>")) {
+                    } else if (s.contains("<$LEADER$>")) { // From here down the cases handle the leader board such as size and order
                         int index = s.indexOf(">");
                         String sub = s.substring(index + 1);
                         String players[] = sub.split("\\$");
@@ -364,8 +364,8 @@ public class MainActivity extends AppCompatActivity {
                             }
 
                         }
-                    } else if (s.contains("<$FRIENDLIST$>")) {
-                        int index = s.indexOf(">");
+                    } else if (s.contains("<$FRIENDLIST$>")) { // From here down handles a users friendslist
+                        int index = s.indexOf(">");          // and how handle adding new friends
                         String sub = s.substring(index + 1);
                         String split[] = sub.split("\\-");
                         ArrayList<Friend> myFriends = new ArrayList<>();
@@ -423,7 +423,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        public void run() {
+        public void run() { // This functions handle starting the app and checking the connection to the server
             System.out.println("I am running");
 
             while (!kill) {
@@ -681,8 +681,8 @@ public class MainActivity extends AppCompatActivity {
         return index;
     }
 
-    public void readWordFile() {
-        BufferedReader reader = null;
+    public void readWordFile() { // This function reads the word file that holds all the words
+        BufferedReader reader = null;  // allowed to be used in the game
         wordTable = new HashSet<>();
         myAI = new AI();
         myAI.easy = new Hashtable<>();
@@ -768,8 +768,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void showDifficultScreen(View v){
         setFragment(difficultyFrag);
-    }
-
+    } // Handles the game
+    // difficulty for the matches against the AI
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -1241,9 +1241,9 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void passAndPlay(View v){
-        offlineGame = new Game(this);
-        navigation.setVisibility(View.INVISIBLE);
+    public void passAndPlay(View v){ // This function allows the Pass and Play function of the app
+        offlineGame = new Game(this); // to start, so a game with multiple players
+        navigation.setVisibility(View.INVISIBLE); // can be played on one device.
         passAndPlayFrag.reset();
         passAndPlayFrag.offlineGame = offlineGame;
         offlineGame.passAndPlay = true;
