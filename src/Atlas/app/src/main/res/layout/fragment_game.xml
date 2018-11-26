@@ -55,51 +55,45 @@
             android:layout_width="243dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
+            android:layout_marginTop="24dp"
             android:ems="10"
             android:inputType="textPersonName"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.236"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.394" />
+            app:layout_constraintTop_toBottomOf="@+id/quit" />
 
         <Button
             android:id="@+id/send"
+            style="@android:style/Widget.Material.Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
+            android:backgroundTint="@color/design_default_color_primary"
             android:onClick="onGameSend"
             android:text="Send"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Widget.Button"
+            android:textColor="@color/colorWhite"
+            android:textStyle="bold"
+            app:layout_constraintBaseline_toBaselineOf="@+id/wordInput"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.973"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.395" />
+            app:layout_constraintStart_toEndOf="@+id/wordInput" />
 
         <Button
             android:id="@+id/quit"
+            style="@android:style/Widget.Material.Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="52dp"
             android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
             android:onClick="returnHome"
             android:text="Return to menu"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:textAlignment="center"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.488"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/otherPlayer"
-            app:layout_constraintVertical_bias="0.122" />
+            app:layout_constraintTop_toTopOf="@+id/otherPlayer" />
 
     </android.support.constraint.ConstraintLayout>
 </FrameLayout>
