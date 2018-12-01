@@ -6,10 +6,13 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
+import android.support.design.internal.BottomNavigationItemView;
+import android.support.design.internal.BottomNavigationMenuView;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -58,6 +61,9 @@ public class MainActivity extends AppCompatActivity {
     public Thread serverThread = null;
     public boolean userLoggedIn = false;
     public HashSet<String> wordTable = null;
+    public HashSet<String> harryPotter = null;
+    public HashSet<String> country = null;
+    public HashSet<String> superhero = null;
     public DataBase db = null;
     public boolean isInBackground;
     public FriendFrag friendFrag = null;
@@ -70,7 +76,8 @@ public class MainActivity extends AppCompatActivity {
     public AI myAI = null;
     public DifficultyFrag difficultyFrag = null;
     public HowToPlayFrag howToPlayFrag = null;
-
+    public View fullBadge = null;
+    public TextView badgeView = null;
 
     public static class MyHandler extends Handler {  //this allows the serverThread talk with the mainThread(UI thread)
         private MainActivity myActivity;
@@ -684,6 +691,9 @@ public class MainActivity extends AppCompatActivity {
     public void readWordFile() { // This function reads the word file that holds all the words
         BufferedReader reader = null;  // allowed to be used in the game
         wordTable = new HashSet<>();
+        harryPotter = new HashSet<>();
+        country = new HashSet<>();
+        superhero = new HashSet<>();
         myAI = new AI();
         myAI.easy = new Hashtable<>();
         myAI.medium = new Hashtable<>();
@@ -698,7 +708,7 @@ public class MainActivity extends AppCompatActivity {
             String input = "";
             //int countEasy = 0;
             while ((input = reader.readLine()) != null) {
-                if (input == "" || input.contains(" ") || input.length() == 1) {
+                if (input.equals("") || input.contains(" ") || input.length() == 1) {
                     continue;
                 }
                 wordTable.add(input);
@@ -727,6 +737,58 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
             System.exit(-1);
         }
+
+        try{
+            reader = new BufferedReader(new InputStreamReader(getAssets().open("harrypotter.txt")));
+            String input = "";
+
+            while ((input = reader.readLine()) != null){
+                if (input.equals("") || input.length() == 1) {
+                    continue;
+                }
+                harryPotter.add(input.toLowerCase());
+            }
+
+        }
+        catch (IOException e){
+            e.printStackTrace();
+            System.exit(-1);
+        }
+
+        try{
+            reader = new BufferedReader(new InputStreamReader(getAssets().open("country.txt")));
+            String input = "";
+
+            while ((input = reader.readLine()) != null){
+                if (input.equals("")  || input.length() == 1) {
+                    continue;
+                }
+                country.add(input.toLowerCase());
+            }
+
+        }
+        catch (IOException e){
+            e.printStackTrace();
+            System.exit(-1);
+        }
+
+        try{
+            reader = new BufferedReader(new InputStreamReader(getAssets().open("superhero.txt")));
+            String input = "";
+
+            while ((input = reader.readLine()) != null){
+                if (input.equals("") || input.length() == 1) {
+                    continue;
+                }
+                superhero.add(input.toLowerCase());
+            }
+
+        }
+        catch (IOException e){
+            e.printStackTrace();
+            System.exit(-1);
+        }
+
 
     }
 
@@ -843,6 +905,8 @@ public class MainActivity extends AppCompatActivity {
 
         notificationFrag.adapter = adapter;
 
+        notificationFrag.main = this;
+
         ArrayList<String> config = db.getConfig();
 
 
@@ -862,6 +926,21 @@ public class MainActivity extends AppCompatActivity {
         System.out.println("I am leaving");
 
         serverThread.start();
+        BottomNavigationMenuView bottomNavigationMenuView =
+                (BottomNavigationMenuView) navigation.getChildAt(0);
+        View v = bottomNavigationMenuView.getChildAt(3);
+        BottomNavigationItemView itemView = (BottomNavigationItemView) v;
+
+        fullBadge = LayoutInflater.from(this)
+                .inflate(R.layout.notification_badge, bottomNavigationMenuView, false);
+        itemView.addView(fullBadge);
+        badgeView = fullBadge.findViewById(R.id.badgeView);
+
+        fullBadge.setVisibility(View.INVISIBLE);
+
+
+
+
 
     }
 
@@ -1245,11 +1324,23 @@ public class MainActivity extends AppCompatActivity {
         offlineGame = new Game(this); // to start, so a game with multiple players
         navigation.setVisibility(View.INVISIBLE); // can be played on one device.
         passAndPlayFrag.reset();
+        String type = v.getTag().toString();
         passAndPlayFrag.offlineGame = offlineGame;
         offlineGame.passAndPlay = true;
         offlineGame.player1Turn = true;
         offlineGame.passAndPlayFrag = passAndPlayFrag;
-        offlineGame.setHashSet(wordTable);
+        if (type.equals("ORIGINAL")) {
+            offlineGame.setHashSet(wordTable);
+        }
+        else if (type.equals("HP")){
+            offlineGame.setHashSet(harryPotter);
+        }
+        else if (type.equals("COUNTRY")){
+            offlineGame.setHashSet(country);
+        }
+        else if (type.equals("SUPER")){
+            offlineGame.setHashSet(superhero);
+        }
         offlineGame.setMyWord(wordOfTheDay);
         passAndPlayFrag.setOther("Player 1's word: " + wordOfTheDay);
         passAndPlayFrag.setTimer("15");
@@ -1279,8 +1370,14 @@ public class MainActivity extends AppCompatActivity {
         setFragment(aiGameFrag);
     }
 
-
-
+    public void clearAndHideBadge(){
+        badgeView.setText("");
+        fullBadge.setVisibility(View.INVISIBLE);
+    }
+    public void setFullBadge(int num){
+        fullBadge.setVisibility(View.VISIBLE);
+        badgeView.setText(Integer.toString(num));
+    }
 
 
 

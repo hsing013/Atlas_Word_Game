@@ -20,6 +20,8 @@ public class NotificationFrag extends Fragment {
     public ListView listView = null;
     public ArrayList<Notification> notificationList = null;
     public ArrayAdapter adapter = null;
+    public MainActivity main = null;
+    public int notificationAmount = 0;
 
     public NotificationFrag() {
         // Required empty public constructor
@@ -39,12 +41,15 @@ public class NotificationFrag extends Fragment {
             }
             listView.setAdapter(adapter);
         }
-
+        main.clearAndHideBadge();
+        notificationAmount = 0;
         return myView;
     }
 
     public void addToList(Notification n){
+        System.out.println("ADD TO LIST");
         if (notificationList != null){
+            System.out.println("-----I AM IN-----");
             boolean check = false;
             for (int i = 0; i < notificationList.size(); ++i){
                 Notification current = notificationList.get(i);
@@ -56,6 +61,16 @@ public class NotificationFrag extends Fragment {
 
             if(!check){
                 notificationList.add(n);
+                adapter.notifyDataSetChanged();
+            }
+            System.out.print("I am here");
+            if (!this.isVisible()){
+                System.out.println("Triggered is visible");
+                notificationAmount += 1;
+                main.setFullBadge(notificationAmount);
+            }
+            else{
+                System.out.println("Not triggered\n");
             }
         }
     }

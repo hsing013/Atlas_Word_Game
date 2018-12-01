@@ -12,6 +12,7 @@ public class Game {
     public boolean myTurn = false;
     public boolean passAndPlay = false;
     public boolean aiBGame = false;
+    public boolean otherCategoryGame = false;
     public GameFrag gameFrag = null;
     public String myWord = "";
     public HashSet<String> original = null;
