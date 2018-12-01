@@ -38,6 +38,7 @@
             android:layout_marginBottom="8dp"
             android:gravity="center"
             android:text="Loading..."
+            android:textAppearance="@style/TextAppearance.AppCompat.Widget.Button"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.446"
@@ -47,6 +48,7 @@
 
         <Button
             android:id="@+id/menuButton"
+            style="@android:style/Widget.Material.Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -55,6 +57,7 @@
             android:layout_marginBottom="8dp"
             android:onClick="returnHome"
             android:text="Return to menu"
+            android:textAlignment="center"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.469"

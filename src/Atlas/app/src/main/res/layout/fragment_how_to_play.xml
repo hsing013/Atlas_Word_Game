@@ -10,8 +10,8 @@
 
     <TextView
         android:id="@+id/textView3"
-        android:layout_width="match_parent"
-        android:layout_height="383dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:text="How to Play:\n
         1. At the beginning of each game there is a word of the a day\n
         2. Player one must answer with a word in 15 seconds that starts with the last letter of the word\n
@@ -21,5 +21,7 @@
         a.	Player One enter the word: angry i.	The next play now must answer with a word that starts with the letter y.\n
         4.	Steps 2 and 3 repeats until only one player is left. 5.	There are words that a player cannot use:\n
         a.	Plural words Ex: sons, runs, b.	Words that end in –ing Ex: running, going, stopping c.	Words that a hyphenated Ex: four-hundred, x-ray\n"
-        android:textStyle="bold" />
+        android:textAlignment="textStart"
+        android:textAllCaps="true"
+        android:textAppearance="@style/TextAppearance.AppCompat.Widget.Button" />
 </FrameLayout>
