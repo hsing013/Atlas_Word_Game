@@ -20,44 +20,33 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
             android:ems="10"
             android:hint="Username"
             android:inputType="textPersonName"
             android:textAlignment="textStart"
             android:textAppearance="@style/TextAppearance.AppCompat.Widget.Button"
             android:textSize="18sp"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/friendInfo"
-            app:layout_constraintVertical_bias="0.060000002" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/friendInfo"
             android:layout_width="193dp"
             android:layout_height="45dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
+            android:layout_marginTop="31dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintTop_toBottomOf="@+id/tempBack" />
 
         <Button
             android:id="@+id/sendFriendRequest"
             style="@android:style/Widget.Material.Button"
             android:layout_width="wrap_content"
-            android:layout_height="45dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_height="52dp"
+            android:layout_marginTop="24dp"
             android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
             android:backgroundTint="@color/colorGreen"
             android:onClick="sendFriendRequest"
             android:text="Add Friend"
@@ -65,34 +54,24 @@
             android:textAllCaps="true"
             android:textColor="@color/colorWhite"
             android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintTop_toBottomOf="@+id/searchButton" />
 
         <Button
             android:id="@+id/searchButton"
             style="@android:style/Widget.Material.Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
             android:backgroundTint="@color/design_default_color_primary"
             android:onClick="searchUser"
             android:text="Search"
             android:textAlignment="center"
             android:textColor="@color/colorWhite"
             android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/searchUser"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintTop_toBottomOf="@+id/searchUser" />
 
         <Button
             android:id="@+id/tempBack"
@@ -105,6 +84,6 @@
             android:text="Back"
             android:textAlignment="center"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/searchUser" />
     </android.support.constraint.ConstraintLayout>
 </FrameLayout>
