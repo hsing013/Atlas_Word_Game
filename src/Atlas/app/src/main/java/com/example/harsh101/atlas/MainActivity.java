@@ -1154,9 +1154,6 @@ public class MainActivity extends AppCompatActivity {
         navigation.setVisibility(View.VISIBLE);
     }
 
-    public void showPoints(View v) { // this is temporary
-        Toast.makeText(getApplicationContext(), Integer.toString(c.getMyPoints()), Toast.LENGTH_LONG).show();
-    }
 
     public void onAddFriend(View v) {
        setFragment(addFriendFrag);
