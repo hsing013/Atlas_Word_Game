@@ -88,8 +88,8 @@
 
     <TextView
         android:id="@+id/hint"
-        android:layout_width="5dp"
-        android:layout_height="wrap_content"
+        android:layout_width="208dp"
+        android:layout_height="21dp"
         android:layout_marginTop="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.501"
